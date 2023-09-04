@@ -1,3 +1,4 @@
+import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter_map/plugin_api.dart';
 import 'package:flutter_map_location_marker/flutter_map_location_marker.dart';
 import 'package:geolocator/geolocator.dart';
@@ -11,7 +12,9 @@ import 'package:get/get.dart';
 import 'package:nb_utils/nb_utils.dart';
 import 'package:sidebarx/sidebarx.dart';
 import 'package:telpoapp/res/colors.dart' as res;
+import 'package:telpoapp/widgets/line.dart';
 import 'package:telpoapp/widgets/submitButton.dart';
+import 'package:telpoapp/widgets/sundry_components.dart';
 
 import '../widgets/inputTextWidget.dart';
 
@@ -24,7 +27,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final GlobalKey<ScaffoldState> _key = GlobalKey();
-  final GlobalKey<ScaffoldState> _formkey = GlobalKey();
+  final GlobalKey<FormState> _formkey = GlobalKey();
   final routeController = Get.put(RouteController());
   final _controller = SidebarXController(selectedIndex: 0, extended: true);
 
@@ -41,10 +44,10 @@ class _HomeScreenState extends State<HomeScreen> {
             height: Get.height,
             width: Get.width,
             decoration: const BoxDecoration(
-              image: DecorationImage(
+                /*image: DecorationImage(
                   image: AssetImage('assets/images/wa_bg.jpg'),
-                  fit: BoxFit.cover),
-            ),
+                  fit: BoxFit.cover),*/
+                ),
             child: Stack(
               children: [
                 FlutterMap(
@@ -129,7 +132,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                 ))
                           ],
                         ).paddingOnly(left: 16, right: 16, bottom: 16),
-                        Text('test test,', style: secondaryTextStyle())
+                        Text('${authController.user.value != null ? authController.user.value!.fullname : "test testR"},',
+                                style: secondaryTextStyle())
                             .paddingOnly(left: 16, right: 16),
                         Text('Welcome Back', style: boldTextStyle(size: 20))
                             .paddingOnly(left: 16, right: 16),
@@ -138,95 +142,373 @@ class _HomeScreenState extends State<HomeScreen> {
                           child: Container(),
                         ),
                         16.height,
-                        /*Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text('Operators', style: boldTextStyle(size: 20)),
-                      Icon(Icons.play_arrow, color: Colors.grey).onTap(() {
-                        WAOperatorsScreen().launch(context);
-                      }),
-                    ],
-                  ).paddingOnly(left: 16, right: 16),*/
-                        /* SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Wrap(
-                      direction: Axis.horizontal,
-                      spacing: 16,
-                      children: operationsList.map((operationModel) {
-                        return WAOperationComponent(itemModel: operationModel).onTap(() {
-                          operationModel.widget != null ? operationModel.widget.launch(context) : toast(operationModel.title);
-                        });
-                      }).toList(),
-                    ).paddingAll(16),
-                  ),
-                  16.height,*/
-                        /*Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text('Transactions', style: boldTextStyle(size: 20)),
-                      Icon(Icons.play_arrow, color: Colors.grey),
-                    ],
-                  ).paddingOnly(left: 16, right: 16),*/
-                        16.height,
-                        const Column(
-                          children: [],
-                        ),
+                        Obx(() {
+                          return routeController.activeRoute.value != null
+                              ? Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    GestureDetector(
+                                        onTap: () async {
+                                          //_key.currentState!.openDrawer();
+                                        },
+                                        child: Container(
+                                          padding: EdgeInsets.all(8),
+                                          width: 100,
+                                          height: 100,
+                                          decoration:
+                                              boxDecorationWithRoundedCorners(
+                                            backgroundColor:
+                                                Colors.white.withOpacity(0.8),
+                                            borderRadius:
+                                                BorderRadius.circular(50),
+                                            border: Border.all(
+                                                color: Colors.grey
+                                                    .withOpacity(0.2)),
+                                          ),
+                                          child: Column(children: [
+                                            const Icon(
+                                              Icons.pin_drop_outlined,
+                                              color: greenColor,
+                                              size: 40,
+                                            ),
+                                            Text(
+                                              routeController
+                                                          .activeRoute.value ==
+                                                      null
+                                                  ? ""
+                                                  : routeController.activeRoute
+                                                      .value!.origine!,
+                                              style:
+                                                  secondaryTextStyle(size: 12),
+                                              textAlign: TextAlign.center,
+                                            )
+                                          ]),
+                                        )),
+                                    Expanded(child: Line()
+                                        /*Divider(
+                              thickness: 3,
+                              height: 5,
+                              color: primaryColor,
+                            )*/
+                                        ),
+                                    GestureDetector(
+                                        onTap: (() {}),
+                                        child: Container(
+                                          padding: EdgeInsets.all(8),
+                                          width: 100,
+                                          height: 100,
+                                          decoration:
+                                              boxDecorationWithRoundedCorners(
+                                            backgroundColor:
+                                                Colors.white.withOpacity(0.8),
+                                            borderRadius:
+                                                BorderRadius.circular(50),
+                                            border: Border.all(
+                                                color: Colors.grey
+                                                    .withOpacity(0.2)),
+                                          ),
+                                          alignment: Alignment.center,
+                                          child: Column(children: [
+                                            const Icon(
+                                              Icons.pin_drop,
+                                              color: res.errorColor,
+                                              size: 40,
+                                            ),
+                                            Text(
+                                              routeController
+                                                          .activeRoute.value ==
+                                                      null
+                                                  ? ""
+                                                  : routeController.activeRoute
+                                                      .value!.destination!,
+                                              style:
+                                                  secondaryTextStyle(size: 12),
+                                              textAlign: TextAlign.center,
+                                            )
+                                          ]),
+                                        ))
+                                  ],
+                                ).paddingOnly(left: 16, right: 16, bottom: 16)
+                              : Container();
+                        })
                       ],
                     ),
                   ),
                 ),
                 Align(
-                  alignment: Alignment.bottomCenter,
-                  child: Container(
-                    padding: EdgeInsets.all(8),
-                    child: SubmitButton(
-                        onPressed: () {
-                          Get.defaultDialog(
-                              title: "ITINERAIRE",
-                              content: Container(
-                                child: Form(
-                                    key: _formkey,
-                                    child: Column(
-                                      children: [
-                                        InputTextWidget(
-                                            controller: routeController
-                                                .fromContrl.value,
-                                            labelText: "Depart",
-                                            icon: Icons.flag,
-                                            obscureText: false,
-                                            keyboardType:
-                                                TextInputType.streetAddress),
-                                        15.height,
-                                        InputTextWidget(
-                                            controller:
-                                                routeController.toContrl.value,
-                                            labelText: "Destination",
-                                            icon: Icons.pin_drop,
-                                            obscureText: false,
-                                            keyboardType:
-                                                TextInputType.streetAddress),
-                                        15.height,
-                                        /*InputTextWidget(
-                                            controller: routeController
-                                                .fromContrl.value,
-                                            labelText: "Nombre passagers",
-                                            icon: Icons.people_alt,
-                                            obscureText: false,
-                                            keyboardType: const TextInputType
-                                                .numberWithOptions()),
-                                        10.height,*/
-                                        SubmitButton(
-                                            onPressed: () {},
-                                            text: "Valider",
-                                            bgColor: greenColor)
-                                      ],
-                                    )),
-                              ));
-                        },
-                        text: "Start new route",
-                        bgColor: primaryColor),
-                  ),
-                ),
+                    alignment: Alignment.bottomCenter,
+                    child: Obx(() {
+                      return Container(
+                        padding: const EdgeInsets.all(8),
+                        child: routeController.activeRoute.value != null
+                            ? SubmitButton(
+                                onPressed: () {
+                                  routeController.endCurrentRoute();
+                                },
+                                text: "Arrive",
+                                bgColor: redColor)
+                            : routeController.process_route.isTrue
+                                ? LinearProgressIndicator()
+                                : SubmitButton(
+                                    onPressed: () {
+                                      showDialog(
+                                          context: context,
+                                          builder: (_) => AlertDialog(
+                                              scrollable: true,
+                                              title: Text("ITINERAIRE"),
+                                              content: Container(child: Obx(() {
+                                                return Container(
+                                                    child: Form(
+                                                        key: _formkey,
+                                                        child:
+                                                            SingleChildScrollView(
+                                                          child: Column(
+                                                            children: [
+                                                              DropdownSearch<
+                                                                  String>(
+                                                                filterFn: (item,
+                                                                    filter) {
+                                                                  return item
+                                                                      .toUpperCase()
+                                                                      .contains(
+                                                                          filter
+                                                                              .toUpperCase());
+                                                                },
+                                                                popupProps:
+                                                                    PopupProps
+                                                                        .menu(
+                                                                  searchFieldProps:
+                                                                      TextFieldProps(
+                                                                    cursorColor:
+                                                                        primaryColor,
+                                                                    decoration:
+                                                                        textInputDecoration(
+                                                                            "Depart"),
+                                                                  ),
+                                                                  showSearchBox:
+                                                                      true,
+                                                                  showSelectedItems:
+                                                                      true,
+                                                                  //showSearchBox: true,
+                                                                  //disabledItemFn: (String s) => s.startsWith('I'),
+                                                                ),
+                                                                items: const [
+                                                                  'Victoire',
+                                                                  'kingasani',
+                                                                  'Zando'
+                                                                ],
+                                                                dropdownDecoratorProps:
+                                                                    DropDownDecoratorProps(
+                                                                  dropdownSearchDecoration:
+                                                                      textInputDecoration(
+                                                                          "Depart",
+                                                                          "",
+                                                                          ""),
+                                                                ),
+                                                                onChanged:
+                                                                    (value) {
+                                                                  if (value !=
+                                                                      null) {
+                                                                    // _province = value;
+                                                                  }
+                                                                },
+                                                                validator:
+                                                                    (value) {
+                                                                  if (value ==
+                                                                      null) {
+                                                                    // return fieldNoEmpty.tr;
+                                                                  } else {
+                                                                    return null;
+                                                                  }
+                                                                },
+                                                                //selectedItem: provices.first,
+                                                              ),
+                                                              10.height,
+                                                              DropdownSearch<
+                                                                  String>(
+                                                                filterFn: (item,
+                                                                    filter) {
+                                                                  return item
+                                                                      .toUpperCase()
+                                                                      .contains(
+                                                                          filter
+                                                                              .toUpperCase());
+                                                                },
+                                                                popupProps:
+                                                                    PopupProps
+                                                                        .menu(
+                                                                  searchFieldProps:
+                                                                      TextFieldProps(
+                                                                    cursorColor:
+                                                                        primaryColor,
+                                                                    decoration:
+                                                                        textInputDecoration(
+                                                                            "Depart"),
+                                                                  ),
+                                                                  showSearchBox:
+                                                                      true,
+                                                                  showSelectedItems:
+                                                                      true,
+                                                                  //showSearchBox: true,
+                                                                  //disabledItemFn: (String s) => s.startsWith('I'),
+                                                                ),
+                                                                items: const [
+                                                                  'Victoire',
+                                                                  'kingasani',
+                                                                  'Zando'
+                                                                ],
+                                                                dropdownDecoratorProps:
+                                                                    DropDownDecoratorProps(
+                                                                  dropdownSearchDecoration:
+                                                                      textInputDecoration(
+                                                                          "Depart",
+                                                                          "",
+                                                                          ""),
+                                                                ),
+                                                                onChanged:
+                                                                    (value) {
+                                                                  if (value !=
+                                                                      null) {
+                                                                    // _province = value;
+                                                                    routeController
+                                                                        .fromContrl
+                                                                        .value
+                                                                        .text = value;
+                                                                  }
+                                                                },
+                                                                validator:
+                                                                    (value) {
+                                                                  if (value ==
+                                                                      null) {
+                                                                    // return fieldNoEmpty.tr;
+                                                                  } else {
+                                                                    return null;
+                                                                  }
+                                                                },
+                                                                //selectedItem: provices.first,
+                                                              ),
+                                                              /*InputTextWidget(
+                                                              controller:
+                                                                  routeController
+                                                                      .fromContrl
+                                                                      .value,
+                                                              labelText:
+                                                                  "Depart",
+                                                              icon: Icons.flag,
+                                                              obscureText:
+                                                                  false,
+                                                              keyboardType:
+                                                                  TextInputType
+                                                                      .streetAddress),
+                                                          15.height,
+                                                          InputTextWidget(
+                                                              controller:
+                                                                  routeController
+                                                                      .toContrl
+                                                                      .value,
+                                                              labelText:
+                                                                  "Destination",
+                                                              icon: Icons
+                                                                  .pin_drop,
+                                                              obscureText:
+                                                                  false,
+                                                              keyboardType:
+                                                                  TextInputType
+                                                                      .streetAddress),*/
+                                                              10.height,
+                                                              TextFormField(
+                                                                decoration:
+                                                                    textInputDecoration(
+                                                                        "Nombre de passagers"),
+                                                                controller:
+                                                                    routeController
+                                                                        .passangenrContrl
+                                                                        .value,
+                                                                keyboardType:
+                                                                    const TextInputType
+                                                                            .numberWithOptions(
+                                                                        signed:
+                                                                            false,
+                                                                        decimal:
+                                                                            false),
+                                                              )
+                                                              /*InputTextWidget(
+                                                              controller:
+                                                                  routeController
+                                                                      .fromContrl
+                                                                      .value,
+                                                              labelText:
+                                                                  "Nombre passagers",
+                                                              icon: Icons
+                                                                  .people_alt,
+                                                              obscureText:
+                                                                  false,
+                                                              keyboardType:
+                                                                  const TextInputType
+                                                                      .numberWithOptions())*/
+                                                              ,
+                                                              10.height,
+                                                              Row(
+                                                                mainAxisAlignment:
+                                                                    MainAxisAlignment
+                                                                        .spaceBetween,
+                                                                crossAxisAlignment:
+                                                                    CrossAxisAlignment
+                                                                        .center,
+                                                                children: [
+                                                                  Padding(
+                                                                      padding: const EdgeInsets
+                                                                              .only(
+                                                                          left:
+                                                                              20),
+                                                                      child: IconButton(
+                                                                          iconSize: 35,
+                                                                          onPressed: () {
+                                                                            var tp =
+                                                                                routeController.fromContrl.value.text;
+                                                                            routeController.fromContrl.value.text =
+                                                                                routeController.toContrl.value.text;
+                                                                            routeController.toContrl.value.text =
+                                                                                tp;
+                                                                          },
+                                                                          icon: const Icon(
+                                                                            Icons.change_circle,
+                                                                          ),
+                                                                          color: primaryBlack)),
+                                                                  Expanded(
+                                                                      child:
+                                                                          SubmitButton(
+                                                                    onPressed:
+                                                                        () {
+                                                                      var form =
+                                                                          _formkey
+                                                                              .currentState;
+                                                                      if (form!
+                                                                          .validate()) {
+                                                                        routeController
+                                                                            .setCurrentRoute();
+                                                                        Get.back();
+                                                                      }
+                                                                    },
+                                                                    text:
+                                                                        "Valider",
+                                                                    bgColor:
+                                                                        greenColor,
+                                                                    height:
+                                                                        40.0,
+                                                                  ))
+                                                                ],
+                                                              )
+                                                            ],
+                                                          ),
+                                                        )));
+                                              }))));
+                                    },
+                                    text: "Nouvel itinéraire",
+                                    bgColor: primaryColor),
+                      );
+                    })),
               ],
             )),
       ),
@@ -290,7 +572,7 @@ class ExampleSidebarX extends StatelessWidget {
       ),
       extendedTheme: SidebarXTheme(
         width: MediaQuery.of(context).size.width / 1.5,
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           color: secondaryColoro,
         ),
       ),

@@ -1,8 +1,10 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:device_imei/device_imei.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:telpoapp/res/colors.dart';
+import 'package:telpoapp/res/strings.dart';
 import 'package:telpoapp/screens/homeScreen.dart';
 import 'package:telpoapp/screens/loginScreen.dart';
 import 'package:dio/dio.dart' as dio;
@@ -146,7 +148,17 @@ class AuthController extends GetxController {
 
   logoff() {
     logoff_process.value = true;
-    Auth.logoff().then((value) {
+    GetStorage().remove("user");
+    GetStorage().remove("token");
+    //GetStorage().remove(PROFILE_PIC_FIREBASE);
+    user.value = null;
+    isLoggedIn.value = false;
+    Get.offAll(() => LoginScreen(),
+        transition: AppUtils.pageTransition,
+        duration: Duration(milliseconds: AppUtils.timeTransition));
+    logoff_process.value = false;
+
+    /*Auth.logoff().then((value) {
       // popSnack(message: value.data['message'], bgColor: CiyaTheme.primaryColor);
       GetStorage().remove("user");
       GetStorage().remove("token");
@@ -158,7 +170,7 @@ class AuthController extends GetxController {
           duration: Duration(milliseconds: AppUtils.timeTransition));
     }).whenComplete(() {
       logoff_process.value = false;
-    });
+    });*/
   }
 
   register(Map<String, dynamic> creds) {
@@ -282,28 +294,33 @@ class AuthController extends GetxController {
   login(Map<String, dynamic> creds) {
     login_process.value = true;
     Auth.login(creds).then((value) {
-      if (value.data['access_token'] != null) {
+      if (value.data['token'] != null) {
         try {
-          final encodedPayload = value.data['access_token'].split('.')[1];
+          final encodedPayload = value.data['token'].split('.')[1];
           final payloadData =
               utf8.fuse(base64).decode(base64.normalize(encodedPayload));
           print(payloadData);
 
-          User _user = User.fromJson(null, jsonDecode(payloadData));
+          User _user = User.fromJson(null, value.data);
           print(_user.id);
           if (_user.id != null) {
             Get.closeAllSnackbars();
             print("save token");
+            print(value.data);
             /* popSnackSuccess(
               message: value.data['message'],
             );*/
-            _user.token = value.data['access_token'];
+            _user.token = value.data['token'];
             _user.refresh_token = value.data['refresh_token'];
+            print(jsonDecode(payloadData)['roles']);
+            var rls = jsonDecode(payloadData)['roles'];
+            _user.roles = List<String>.from(rls);
             print(_user.refresh_token);
             user.value = _user;
             isLoggedIn.value = true;
             GetStorage().write("user", _user.toMap());
-            GetStorage().write("token", value.data['access_token']);
+            GetStorage().write("token", value.data['token']);
+            print("saved user");
 
             Get.off(() => const HomeScreen(),
                 transition: AppUtils.pageTransition,
@@ -312,11 +329,22 @@ class AuthController extends GetxController {
             popSnackError(message: value.data['error']);
           }
         } catch (_) {
+          print(_);
           popSnackError(message: value.data['error']);
         }
       } else {
-        popSnackError(message: value.data['error_description']);
+        print("no token");
+        popSnackError(message: value.data['error']);
       }
+    }).onError((dio.DioException error, stackTrace) {
+      if (error.response != null) {
+        print(error.response!.data);
+      } else {
+        print(error);
+      }
+    }).catchError((error) {
+      login_process.value = false;
+      print(error);
     }).whenComplete(() {
       login_process.value = false;
     });
@@ -324,26 +352,36 @@ class AuthController extends GetxController {
 
   autoLogin() async {
     //print("this");
-    Get.offAll(() => const HomeScreen());
-    /*try {
+    /*if (GetStorage().read<String>(DEVICE_ID) == null) {
+      var deviceInfo = await DeviceImei().getDeviceInfo();
+      if (deviceInfo != null) {
+        GetStorage().write(DEVICE_ID, deviceInfo.deviceId);
+      }
+    }*/
+    //Get.offAll(() => const HomeScreen());
+    try {
       var uu = GetStorage().read("user");
-      var token = GetStorage().read("access_token");
+      var token = GetStorage().read("token");
       User _user0 = User.fromJson(null, uu);
       print(_user0);
+      Get.offAll(() => const HomeScreen(),
+          transition: AppUtils.pageTransition,
+          duration: Duration(milliseconds: AppUtils.timeTransition));
 
-      Auth.refreshLogin(_user0.refresh_token!, _user0.email!).then((value) {
+      /*Auth.refreshLogin(_user0.refresh_token!, _user0.email!).then((value) {
         print('data here :  ${value.data.toString()}');
 
         Get.closeAllSnackbars();
-        final encodedPayload = value.data['access_token'].split('.')[1];
+        final encodedPayload = value.data['token'].split('.')[1];
         final payloadData =
             utf8.fuse(base64).decode(base64.normalize(encodedPayload));
-        User _user = User.fromJson(null, jsonDecode(payloadData));
-        _user.token = value.data['access_token'];
+        //User _user = User.fromJson(null, jsonDecode(payloadData));
+        User _user = User.fromJson(null, value.data);
+        _user.token = value.data['token'];
         _user.refresh_token = value.data['refresh_token'];
         user.value = _user;
         GetStorage().write("user", _user.toMap());
-        GetStorage().write("token", value.data['access_token']);
+        GetStorage().write("token", value.data['token']);
         isLoggedIn.value = true;
 
         if (GetStorage().read<bool>("isReset") == true) {
@@ -355,14 +393,14 @@ class AuthController extends GetxController {
               transition: AppUtils.pageTransition,
               duration: Duration(milliseconds: AppUtils.timeTransition));
         }
-      });
+      });*/
     } catch (_) {
       //printDebug("OUTER CATCH ERROR : ${_.toString()}");
       isLoggedIn.value = false;
       Get.offAll(() => LoginScreen(),
           transition: AppUtils.pageTransition,
           duration: Duration(milliseconds: AppUtils.timeTransition));
-    }*/
+    }
   }
 
   @override

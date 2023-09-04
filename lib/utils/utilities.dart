@@ -2,7 +2,6 @@ import 'dart:developer';
 
 import 'package:get/get.dart';
 
-
 import '../res/strings.dart';
 
 printDebug(dynamic message) {
@@ -11,7 +10,6 @@ printDebug(dynamic message) {
 }
 
 class AppUtils {
- 
   static _Http http = _Http();
   static _Validator validator = _Validator();
 
@@ -27,8 +25,6 @@ class AppUtils {
   static int timeTransition = 100; //milliseconds
   static int timeRefresh = 1000; //milliseconds
   static int waitingThreshold = 30; //seconds
-
- 
 }
 
 class _Validator {
@@ -73,12 +69,10 @@ class _Http {
     'Content-Type': 'application/json',
   };
 
-
-
   /// User
   String AUTH(String id) => ACCOUNT_URL + "users/$id";
 
-  String POST_LOGIN = ACCOUNT_URL + 'token';
+  String POST_LOGIN = ACCOUNT_URL + 'auth/login_check';
   String POST_LOGOUT = ACCOUNT_URL + 'logout';
   String POST_REGISTER = ACCOUNT_URL + 'register/user';
   //String POST_REGISTER_USER = ACCOUNTS_URL + 'register/user';
@@ -87,11 +81,8 @@ class _Http {
   String POST_FORGOT_VALIDATE = ACCOUNT_URL + 'resets/verify';
   String POST_FORGOT_RESET = ACCOUNT_URL + 'password/reset';
 
-
-
+  String POST_ROUTE_URL = ACCOUNT_URL + "api/routes";
 }
-
-
 
 extension _MyDateTime on DateTime {
   bool isSameDate(DateTime other) {
@@ -107,83 +98,72 @@ extension _MyDateTime on DateTime {
   }
 }
 
+String _getDate(int days) {
+  return DateTime.now().subtract(Duration(days: days)).toString().split(" ")[0];
+}
 
-  String _getDate(int days) {
-    return DateTime.now()
-        .subtract(Duration(days: days))
-        .toString()
-        .split(" ")[0];
-  }
+bool isYesterday(String date) {
+  return _MyDateTime(DateTime.now().subtract(const Duration(days: 1)))
+      .isSameDate(DateTime.parse(date));
+}
 
-  bool isYesterday(String date) {
-    return _MyDateTime(DateTime.now().subtract(const Duration(days: 1)))
-        .isSameDate(DateTime.parse(date));
-  }
+bool isSameMonth(String date) {
+  return _MyDateTime(DateTime.now()).isSameMonth(DateTime.parse(date));
+}
 
-  bool isSameMonth(String date) {
-    return _MyDateTime(DateTime.now()).isSameMonth(DateTime.parse(date));
-  }
+String today() {
+  return _getDate(0);
+}
 
+String aDayAgo() {
+  return _getDate(1);
+}
 
+bool isNotOlderThanADay(String date) {
+  return DateTime.parse(date).isAfter(
+    DateTime.parse(aDayAgo()),
+  );
+}
 
-  String today() {
-    return _getDate(0);
-  }
+String aWeekAgo() {
+  return _getDate(7);
+}
 
-  String aDayAgo() {
-    return _getDate(1);
-  }
+bool isNotOlderThanAWeek(String date) {
+  return DateTime.parse(date).isAfter(
+    DateTime.parse(aWeekAgo()),
+  );
+}
 
-  bool isNotOlderThanADay(String date) {
-    return DateTime.parse(date).isAfter(
-      DateTime.parse(aDayAgo()),
-    );
-  }
+String aMonthAgo() {
+  return _getDate(30);
+}
 
-  String aWeekAgo() {
-    return _getDate(7);
-  }
+bool isNotOlderThanAMonth(String date) {
+  return DateTime.parse(date).isAfter(
+    DateTime.parse(aMonthAgo()),
+  );
+}
 
-  bool isNotOlderThanAWeek(String date) {
-    return DateTime.parse(date).isAfter(
-      DateTime.parse(aWeekAgo()),
-    );
-  }
+String aTermAgo() {
+  return _getDate(90);
+}
 
-  String aMonthAgo() {
-    return _getDate(30);
-  }
+bool isNotOlderThanATerm(String date) {
+  return DateTime.parse(date).isAfter(
+    DateTime.parse(aTermAgo()),
+  );
+}
 
-  bool isNotOlderThanAMonth(String date) {
-    return DateTime.parse(date).isAfter(
-      DateTime.parse(aMonthAgo()),
-    );
-  }
+String aYearAgo() {
+  return _getDate(365);
+}
 
-  String aTermAgo() {
-    return _getDate(90);
-  }
-
-  bool isNotOlderThanATerm(String date) {
-    return DateTime.parse(date).isAfter(
-      DateTime.parse(aTermAgo()),
-    );
-  }
-
-  String aYearAgo() {
-    return _getDate(365);
-  }
-
-  bool isNotOlderThanAYear(String date) {
-    return DateTime.parse(date).isAfter(
-      DateTime.parse(aYearAgo()),
-    );
-  }
-
-
-
-
-
+bool isNotOlderThanAYear(String date) {
+  return DateTime.parse(date).isAfter(
+    DateTime.parse(aYearAgo()),
+  );
+}
 
 /// Documentation
 ///
@@ -220,15 +200,14 @@ Map<String, dynamic> checkLoginValid(String email, String password,
   return _map;
 }
 
-class phoneNumberReplace{
-  static String replacePlus(String phone){
+class phoneNumberReplace {
+  static String replacePlus(String phone) {
     String phone2 = phone.replaceAll('+', "00");
     return phone2;
   }
 
-  static String replacePlusBack(String phone){
+  static String replacePlusBack(String phone) {
     String phone2 = phone.replaceFirst(RegExp(r'00'), '+');
     return phone2;
-
   }
 }

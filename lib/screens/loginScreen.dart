@@ -25,14 +25,14 @@ class _SearchScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
-    final double r = (175 / 360); //  rapport for web test(304 / 540);
+    const double r = (175 / 360); //  rapport for web test(304 / 540);
     final coverHeight = screenWidth * r;
     bool _pinned = false;
     bool _snap = false;
     bool _floating = false;
 
     final widgetList = [
-      Row(
+      const Row(
         children: [
           SizedBox(
             width: 28,
@@ -43,13 +43,13 @@ class _SearchScreenState extends State<LoginScreen> {
               fontFamily: 'Segoe UI',
               fontSize: 40,
               fontWeight: FontWeight.bold,
-              color: const Color(0xff000000),
+              color: Color(0xff000000),
             ),
             textAlign: TextAlign.left,
           ),
         ],
       ),
-      SizedBox(
+      const SizedBox(
         height: 12.0,
       ),
       Form(
@@ -62,7 +62,7 @@ class _SearchScreenState extends State<LoginScreen> {
                   icon: Icons.person,
                   obscureText: false,
                   keyboardType: TextInputType.emailAddress),
-              SizedBox(
+              const SizedBox(
                 height: 12.0,
               ),
               InputTextWidget(
@@ -71,7 +71,7 @@ class _SearchScreenState extends State<LoginScreen> {
                   icon: Icons.lock,
                   obscureText: true,
                   keyboardType: TextInputType.text),
-              Padding(
+              /*Padding(
                 padding: const EdgeInsets.only(right: 25.0, top: 10.0),
                 child: Align(
                     alignment: Alignment.topRight,
@@ -88,33 +88,35 @@ class _SearchScreenState extends State<LoginScreen> {
                         ),
                       ),
                     )),
-              ),
-              SizedBox(
+              ),*/
+              const SizedBox(
                 height: 15.0,
               ),
-              authController.login_process.isTrue
-                  ? LoadingIndicator(text: "please wait..")
-                  : SubmitButton(
-                      onPressed: () {
-                        //Get.to(() => HomeScreen());
-                        var form = _formKey.currentState;
-                        if (form!.validate()) {
-                          Map<String, dynamic> creds = {
-                            'username': _emailController.text,
-                            'password': _pwdController.text,
-                          };
-                          authController.login(creds);
-                        }
-                      },
-                      text: 'Log in',
-                      bgColor: primaryColor,
-                    ),
+              Obx(() {
+                return authController.login_process.isTrue
+                    ? LoadingIndicator(text: "please wait..")
+                    : SubmitButton(
+                        onPressed: () {
+                          //Get.to(() => HomeScreen());
+                          var form = _formKey.currentState;
+                          if (form!.validate()) {
+                            Map<String, dynamic> creds = {
+                              'username': _emailController.text,
+                              'password': _pwdController.text,
+                            };
+                            authController.login(creds);
+                          }
+                        },
+                        text: 'Connexion',
+                        bgColor: primaryColor,
+                      );
+              }),
             ],
           )),
-      SizedBox(
+      const SizedBox(
         height: 15.0,
       ),
-      SizedBox(
+      const SizedBox(
         height: 15.0,
       ),
     ];
@@ -126,16 +128,17 @@ class _SearchScreenState extends State<LoginScreen> {
             pinned: _pinned,
             snap: _snap,
             floating: _floating,
-            expandedHeight: coverHeight - 25, //304,
+            expandedHeight: coverHeight / 4, //304,
             backgroundColor: primaryColor,
             flexibleSpace: FlexibleSpaceBar(
               centerTitle: true,
               background: Container(
-                color: primaryColor,
-                child: Image.asset(
+                  color: primaryColor,
+                  child:
+                      Container() /*Image.asset(
                   "assets/images/wlogo.png",
-                ),
-              ),
+                ),*/
+                  ),
             ),
           ),
           SliverToBoxAdapter(
@@ -154,11 +157,11 @@ class _SearchScreenState extends State<LoginScreen> {
                   Container(
                     width: screenWidth,
                     height: 25,
-                    decoration: BoxDecoration(
+                    decoration: const BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.only(
-                        topLeft: const Radius.circular(30.0),
-                        topRight: const Radius.circular(30.0),
+                        topLeft: Radius.circular(30.0),
+                        topRight: Radius.circular(30.0),
                       ),
                     ),
                   )
@@ -173,9 +176,9 @@ class _SearchScreenState extends State<LoginScreen> {
           }, childCount: widgetList.length))
         ],
       ),
-      bottomNavigationBar: Stack(
+      /*bottomNavigationBar: Stack(
         children: [
-          new Container(
+          Container(
             height: 50.0,
             color: Colors.white,
             child: Center(
@@ -205,7 +208,7 @@ class _SearchScreenState extends State<LoginScreen> {
             )),
           ),
         ],
-      ),
+      ),*/
     );
   }
 }

@@ -1,37 +1,36 @@
 class User {
   String? id;
-  String? name;
+  String? fullname;
   String? email;
   String? phone;
   String? token;
-  String? role;
-  String? status;
+  List<String>? roles;
+  String? address;
   String? refresh_token;
-
-  
+  bool? isActive;
 
   static User empty() => User.fromJson(null, {});
 
   User.fromJson(String? id, Map<String, dynamic> data) {
     this.id = id;
-    if (data.containsKey('id') ) {
+    if (data.containsKey('id')) {
       this.id = "${data['id']}";
     }
-    if (data.containsKey('sub') ) {
+    if (data.containsKey('sub')) {
       this.id = "${data['sub']}";
     }
-    if (data.containsKey('name')) {
-      name = data['name'];
+    if (data.containsKey('fullname')) {
+      fullname = data['fullname'];
     }
-    if (data.containsKey('role')) {
-      role = data['role'];
+    if (data.containsKey('roles')) {
+      roles = List<String>.from(data['roles']);
     }
-    
-    if (data.containsKey('status')) {
-      status = data['status'];
+
+    if (data.containsKey('isActive')) {
+      isActive = data['isActive'];
     }
     if (data.containsKey('access_token')) {
-      token = data['access_token'];
+      token = data['token'];
     }
     if (data.containsKey('refresh_token')) {
       refresh_token = data['refresh_token'];
@@ -47,18 +46,18 @@ class User {
   Map<String, dynamic> toMap() {
     return {
       "id": id,
-      "name": name,
-      "email": email,
+      "fullname": fullname,
+      //"email": email,
       "phone": phone,
-      "role":role,
+      "roles": roles,
       "access_token": token,
-      "status": status,
-      "refresh_token":refresh_token
+      "isActive": isActive,
+      "refresh_token": refresh_token
     };
   }
 
   @override
   String toString() {
-    return 'User{id: $id, name: $name, email: $email, phone: $phone, status: $status, token: $token, refresh_token: $refresh_token}';
+    return 'User{id: $id, name: $fullname, phone: $phone, isActive: $isActive, refresh_token: $refresh_token}';
   }
 }

@@ -32,7 +32,7 @@ popWaitingDialog() {
 }
 
 popSnack(
-    {String title = "Ciya!",
+    {String title = "Telpo!",
     String? message,
     String buttonText = "OK",
     Color messageColor = Colors.black,
@@ -129,5 +129,34 @@ popSnackWarning(
     position: position,
     duration: duration,
     onMainTap: onMainTap,
+  );
+}
+
+InputDecoration textInputDecoration(
+    [String lableText = "",
+    String hintText = "",
+    String prefix = "",
+    Widget? suffix]) {
+  return InputDecoration(
+    labelStyle: TextStyle(color: primaryBlack),
+    prefix: Text(prefix),
+    suffix: suffix,
+    labelText: lableText,
+    hintText: hintText,
+    fillColor: Colors.white,
+    filled: true,
+    contentPadding: EdgeInsets.fromLTRB(20, 10, 20, 10),
+    focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(15.0),
+        borderSide: BorderSide(color: Colors.grey)),
+    enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(15.0),
+        borderSide: BorderSide(color: Colors.grey.shade400)),
+    errorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(15.0),
+        borderSide: BorderSide(color: Colors.red, width: 2.0)),
+    focusedErrorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(15.0),
+        borderSide: BorderSide(color: Colors.red, width: 2.0)),
   );
 }

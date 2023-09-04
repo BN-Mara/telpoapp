@@ -4,23 +4,25 @@ class SubmitButton extends StatelessWidget {
   final VoidCallback onPressed;
   final String text;
   final Color bgColor;
+  final double? height;
   const SubmitButton(
       {super.key,
       required this.onPressed,
       required this.text,
-      required this.bgColor});
+      required this.bgColor,
+      this.height});
 
   @override
   Widget build(BuildContext context) {
     return Container(
         color: Colors.transparent,
-        height: 55.0,
+        height: height ?? 35.0,
         child: ElevatedButton(
           onPressed: onPressed,
           style: ElevatedButton.styleFrom(
             primary: Colors.transparent,
             elevation: 0.0,
-            minimumSize: Size(MediaQuery.of(context).size.width, 150),
+            minimumSize: Size(MediaQuery.of(context).size.width, 100),
             padding: EdgeInsets.symmetric(horizontal: 30),
             shape: const RoundedRectangleBorder(
               borderRadius: BorderRadius.all(Radius.circular(0)),

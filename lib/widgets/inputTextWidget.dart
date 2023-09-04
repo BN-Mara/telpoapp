@@ -41,7 +41,7 @@ class InputTextWidget extends StatelessWidget {
                   labelStyle: TextStyle(color: Colors.black54, fontSize: 18.0),
                   hintText: '',
                   enabledBorder: InputBorder.none,
-                  focusedBorder: UnderlineInputBorder(
+                  focusedBorder: const UnderlineInputBorder(
                     borderSide: BorderSide(color: Colors.black54),
                   ),
                   border: InputBorder.none,

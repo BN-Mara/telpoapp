@@ -32,17 +32,8 @@ class Auth {
     print(AppUtils.http.POST_LOGIN);
     return await DIO.post(
       AppUtils.http.POST_LOGIN,
-      data: {
-        'grant_type': 'password',
-        'username': user['username'],
-        'password': user['password'],
-        'client_id': 'AficellRetailer_App'
-      },
-      options:
-          Options(contentType: Headers.formUrlEncodedContentType, headers: {
-        'client_id': 'AficellRetailer_App',
-        'Content-Type': 'application/x-www-form-urlencoded'
-      }),
+      data: user,
+      options: Options(headers: AppUtils.http.headers),
     );
     // return await http.get(Configs.http.GET_PING, headers: Configs.http.headers);
   }
