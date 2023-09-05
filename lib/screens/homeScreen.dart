@@ -3,13 +3,13 @@ import 'package:flutter_map/plugin_api.dart';
 import 'package:flutter_map_location_marker/flutter_map_location_marker.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:nb_utils/nb_utils.dart';
 import 'package:telpoapp/controller/auth_controller.dart';
 import 'package:telpoapp/controller/location_controller.dart';
 import 'package:telpoapp/controller/route_controller.dart';
 import 'package:telpoapp/res/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:nb_utils/nb_utils.dart';
 import 'package:sidebarx/sidebarx.dart';
 import 'package:telpoapp/res/colors.dart' as res;
 import 'package:telpoapp/widgets/line.dart';
@@ -34,6 +34,7 @@ class _HomeScreenState extends State<HomeScreen> {
   final authController = Get.find<AuthController>();
   final locationController = Get.find<LocationController>();
   final MapController _mapctl = MapController();
+  final psgCtl = TextEditingController();
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -242,12 +243,100 @@ class _HomeScreenState extends State<HomeScreen> {
                       return Container(
                         padding: const EdgeInsets.all(8),
                         child: routeController.activeRoute.value != null
-                            ? SubmitButton(
-                                onPressed: () {
-                                  routeController.endCurrentRoute();
-                                },
-                                text: "Arrive",
-                                bgColor: redColor)
+                            ? Row(children: [
+                                Container(
+                                    width:
+                                        MediaQuery.of(context).size.width / 3,
+                                    child: SubmitButton(
+                                        onPressed: () {
+                                          psgCtl.text = "0";
+                                          Get.defaultDialog(
+                                              title: "Ajouter passagers",
+                                              content: Container(
+                                                  child: Form(
+                                                      child:
+                                                          SingleChildScrollView(
+                                                              child: Column(
+                                                children: [
+                                                  Padding(
+                                                      padding: EdgeInsets.only(
+                                                          left: 15, right: 15),
+                                                      child: TextFormField(
+                                                        decoration:
+                                                            textInputDecoration(
+                                                                "Nombre de passagers"),
+                                                        controller: psgCtl,
+                                                        keyboardType:
+                                                            const TextInputType
+                                                                .numberWithOptions(
+                                                                signed: false,
+                                                                decimal: false),
+                                                        readOnly: true,
+                                                      )),
+                                                  15.height,
+                                                  Row(
+                                                    children: [
+                                                      Container(
+                                                        width: MediaQuery.of(
+                                                                    context)
+                                                                .size
+                                                                .width /
+                                                            4,
+                                                        child: SubmitButton(
+                                                          bgColor: primaryBlack,
+                                                          onPressed: () {
+                                                            int p = int.parse(
+                                                                    psgCtl
+                                                                        .text) +
+                                                                1;
+                                                            psgCtl.text = "$p";
+                                                          },
+                                                          text: "+1",
+                                                        ),
+                                                      ),
+                                                      Container(
+                                                        width: MediaQuery.of(
+                                                                    context)
+                                                                .size
+                                                                .width /
+                                                            4,
+                                                        child: SubmitButton(
+                                                          bgColor: primaryBlack,
+                                                          onPressed: () {
+                                                            int p = int.parse(
+                                                                    psgCtl
+                                                                        .text) +
+                                                                5;
+                                                            psgCtl.text = "$p";
+                                                          },
+                                                          text: "+5",
+                                                        ),
+                                                      )
+                                                    ],
+                                                  ),
+                                                  15.height,
+                                                  SubmitButton(
+                                                      onPressed: () {
+                                                        routeController
+                                                            .addPassengers(
+                                                                psgCtl.text);
+                                                        Get.back();
+                                                      },
+                                                      text: "Valider",
+                                                      bgColor: primaryColor)
+                                                ],
+                                              )))));
+                                        },
+                                        text: "+Passagers",
+                                        bgColor: primaryColor)),
+                                Expanded(
+                                    child: SubmitButton(
+                                        onPressed: () {
+                                          routeController.endCurrentRoute();
+                                        },
+                                        text: "Arrive",
+                                        bgColor: redColor))
+                              ])
                             : routeController.process_route.isTrue
                                 ? LinearProgressIndicator()
                                 : SubmitButton(
@@ -310,6 +399,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                     (value) {
                                                                   if (value !=
                                                                       null) {
+                                                                    routeController
+                                                                        .toContrl
+                                                                        .value = value;
                                                                     // _province = value;
                                                                   }
                                                                 },
@@ -362,7 +454,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                     DropDownDecoratorProps(
                                                                   dropdownSearchDecoration:
                                                                       textInputDecoration(
-                                                                          "Depart",
+                                                                          "Destination",
                                                                           "",
                                                                           ""),
                                                                 ),
@@ -373,8 +465,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                     // _province = value;
                                                                     routeController
                                                                         .fromContrl
-                                                                        .value
-                                                                        .text = value;
+                                                                        .value = value;
                                                                   }
                                                                 },
                                                                 validator:
@@ -427,7 +518,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                         .value,
                                                                 keyboardType:
                                                                     const TextInputType
-                                                                            .numberWithOptions(
+                                                                        .numberWithOptions(
                                                                         signed:
                                                                             false,
                                                                         decimal:
@@ -457,25 +548,25 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                     CrossAxisAlignment
                                                                         .center,
                                                                 children: [
-                                                                  Padding(
+                                                                  /*Padding(
                                                                       padding: const EdgeInsets
-                                                                              .only(
+                                                                          .only(
                                                                           left:
                                                                               20),
                                                                       child: IconButton(
                                                                           iconSize: 35,
                                                                           onPressed: () {
                                                                             var tp =
-                                                                                routeController.fromContrl.value.text;
-                                                                            routeController.fromContrl.value.text =
-                                                                                routeController.toContrl.value.text;
-                                                                            routeController.toContrl.value.text =
+                                                                                routeController.fromContrl.value;
+                                                                            routeController.fromContrl.value =
+                                                                                routeController.toContrl.value;
+                                                                            routeController.toContrl.value =
                                                                                 tp;
                                                                           },
                                                                           icon: const Icon(
                                                                             Icons.change_circle,
                                                                           ),
-                                                                          color: primaryBlack)),
+                                                                          color: primaryBlack)),*/
                                                                   Expanded(
                                                                       child:
                                                                           SubmitButton(

@@ -9,9 +9,10 @@ import 'package:telpoapp/model/itineraire.dart';
 import 'package:telpoapp/res/strings.dart';
 
 class RouteController extends GetxController {
-  var fromContrl = TextEditingController().obs;
-  var toContrl = TextEditingController().obs;
+  var fromContrl = "".obs;
+  var toContrl = "".obs;
   var passangenrContrl = TextEditingController().obs;
+  var increasePassen = TextEditingController().obs;
   var locationController = Get.find<LocationController>();
   var auth = Get.find<AuthController>();
   var process_route = false.obs;
@@ -23,14 +24,15 @@ class RouteController extends GetxController {
     var pose = await locationController.getCurrentPosition();
     var itineraire = Itineraire(
         conveyor: "/api/users/1", //auth.user.value!.id,
-        origine: fromContrl.value.text,
-        destination: toContrl.value.text,
+        origine: fromContrl.value,
+        destination: toContrl.value,
         startLat: pose.latitude,
         startLng: pose.longitude,
         startingTime: DateTime.now().toIso8601String(),
         deviceId: GetStorage().read(DEVICE_ID),
         isActive: true,
-        vehicle: '/api/vehicles/1');
+        vehicle: '/api/vehicles/1',
+        passengers: int.parse(passangenrContrl.value.text));
     print(itineraire.toJson());
     //activeRoute.value = itineraire;
     process_route.value = false;
@@ -62,6 +64,21 @@ class RouteController extends GetxController {
     RouteApi.putCurrentRoute(activeRoute.value!.toJson()).then((value) {
       activeRoute.value = null;
       process_route.value = false;
+    }).onError((DioException error, stackTrace) {
+      print("update: ${error.response!.data}");
+      process_route.value = false;
+    });
+  }
+
+  void addPassengers(String text) {
+    activeRoute.value!.passengers =
+        activeRoute.value!.passengers! + int.parse(text);
+    Map<String, dynamic> rt = {
+      "id": activeRoute.value!.id,
+      "passengers": activeRoute.value!.passengers
+    };
+    RouteApi.putCurrentRoute(rt).then((value) {
+      print(value.data);
     }).onError((DioException error, stackTrace) {
       print("update: ${error.response!.data}");
       process_route.value = false;

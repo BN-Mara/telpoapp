@@ -128,5 +128,17 @@ class Auth {
     );
   }
 
+  //static Future<Response> postRefresh(Map<String, dynamic> userdata) async {
+  //String token = GetStorage().read("access_token");
+  //AppUtils.http.headers['Authorization'] = "Bearer $token";
+  /* print(AppUtils.http.USER_REFRESH_TOKEN);
+    return await DIO.post(
+      AppUtils.http.USER_REFRESH_TOKEN,
+      data: userdata,
+      options: Options(headers: AppUtils.http.headers, followRedirects: true),
+    );*/
+  // return await http.get(Configs.http.GET_PING, headers: Configs.http.headers);
+  //}
+
   /// User methods end
 }

@@ -414,5 +414,25 @@ class AuthController extends GetxController {
     delayIntroScreen();
   }
 
+  /*Future<bool> refreshToken() async {
+    String refresh = GetStorage().read<String>("refreshToen")!;
+    Map<String, String> data = {"refresh_token": refresh};
+    var resp = await UserData.postRefresh(data);
+    if (resp.statusCode == 200) {
+      GetStorage().write("token", resp.data['token']);
+      GetStorage().write("refreshToken", resp.data['refresh_token']);
+
+      return true;
+    } else {
+      print("refresh error");
+      /*Get.snackbar(
+        error.tr,
+        session_expired.tr,
+      );*/
+      //signOut();
+      return false;
+    }
+  }*/
+
   // upload to firebase storage
 }
