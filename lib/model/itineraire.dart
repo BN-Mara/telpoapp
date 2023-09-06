@@ -63,4 +63,9 @@ class Itineraire {
       'isActive': isActive
     };
   }
+
+  static Future<List<Itineraire>> itinerairesfromJson(
+      List<dynamic> data) async {
+    return data.map((element) => Itineraire.fromJson(element)).toList();
+  }
 }

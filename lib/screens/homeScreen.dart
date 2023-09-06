@@ -12,6 +12,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:sidebarx/sidebarx.dart';
 import 'package:telpoapp/res/colors.dart' as res;
+import 'package:telpoapp/screens/dashboardScreen.dart';
+import 'package:telpoapp/screens/routesScreen.dart';
 import 'package:telpoapp/widgets/line.dart';
 import 'package:telpoapp/widgets/submitButton.dart';
 import 'package:telpoapp/widgets/sundry_components.dart';
@@ -40,7 +42,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return SafeArea(
       child: Scaffold(
         key: _key,
-        //drawer: ExampleSidebarX(controller: _controller),
+        drawer: ExampleSidebarX(controller: _controller),
         body: Container(
             height: Get.height,
             width: Get.width,
@@ -93,12 +95,12 @@ class _HomeScreenState extends State<HomeScreen> {
                           children: [
                             GestureDetector(
                                 onTap: () async {
-                                  //_key.currentState!.openDrawer();
-                                  var pose = await locationController
+                                  _key.currentState!.openDrawer();
+                                  /*var pose = await locationController
                                       .getCurrentPosition();
                                   _mapctl.move(
                                       LatLng(pose.latitude, pose.longitude),
-                                      16.5);
+                                      16.5);*/
                                 },
                                 child: Container(
                                   width: 40,
@@ -110,7 +112,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                         color: Colors.grey.withOpacity(0.2)),
                                   ),
                                   child: const Icon(
-                                    Icons.my_location,
+                                    Icons.menu,
                                     color: primaryColor,
                                   ),
                                 )),
@@ -682,15 +684,24 @@ class ExampleSidebarX extends StatelessWidget {
           icon: Icons.home,
           label: 'Home',
           onTap: () {
-            debugPrint('Home');
+            Get.back();
+            Get.to(() => const HomeScreen());
+          },
+        ),
+        SidebarXItem(
+          icon: Icons.home,
+          label: 'Dashboard',
+          onTap: () {
+            Get.back();
+            Get.to(() => const DashboardScreen());
           },
         ),
         SidebarXItem(
           icon: Icons.app_registration,
-          label: 'Registration',
+          label: 'Itineraires',
           onTap: () {
             Get.back();
-            Get.to(() => Container());
+            Get.to(() => const RoutesScreen());
           },
         ),
         /* const SidebarXItem(
@@ -755,11 +766,11 @@ class _ScreensExample extends StatelessWidget {
 String _getTitleByIndex(int index) {
   switch (index) {
     case 0:
-      return 'Home';
+      return '/';
     case 1:
-      return 'Search';
+      return 'Dashboard';
     case 2:
-      return 'People';
+      return 'Itineraires';
     case 3:
       return 'Favorites';
     case 4:

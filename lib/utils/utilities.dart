@@ -25,6 +25,7 @@ class AppUtils {
   static int timeTransition = 100; //milliseconds
   static int timeRefresh = 1000; //milliseconds
   static int waitingThreshold = 30; //seconds
+  static const defaultPadding = 16.0;
 }
 
 class _Validator {
@@ -80,6 +81,7 @@ class _Http {
   String POST_FORGOT_PASS = ACCOUNT_URL + 'resets/forgotpassword';
   String POST_FORGOT_VALIDATE = ACCOUNT_URL + 'resets/verify';
   String POST_FORGOT_RESET = ACCOUNT_URL + 'password/reset';
+  String REFRESH_TOKEN_URL = ACCOUNT_URL + "api/token/refresh";
 
   String POST_ROUTE_URL = ACCOUNT_URL + "api/routes";
 }

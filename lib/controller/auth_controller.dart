@@ -127,7 +127,7 @@ class AuthController extends GetxController {
 
         GetStorage().write("user", GetStorage().read("temp_user"));
         GetStorage().write("token", GetStorage().read("temp_token"));
-        GetStorage().write("isReset", false);
+        //GetStorage().write("isReset", false);
 
         Get.off(() => const HomeScreen(),
             transition: AppUtils.pageTransition,
@@ -320,6 +320,7 @@ class AuthController extends GetxController {
             isLoggedIn.value = true;
             GetStorage().write("user", _user.toMap());
             GetStorage().write("token", value.data['token']);
+            GetStorage().write("refreshToken", value.data['refresh_token']);
             print("saved user");
 
             Get.off(() => const HomeScreen(),
@@ -414,10 +415,10 @@ class AuthController extends GetxController {
     delayIntroScreen();
   }
 
-  /*Future<bool> refreshToken() async {
+  Future<bool> refreshToken() async {
     String refresh = GetStorage().read<String>("refreshToen")!;
     Map<String, String> data = {"refresh_token": refresh};
-    var resp = await UserData.postRefresh(data);
+    var resp = await Auth.postRefresh(data);
     if (resp.statusCode == 200) {
       GetStorage().write("token", resp.data['token']);
       GetStorage().write("refreshToken", resp.data['refresh_token']);
@@ -432,7 +433,7 @@ class AuthController extends GetxController {
       //signOut();
       return false;
     }
-  }*/
+  }
 
   // upload to firebase storage
 }

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:telpoapp/controller/location_controller.dart';
+import 'package:telpoapp/controller/route_controller.dart';
 import 'package:telpoapp/res/strings.dart';
 import 'package:telpoapp/screens/homeScreen.dart';
 import 'package:telpoapp/screens/loginScreen.dart';
@@ -21,6 +22,7 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   AuthController pagesController = Get.put(AuthController());
   LocationController locationController = Get.put(LocationController());
+  RouteController routeController = Get.put(RouteController());
 
   @override
   Widget build(BuildContext context) {

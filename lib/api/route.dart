@@ -29,4 +29,13 @@ class RouteApi {
     );
     // return await http.get(Configs.http.GET_PING, headers: Configs.http.headers);
   }
+
+  static Future<Response> getList() async {
+    String token = GetStorage().read("token");
+    AppUtils.http.headers['Authorization'] = "Bearer $token";
+    return await DIO.get(
+      AppUtils.http.POST_ROUTE_URL,
+      options: Options(headers: AppUtils.http.headers),
+    );
+  }
 }
