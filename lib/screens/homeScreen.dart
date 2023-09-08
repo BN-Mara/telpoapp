@@ -671,11 +671,20 @@ class ExampleSidebarX extends StatelessWidget {
       ),
       footerDivider: divider,
       headerBuilder: (context, extended) {
-        return SizedBox(
+        return const SizedBox(
           height: 100,
           child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Image.asset('assets/images/africell_logo.png'),
+            padding: EdgeInsets.all(16.0),
+            child: Stack(children: [
+              Icon(Icons.person, size: 60),
+              Positioned(
+                  top: 40,
+                  left: 30,
+                  child: Icon(
+                    Icons.circle,
+                    color: greenColor,
+                  ))
+            ]), //Image.asset('assets/images/africell_logo.png'),
           ),
         );
       },
@@ -766,7 +775,7 @@ class _ScreensExample extends StatelessWidget {
 String _getTitleByIndex(int index) {
   switch (index) {
     case 0:
-      return '/';
+      return 'Home';
     case 1:
       return 'Dashboard';
     case 2:

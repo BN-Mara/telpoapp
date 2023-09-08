@@ -71,7 +71,7 @@ class _RoutesScreenState extends State<RoutesScreen> {
 
         break;
       default:
-        return routeController.todayList.value;
+        return routeController.routeList.value;
     }
   }
 

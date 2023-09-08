@@ -134,6 +134,7 @@ class RouteController extends GetxController {
           .where((element) =>
               DateTime.parse(element.startingTime!).year == DateTime.now().year)
           .toList();
+          routesInfoList.value = [];
       routesInfoList.value.addAll(
         [
           CloudStorageInfo(
