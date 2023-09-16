@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:telpoapp/controller/check_route.dart';
 import 'package:telpoapp/controller/location_controller.dart';
 import 'package:telpoapp/controller/route_controller.dart';
 import 'package:telpoapp/res/strings.dart';
@@ -23,6 +24,7 @@ class MyApp extends StatelessWidget {
   AuthController pagesController = Get.put(AuthController());
   LocationController locationController = Get.put(LocationController());
   RouteController routeController = Get.put(RouteController());
+  CheckRouteController ckController = Get.put(CheckRouteController());
 
   @override
   Widget build(BuildContext context) {

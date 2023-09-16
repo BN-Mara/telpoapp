@@ -5,6 +5,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:nb_utils/nb_utils.dart';
 import 'package:telpoapp/controller/auth_controller.dart';
+import 'package:telpoapp/controller/check_route.dart';
 import 'package:telpoapp/controller/location_controller.dart';
 import 'package:telpoapp/controller/route_controller.dart';
 import 'package:telpoapp/res/colors.dart';
@@ -20,18 +21,19 @@ import 'package:telpoapp/widgets/sundry_components.dart';
 
 import '../widgets/inputTextWidget.dart';
 
-class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+class HomeDriverScreen extends StatefulWidget {
+  const HomeDriverScreen({super.key});
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
+  State<HomeDriverScreen> createState() => _HomeDriverScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeDriverScreenState extends State<HomeDriverScreen> {
   final GlobalKey<ScaffoldState> _key = GlobalKey();
   final GlobalKey<FormState> _formkey = GlobalKey();
   final routeController = Get.put(RouteController());
   final _controller = SidebarXController(selectedIndex: 0, extended: true);
+  final checkController = Get.find<CheckRouteController>();
 
   final authController = Get.find<AuthController>();
   final locationController = Get.find<LocationController>();
@@ -47,13 +49,13 @@ class _HomeScreenState extends State<HomeScreen> {
             height: Get.height,
             width: Get.width,
             decoration: const BoxDecoration(
-              image: DecorationImage(
-                  image: AssetImage('assets/images/logo_full.jpg'),
-                  fit: BoxFit.cover),
-            ),
+                /*image: DecorationImage(
+                  image: AssetImage('assets/images/wa_bg.jpg'),
+                  fit: BoxFit.cover),*/
+                ),
             child: Stack(
               children: [
-                /*FlutterMap(
+                FlutterMap(
                   mapController: _mapctl,
                   options: MapOptions(
                       center: const LatLng(-4.325, 15.322222),
@@ -83,7 +85,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     )
                   ],
-                ),*/
+                ),
                 Container(
                   child: SingleChildScrollView(
                     child: Column(
@@ -95,12 +97,12 @@ class _HomeScreenState extends State<HomeScreen> {
                           children: [
                             GestureDetector(
                                 onTap: () async {
-                                  _key.currentState!.openDrawer();
-                                  /*var pose = await locationController
+                                  //_key.currentState!.openDrawer();
+                                  var pose = await locationController
                                       .getCurrentPosition();
                                   _mapctl.move(
                                       LatLng(pose.latitude, pose.longitude),
-                                      16.5);*/
+                                      16.5);
                                 },
                                 child: Container(
                                   width: 40,
@@ -146,7 +148,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                         16.height,
                         Obx(() {
-                          return routeController.activeRoute.value != null
+                          return checkController.currentRoute.value != null
                               ? Row(
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceBetween,
@@ -157,8 +159,14 @@ class _HomeScreenState extends State<HomeScreen> {
                                         },
                                         child: Container(
                                           padding: EdgeInsets.all(8),
-                                          width: 100,
-                                          height: 100,
+                                          width: MediaQuery.of(context)
+                                                  .size
+                                                  .width /
+                                              2,
+                                          height: MediaQuery.of(context)
+                                                  .size
+                                                  .width /
+                                              2,
                                           decoration:
                                               boxDecorationWithRoundedCorners(
                                             backgroundColor:
@@ -180,57 +188,47 @@ class _HomeScreenState extends State<HomeScreen> {
                                                           .activeRoute.value ==
                                                       null
                                                   ? ""
-                                                  : routeController.activeRoute
-                                                      .value!.origine!,
+                                                  : 'Orgine: ${checkController.currentRoute.value!.origine!}',
                                               style:
                                                   secondaryTextStyle(size: 12),
                                               textAlign: TextAlign.center,
-                                            )
-                                          ]),
-                                        )),
-                                    Expanded(child: Line()
-                                        /*Divider(
-                              thickness: 3,
-                              height: 5,
-                              color: primaryColor,
-                            )*/
-                                        ),
-                                    GestureDetector(
-                                        onTap: (() {}),
-                                        child: Container(
-                                          padding: EdgeInsets.all(8),
-                                          width: 100,
-                                          height: 100,
-                                          decoration:
-                                              boxDecorationWithRoundedCorners(
-                                            backgroundColor:
-                                                Colors.white.withOpacity(0.8),
-                                            borderRadius:
-                                                BorderRadius.circular(50),
-                                            border: Border.all(
-                                                color: Colors.grey
-                                                    .withOpacity(0.2)),
-                                          ),
-                                          alignment: Alignment.center,
-                                          child: Column(children: [
-                                            const Icon(
-                                              Icons.pin_drop,
-                                              color: res.errorColor,
-                                              size: 40,
                                             ),
                                             Text(
                                               routeController
                                                           .activeRoute.value ==
                                                       null
                                                   ? ""
-                                                  : routeController.activeRoute
-                                                      .value!.destination!,
+                                                  : ' dest: ${checkController.currentRoute.value!.destination!}',
                                               style:
                                                   secondaryTextStyle(size: 12),
                                               textAlign: TextAlign.center,
-                                            )
+                                            ),
+                                            Text(
+                                              routeController
+                                                          .activeRoute.value ==
+                                                      null
+                                                  ? ""
+                                                  : 'passagers: ${checkController.currentRoute.value!.passengers}',
+                                              style:
+                                                  secondaryTextStyle(size: 12),
+                                              textAlign: TextAlign.center,
+                                            ),
+                                            SubmitButton(
+                                                onPressed: () {
+                                                  Get.to(
+                                                      () => DashboardScreen());
+                                                },
+                                                text: "Voir tout",
+                                                bgColor: primaryColor)
                                           ]),
-                                        ))
+                                        )),
+                                    //Expanded(child: Line()
+                                    /*Divider(
+                              thickness: 3,
+                              height: 5,
+                              color: primaryColor,
+                            )*/
+                                    //),
                                   ],
                                 ).paddingOnly(left: 16, right: 16, bottom: 16)
                               : Container();
@@ -694,7 +692,7 @@ class ExampleSidebarX extends StatelessWidget {
           label: 'Home',
           onTap: () {
             Get.back();
-            Get.to(() => const HomeScreen());
+            Get.to(() => const HomeDriverScreen());
           },
         ),
         SidebarXItem(
