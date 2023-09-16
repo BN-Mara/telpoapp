@@ -48,7 +48,7 @@ class _HomeScreenState extends State<HomeScreen> {
             width: Get.width,
             decoration: const BoxDecoration(
               image: DecorationImage(
-                  image: AssetImage('assets/images/logo_full.jpg'),
+                  image: AssetImage('assets/images/logo_full.jpeg'),
                   fit: BoxFit.cover),
             ),
             child: Stack(
@@ -270,7 +270,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                         controller: psgCtl,
                                                         keyboardType:
                                                             const TextInputType
-                                                                .numberWithOptions(
+                                                                    .numberWithOptions(
                                                                 signed: false,
                                                                 decimal: false),
                                                         readOnly: true,
@@ -520,7 +520,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                         .value,
                                                                 keyboardType:
                                                                     const TextInputType
-                                                                        .numberWithOptions(
+                                                                            .numberWithOptions(
                                                                         signed:
                                                                             false,
                                                                         decimal:

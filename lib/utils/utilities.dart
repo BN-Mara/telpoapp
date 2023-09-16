@@ -74,6 +74,7 @@ class _Http {
   String AUTH(String id) => ACCOUNT_URL + "users/$id";
 
   String POST_LOGIN = ACCOUNT_URL + 'auth/login_check';
+  String POST_LOGIN_NFC = ACCOUNT_URL + 'auth/nfc_login';
   String POST_LOGOUT = ACCOUNT_URL + 'logout';
   String POST_REGISTER = ACCOUNT_URL + 'register/user';
   //String POST_REGISTER_USER = ACCOUNTS_URL + 'register/user';

@@ -3,6 +3,8 @@ import 'dart:io';
 
 import 'package:device_imei/device_imei.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:nfc_manager/nfc_manager.dart';
+import 'package:nfc_manager/platform_tags.dart';
 import 'package:telpoapp/res/colors.dart';
 import 'package:telpoapp/res/strings.dart';
 import 'package:telpoapp/screens/homeScreen.dart';
@@ -38,7 +40,7 @@ class AuthController extends GetxController {
   var temp_user = Rxn<User>();
 
   //forgot(Map<String, dynamic> user) {}
-  forgot(Map<String, dynamic> user) {
+  /*forgot(Map<String, dynamic> user) {
     restEmail.value = user["email"];
     retrieve_pass_process.value = true;
     Auth.forgot(user).then((value) {
@@ -62,9 +64,9 @@ class AuthController extends GetxController {
               "there is an error on the system, please notify the administrator"
                   .tr);
     });
-  }
+  }*/
 
-  forgotValidate(Map<String, dynamic> xuser) {
+  /*forgotValidate(Map<String, dynamic> xuser) {
     retrieve_pass_process.value = true;
     Auth.forgotValidate(xuser).then((value) {
       if (value.data["success"] == true) {
@@ -110,9 +112,9 @@ class AuthController extends GetxController {
               "there is an error on the system, please notify the administrator"
                   .tr);
     });
-  }
+  }*/
 
-  forgotChange(Map<String, dynamic> xuser) {
+  /*forgotChange(Map<String, dynamic> xuser) {
     retrieve_pass_process.value = true;
     Auth.forgotChange(xuser).then((value) {
       if (value.data["success"] == true) {
@@ -145,7 +147,7 @@ class AuthController extends GetxController {
                   .tr);
     });
   }
-
+*/
   logoff() {
     logoff_process.value = true;
     GetStorage().remove("user");
@@ -173,7 +175,7 @@ class AuthController extends GetxController {
     });*/
   }
 
-  register(Map<String, dynamic> creds) {
+  /* register(Map<String, dynamic> creds) {
     register_process.value = true;
 
     Auth.register(creds).then((value) {
@@ -226,7 +228,7 @@ class AuthController extends GetxController {
     }).whenComplete(() {
       register_process.value = false;
     });
-  }
+  }*/
 
   modify(Map<String, dynamic> muser) {
     var token = GetStorage().read("token");
@@ -256,7 +258,7 @@ class AuthController extends GetxController {
     });
   }
 
-  unregister() async {
+  /*unregister() async {
     unregister_process.value = true;
     Auth.unregister().then((value) {
       GetStorage().remove("user");
@@ -271,72 +273,40 @@ class AuthController extends GetxController {
       }
       unregister_process.value = false;
     });
-  }
+  }*/
 
   delayIntroScreen() async {
-    /*if(GetStorage().read<bool>(INTRO_SEEN) == true)
-    {
-      await Future.delayed(Duration(seconds: AppUtils.timeInterval));
-      autoLogin();
-
-    }*/
-
     await Future.delayed(Duration(seconds: AppUtils.timeInterval));
-    //await AppUtils.timeInterval.delay();
-    //print("delayed");
-    /*Get.off(() => IntroductionView(),
-            transition: AppUtils.pageTransition,
-            duration: Duration(milliseconds: AppUtils.timeTransition));*/
-    //getProfilePicture();
+
     autoLogin();
+  }
+
+  loginWithNfc(String nfcUid) {
+    print(nfcUid);
+    login_process.value = true;
+    Map<String, dynamic> creds = {"taguid": nfcUid, "login_type": "NFC_LOGIN"};
+    Auth.loginNfc(creds).then((value) {
+      handleLogin(value);
+    }).onError((dio.DioException error, stackTrace) {
+      if (error.response != null) {
+        print(error.response!.data);
+        popSnackError(message: error.response!.data['message']);
+      } else {
+        print(error);
+        popSnackError(message: "Login failed!");
+      }
+    }).catchError((error) {
+      login_process.value = false;
+      print(error);
+    }).whenComplete(() {
+      login_process.value = false;
+    });
   }
 
   login(Map<String, dynamic> creds) {
     login_process.value = true;
     Auth.login(creds).then((value) {
-      if (value.data['token'] != null) {
-        try {
-          final encodedPayload = value.data['token'].split('.')[1];
-          final payloadData =
-              utf8.fuse(base64).decode(base64.normalize(encodedPayload));
-          print(payloadData);
-
-          User _user = User.fromJson(null, value.data);
-          print(_user.id);
-          if (_user.id != null) {
-            Get.closeAllSnackbars();
-            print("save token");
-            print(value.data);
-            /* popSnackSuccess(
-              message: value.data['message'],
-            );*/
-            _user.token = value.data['token'];
-            _user.refresh_token = value.data['refresh_token'];
-            print(jsonDecode(payloadData)['roles']);
-            var rls = jsonDecode(payloadData)['roles'];
-            _user.roles = List<String>.from(rls);
-            print(_user.refresh_token);
-            user.value = _user;
-            isLoggedIn.value = true;
-            GetStorage().write("user", _user.toMap());
-            GetStorage().write("token", value.data['token']);
-            GetStorage().write("refreshToken", value.data['refresh_token']);
-            print("saved user");
-
-            Get.off(() => const HomeScreen(),
-                transition: AppUtils.pageTransition,
-                duration: Duration(milliseconds: AppUtils.timeTransition));
-          } else {
-            popSnackError(message: value.data['error']);
-          }
-        } catch (_) {
-          print(_);
-          popSnackError(message: value.data['error']);
-        }
-      } else {
-        print("no token");
-        popSnackError(message: value.data['error']);
-      }
+      handleLogin(value);
     }).onError((dio.DioException error, stackTrace) {
       if (error.response != null) {
         print(error.response!.data);
@@ -351,7 +321,82 @@ class AuthController extends GetxController {
     });
   }
 
+  handleLogin(dio.Response<dynamic> value) {
+    if (value.data['token'] != null) {
+      try {
+        final encodedPayload = value.data['token'].split('.')[1];
+        final payloadData =
+            utf8.fuse(base64).decode(base64.normalize(encodedPayload));
+        print(payloadData);
+
+        User _user = User.fromJson(null, value.data);
+        print(_user.id);
+        if (_user.id != null) {
+          Get.closeAllSnackbars();
+          print("save token");
+          print(value.data);
+          /* popSnackSuccess(
+              message: value.data['message'],
+            );*/
+          _user.token = value.data['token'];
+          _user.refresh_token = value.data['refresh_token'];
+          print(jsonDecode(payloadData)['roles']);
+          var rls = jsonDecode(payloadData)['roles'];
+          _user.roles = List<String>.from(rls);
+          print(_user.refresh_token);
+          user.value = _user;
+          isLoggedIn.value = true;
+          GetStorage().write("user", _user.toMap());
+          GetStorage().write("token", value.data['token']);
+          GetStorage().write("refreshToken", value.data['refresh_token']);
+          print("saved user");
+
+          Get.off(() => const HomeScreen(),
+              transition: AppUtils.pageTransition,
+              duration: Duration(milliseconds: AppUtils.timeTransition));
+        } else {
+          popSnackError(message: value.data['error']);
+        }
+      } catch (_) {
+        print(_);
+        popSnackError(message: value.data['error']);
+      }
+    } else {
+      print("no token");
+      popSnackError(message: value.data['error']);
+    }
+  }
+
+  String nfcId(NfcTag tag) {
+    NfcA? nfca = NfcA.from(tag);
+    if (nfca == null) {
+      print('Tag is not compatible with Nfca');
+      return "";
+    }
+    final String identifier = nfca.identifier
+        .map((e) => e.toRadixString(16).padLeft(2, '0'))
+        .join(':');
+
+    return identifier.toUpperCase();
+  }
+
   autoLogin() async {
+    // Check availability
+    bool isAvailable = await NfcManager.instance.isAvailable();
+
+// Start Session
+    NfcManager.instance.startSession(
+      onDiscovered: (NfcTag tag) async {
+        // Do something with an NfcTag instance.
+        if (user.value == null) {
+          print("user is null");
+          loginWithNfc(nfcId(tag));
+        }
+
+        print("data nfc: ");
+      },
+    );
+
     //print("this");
     /*if (GetStorage().read<String>(DEVICE_ID) == null) {
       var deviceInfo = await DeviceImei().getDeviceInfo();

@@ -38,6 +38,16 @@ class Auth {
     // return await http.get(Configs.http.GET_PING, headers: Configs.http.headers);
   }
 
+  static Future<Response> loginNfc(Map<String, dynamic> user) async {
+    print(AppUtils.http.POST_LOGIN_NFC);
+    return await DIO.post(
+      AppUtils.http.POST_LOGIN_NFC,
+      data: user,
+      options: Options(headers: AppUtils.http.headers),
+    );
+    // return await http.get(Configs.http.GET_PING, headers: Configs.http.headers);
+  }
+
   static Future<Response> refreshLogin(
       String refreshToken, String username) async {
     print(AppUtils.http.POST_LOGIN);

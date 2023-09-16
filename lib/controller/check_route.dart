@@ -25,13 +25,13 @@ class CheckRouteController extends GetxController {
     });
   }
 
-  final stream = Stream<int>.periodic(const Duration(seconds: 1));
+  //final stream = Stream<int>.periodic(const Duration(seconds: 1));
   @override
   void onInit() {
     // TODO: implement onInit
     super.onInit();
-    stream.takeWhile((_) => true).forEach((element) async {
+    /*stream.takeWhile((_) => true).forEach((element) async {
       updatingRoute(1);
-    });
+    });*/
   }
 }

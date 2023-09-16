@@ -1,4 +1,4 @@
-const APP_NAME = "DealerSalesApp";
+const APP_NAME = "TransCar";
 const LOCAL_URL = "";
 const REMOTE_URL = "https://api-provider.mjf.ujn.mybluehost.me/";
 const BASE_URL = REMOTE_URL;
