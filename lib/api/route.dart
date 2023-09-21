@@ -34,7 +34,7 @@ class RouteApi {
     String token = GetStorage().read("token");
     AppUtils.http.headers['Authorization'] = "Bearer $token";
     return await DIO.get(
-      AppUtils.http.POST_ROUTE_URL + "?vehicle=1&isActive=true",
+      "${AppUtils.http.POST_ROUTE_URL}?vehicle=1&isActive=1",
       options: Options(headers: AppUtils.http.headers),
     );
   }
@@ -44,6 +44,15 @@ class RouteApi {
     AppUtils.http.headers['Authorization'] = "Bearer $token";
     return await DIO.get(
       AppUtils.http.POST_ROUTE_URL,
+      options: Options(headers: AppUtils.http.headers),
+    );
+  }
+
+  static Future<Response> getPlaces() async {
+    String token = GetStorage().read("token");
+    AppUtils.http.headers['Authorization'] = "Bearer $token";
+    return await DIO.get(
+      AppUtils.http.POST_ROUTE_PLACES,
       options: Options(headers: AppUtils.http.headers),
     );
   }

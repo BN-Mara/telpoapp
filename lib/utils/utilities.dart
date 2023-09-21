@@ -85,6 +85,7 @@ class _Http {
   String REFRESH_TOKEN_URL = ACCOUNT_URL + "api/token/refresh";
 
   String POST_ROUTE_URL = ACCOUNT_URL + "api/routes";
+  String POST_ROUTE_PLACES = ACCOUNT_URL + "api/places";
 }
 
 extension _MyDateTime on DateTime {

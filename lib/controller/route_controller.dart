@@ -9,8 +9,10 @@ import 'package:telpoapp/controller/auth_controller.dart';
 import 'package:telpoapp/controller/location_controller.dart';
 import 'package:telpoapp/model/itineraire.dart';
 import 'package:telpoapp/model/my_card_info.dart';
+import 'package:telpoapp/model/place.dart';
 import 'package:telpoapp/res/strings.dart';
 import 'package:telpoapp/screens/routesScreen.dart';
+import 'package:telpoapp/widgets/sundry_components.dart';
 
 class RouteController extends GetxController {
   var fromContrl = "".obs;
@@ -29,10 +31,31 @@ class RouteController extends GetxController {
   var weekList = <Itineraire>[].obs;
   var yearList = <Itineraire>[].obs;
   var routesInfoList = <CloudStorageInfo>[].obs;
+  var process_places = false.obs;
+  var places = <Place>[].obs;
+  var destPlaces = <Place>[].obs;
+  var departPlaces = <Place>[].obs;
 
   @override
   onReady() async {
     getMyRoutes();
+    getPlaces();
+  }
+
+  getPlaces() async {
+    process_places.value = true;
+    RouteApi.getPlaces().then((value) async {
+      places.value = await Place.placesfromJson(value.data);
+      destPlaces.value = places.value;
+      departPlaces.value = places.value;
+      print(places);
+      process_places.value = false;
+    }).onError((DioException error, stackTrace) {
+      print('error get Places: ${error.response!.data}');
+      process_places.value = false;
+    }).whenComplete(() {
+      process_places.value = true;
+    });
   }
 
   setCurrentRoute() async {
@@ -76,9 +99,11 @@ class RouteController extends GetxController {
     activeRoute.value!.endingTime = DateTime.now().toIso8601String();
     //process_route.value = false;
     //activeRoute.value = null;
+
     print(activeRoute.value!.toJson());
 
     RouteApi.putCurrentRoute(activeRoute.value!.toJson()).then((value) {
+      destPlaces.value = getPlaceByName(activeRoute.value!.destination!);
       activeRoute.value = null;
       process_route.value = false;
     }).onError((DioException error, stackTrace) {
@@ -87,9 +112,17 @@ class RouteController extends GetxController {
     });
   }
 
+  List<Place> getPlaceByName(String name) {
+    return places.value.where((element) => element.name == name).toList();
+  }
+
   void addPassengers(String text) {
-    activeRoute.value!.passengers =
-        activeRoute.value!.passengers! + int.parse(text);
+    var rs = activeRoute.value!.passengers! + int.parse(text);
+    if (rs < 0) {
+      popSnackError(message: "Nombre de passagers invalide");
+      return;
+    }
+    activeRoute.value!.passengers = rs;
     Map<String, dynamic> rt = {
       "id": activeRoute.value!.id,
       "passengers": activeRoute.value!.passengers
@@ -113,6 +146,7 @@ class RouteController extends GetxController {
     process_route_list.value = true;
     var f = NumberFormat.compact(locale: "en_US");
     RouteApi.getList().then((value) async {
+      print(value.data);
       routeList.value = await Itineraire.itinerairesfromJson(value.data);
       routesInfo.value = CloudStorageInfo(
           title: "Itineraires",
@@ -134,7 +168,7 @@ class RouteController extends GetxController {
           .where((element) =>
               DateTime.parse(element.startingTime!).year == DateTime.now().year)
           .toList();
-          routesInfoList.value = [];
+      routesInfoList.value = [];
       routesInfoList.value.addAll(
         [
           CloudStorageInfo(
