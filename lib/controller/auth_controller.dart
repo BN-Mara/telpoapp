@@ -5,8 +5,11 @@ import 'package:device_imei/device_imei.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:nfc_manager/nfc_manager.dart';
 import 'package:nfc_manager/platform_tags.dart';
+import 'package:telpoapp/controller/check_route.dart';
+import 'package:telpoapp/controller/route_controller.dart';
 import 'package:telpoapp/res/colors.dart';
 import 'package:telpoapp/res/strings.dart';
+import 'package:telpoapp/screens/homeDriverScreen.dart';
 import 'package:telpoapp/screens/homeScreen.dart';
 import 'package:telpoapp/screens/loginScreen.dart';
 import 'package:dio/dio.dart' as dio;
@@ -159,76 +162,7 @@ class AuthController extends GetxController {
         transition: AppUtils.pageTransition,
         duration: Duration(milliseconds: AppUtils.timeTransition));
     logoff_process.value = false;
-
-    /*Auth.logoff().then((value) {
-      // popSnack(message: value.data['message'], bgColor: CiyaTheme.primaryColor);
-      GetStorage().remove("user");
-      GetStorage().remove("token");
-      //GetStorage().remove(PROFILE_PIC_FIREBASE);
-      user.value = null;
-      isLoggedIn.value = false;
-      Get.offAll(() => LoginScreen(),
-          transition: AppUtils.pageTransition,
-          duration: Duration(milliseconds: AppUtils.timeTransition));
-    }).whenComplete(() {
-      logoff_process.value = false;
-    });*/
   }
-
-  /* register(Map<String, dynamic> creds) {
-    register_process.value = true;
-
-    Auth.register(creds).then((value) {
-      print(value.data);
-      if (value.data['success'] == true) {
-        try {
-          User _user = User.fromJson(null, value.data['user']);
-          if (_user.id != null) {
-            Get.closeAllSnackbars();
-            popSnackSuccess(
-              message: value.data['message'],
-              // bgColor: CiyaTheme.primaryColor,
-            );
-            _user.token = value.data['refreshToken'];
-            user.value = _user;
-            isLoggedIn.value = true;
-            GetStorage().write("user", _user.toMap());
-            GetStorage().write("token", value.data['refreshToken']);
-
-            Get.off(() => const HomeScreen(),
-                transition: AppUtils.pageTransition,
-                duration: Duration(milliseconds: AppUtils.timeTransition));
-          } else {
-            popSnackError(message: value.data['message']);
-          }
-        } catch (_) {
-          popSnackError(message: value.data['message']);
-        }
-      } else {
-        popSnackError(message: value.data['message']);
-      }
-    }).catchError((error) {
-      try {
-        var resp = Map<String, dynamic>.from(error.response.data);
-        var respData = resp['data'];
-        Get.closeAllSnackbars();
-        popSnackError(
-            title: resp['message'],
-            message: respData[respData.keys.toList().first].toString(),
-            duration: Duration(seconds: 5));
-
-        print("error register: ${error.response.statusCode}");
-      } catch (ex) {
-        popSnackError(
-            message:
-                "there is an error on the system, please notify the administrator"
-                    .tr,
-            duration: Duration(seconds: 5));
-      }
-    }).whenComplete(() {
-      register_process.value = false;
-    });
-  }*/
 
   modify(Map<String, dynamic> muser) {
     var token = GetStorage().read("token");
@@ -257,23 +191,6 @@ class AuthController extends GetxController {
       modify_process.value = false;
     });
   }
-
-  /*unregister() async {
-    unregister_process.value = true;
-    Auth.unregister().then((value) {
-      GetStorage().remove("user");
-      GetStorage().remove("token");
-    }).whenComplete(() {
-      user.value = null;
-      if (user.value != null) {
-        isLoggedIn.value = false;
-        Get.offAll(() => LoginScreen(),
-            transition: AppUtils.pageTransition,
-            duration: Duration(milliseconds: AppUtils.timeTransition));
-      }
-      unregister_process.value = false;
-    });
-  }*/
 
   delayIntroScreen() async {
     await Future.delayed(Duration(seconds: AppUtils.timeInterval));
@@ -310,12 +227,15 @@ class AuthController extends GetxController {
     }).onError((dio.DioException error, stackTrace) {
       if (error.response != null) {
         print(error.response!.data);
+        popSnackError(message: error.response!.data['message']);
       } else {
         print(error);
+        popSnackError(message: "Reesayer plus tard");
       }
     }).catchError((error) {
       login_process.value = false;
       print(error);
+      popSnackError(message: "Reesayer plus tard");
     }).whenComplete(() {
       login_process.value = false;
     });
@@ -334,36 +254,51 @@ class AuthController extends GetxController {
         if (_user.id != null) {
           Get.closeAllSnackbars();
           print("save token");
-          print(value.data);
+          //print(value.data);
           /* popSnackSuccess(
               message: value.data['message'],
             );*/
-          _user.token = value.data['token'];
+          //_user.token = value.data['token'];
           _user.refresh_token = value.data['refresh_token'];
           print(jsonDecode(payloadData)['roles']);
           var rls = jsonDecode(payloadData)['roles'];
           _user.roles = List<String>.from(rls);
-          print(_user.refresh_token);
+          _user.fullname = value.data['fullname'];
+          _user.phone = value.data['phone'];
+          //_user.id = value.data['sub'];
+          _user.isActive = value.data['isActive'];
+          print("map user");
+          print(_user.toMap());
           user.value = _user;
+          print(user.value!.roles);
           isLoggedIn.value = true;
           GetStorage().write("user", _user.toMap());
           GetStorage().write("token", value.data['token']);
           GetStorage().write("refreshToken", value.data['refresh_token']);
           print("saved user");
-
-          Get.off(() => const HomeScreen(),
-              transition: AppUtils.pageTransition,
-              duration: Duration(milliseconds: AppUtils.timeTransition));
+          print(GetStorage().read("user"));
+          if (user.value!.roles!.contains('ROLE_DRIVER')) {
+            Get.find<CheckRouteController>().updatingRoute(1);
+            Get.off(() => const HomeDriverScreen(),
+                transition: AppUtils.pageTransition,
+                duration: Duration(milliseconds: AppUtils.timeTransition));
+          } else {
+            Get.find<RouteController>().checkActiveRoute(1);
+            Get.find<RouteController>().getCards();
+            Get.offAll(() => const HomeScreen(),
+                transition: AppUtils.pageTransition,
+                duration: Duration(milliseconds: AppUtils.timeTransition));
+          }
         } else {
-          popSnackError(message: value.data['error']);
+          popSnackError(message: value.data['message']);
         }
       } catch (_) {
         print(_);
-        popSnackError(message: value.data['error']);
+        popSnackError(message: "une erreur s\'est produite, réessayez");
       }
     } else {
       print("no token");
-      popSnackError(message: value.data['error']);
+      popSnackError(message: value.data['message']);
     }
   }
 
@@ -391,6 +326,9 @@ class AuthController extends GetxController {
         if (user.value == null) {
           print("user is null");
           loginWithNfc(nfcId(tag));
+        } else {
+          print("listened");
+          Get.find<RouteController>().cardPay(nfcId(tag));
         }
 
         print("data nfc: ");
@@ -407,12 +345,31 @@ class AuthController extends GetxController {
     //Get.offAll(() => const HomeScreen());
     try {
       var uu = GetStorage().read("user");
+      print(uu);
       var token = GetStorage().read("token");
       User _user0 = User.fromJson(null, uu);
       print(_user0);
-      Get.offAll(() => const HomeScreen(),
+      user.value = _user0;
+      print(user.value!.roles);
+      //Get.find<CheckRouteController>().updatingRoute(1);
+      //Get.find<RouteController>().checkActiveRoute(1);
+      //Get.find<RouteController>().getCards();
+      if (user.value!.roles!.contains('ROLE_DRIVER')) {
+        Get.find<CheckRouteController>().updatingRoute(1);
+        Get.offAll(() => const HomeDriverScreen(),
+            transition: AppUtils.pageTransition,
+            duration: Duration(milliseconds: AppUtils.timeTransition));
+      } else {
+        Get.find<RouteController>().checkActiveRoute(1);
+        Get.find<RouteController>().getCards();
+        Get.offAll(() => const HomeScreen(),
+            transition: AppUtils.pageTransition,
+            duration: Duration(milliseconds: AppUtils.timeTransition));
+      }
+
+      /*Get.offAll(() => const HomeScreen(),
           transition: AppUtils.pageTransition,
-          duration: Duration(milliseconds: AppUtils.timeTransition));
+          duration: Duration(milliseconds: AppUtils.timeTransition));*/
 
       /*Auth.refreshLogin(_user0.refresh_token!, _user0.email!).then((value) {
         print('data here :  ${value.data.toString()}');

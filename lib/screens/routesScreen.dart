@@ -190,7 +190,13 @@ class _RoutesScreenState extends State<RoutesScreen> {
                                           ),
                                           DataColumn(
                                             label: Text(
-                                              'Passagers',
+                                              'Nbre Passagers',
+                                              style: TextStyle(fontSize: 11),
+                                            ),
+                                          ),
+                                          DataColumn(
+                                            label: Text(
+                                              'Nbre Passagers chauf.',
                                               style: TextStyle(fontSize: 11),
                                             ),
                                           ),
@@ -236,6 +242,13 @@ class _RoutesScreenState extends State<RoutesScreen> {
                                               DataCell(Text(
                                                 item.passengers != null
                                                     ? item.passengers.toString()
+                                                    : "0",
+                                                style: TextStyle(fontSize: 11),
+                                              )),
+                                              DataCell(Text(
+                                                item.driverPassengers != null
+                                                    ? item.driverPassengers
+                                                        .toString()
                                                     : "0",
                                                 style: TextStyle(fontSize: 11),
                                               )),

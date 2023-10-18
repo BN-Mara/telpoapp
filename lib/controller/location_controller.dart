@@ -6,6 +6,16 @@ import '../widgets/sundry_components.dart';
 class LocationController extends GetxController {
   var isEnabled = false.obs;
 
+  @override
+  void onInit() {
+    // TODO: implement onInit
+    super.onInit();
+    _handleLocationPermission();
+    /*stream.takeWhile((_) => true).forEach((element) async {
+      updatingRoute(1);
+    });*/
+  }
+
   Future<Position> getCurrentPosition() async {
     Position position = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high);

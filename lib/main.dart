@@ -5,6 +5,7 @@ import 'package:get_storage/get_storage.dart';
 import 'package:telpoapp/controller/check_route.dart';
 import 'package:telpoapp/controller/location_controller.dart';
 import 'package:telpoapp/controller/route_controller.dart';
+import 'package:telpoapp/res/colors.dart';
 import 'package:telpoapp/res/strings.dart';
 import 'package:telpoapp/screens/homeScreen.dart';
 import 'package:telpoapp/screens/loginScreen.dart';
@@ -12,10 +13,20 @@ import 'package:telpoapp/screens/loginScreen.dart';
 import 'controller/auth_controller.dart';
 
 var DIO = Dio();
+/*DIO.interceptors.add(InterceptorsWrapper(
+       onError: (error) async {
+          if (error.response?.statusCode == 403 ||
+              error.response?.statusCode == 401) {
+              await refreshToken();
+              return _retry(error.request);
+            }
+            return error.response;
+        }));*/
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await GetStorage.init();
+  //DIO.interceptors.add(DioInterceptor());
   runApp(MyApp());
 }
 
@@ -31,7 +42,7 @@ class MyApp extends StatelessWidget {
     return GetMaterialApp(
       title: APP_NAME,
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        primarySwatch: materialPrimary,
       ),
       home: LoginScreen(),
       //home: const HomeScreen(),

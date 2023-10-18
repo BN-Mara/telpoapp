@@ -32,7 +32,7 @@ popWaitingDialog() {
 }
 
 popSnack(
-    {String title = "Telpo!",
+    {String title = "TransCar!",
     String? message,
     String buttonText = "OK",
     Color messageColor = Colors.black,
@@ -159,4 +159,21 @@ InputDecoration textInputDecoration(
         borderRadius: BorderRadius.circular(15.0),
         borderSide: BorderSide(color: Colors.red, width: 2.0)),
   );
+}
+
+popSnackPayment(
+    String title, String message, IconData iconData, Color bgColor) {
+  Get.snackbar(title, message,
+      icon: Icon(
+        iconData,
+        color: Colors.white,
+      ),
+      backgroundColor: bgColor,
+      colorText: Colors.white,
+      borderColor: Colors.black,
+      borderWidth: 3,
+      borderRadius: 15.0,
+      duration: const Duration(seconds: 2),
+      shouldIconPulse: true,
+      isDismissible: false);
 }

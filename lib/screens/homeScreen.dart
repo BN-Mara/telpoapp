@@ -1,8 +1,8 @@
 import 'package:dropdown_search/dropdown_search.dart';
-import 'package:flutter_map/plugin_api.dart';
-import 'package:flutter_map_location_marker/flutter_map_location_marker.dart';
-import 'package:geolocator/geolocator.dart';
-import 'package:latlong2/latlong.dart';
+//import 'package:flutter_map/plugin_api.dart';
+//import 'package:flutter_map_location_marker/flutter_map_location_marker.dart';
+//import 'package:geolocator/geolocator.dart';
+//import 'package:latlong2/latlong.dart';
 import 'package:nb_utils/nb_utils.dart';
 import 'package:telpoapp/controller/auth_controller.dart';
 import 'package:telpoapp/controller/location_controller.dart';
@@ -16,11 +16,11 @@ import 'package:telpoapp/res/colors.dart' as res;
 import 'package:telpoapp/screens/dashboardScreen.dart';
 import 'package:telpoapp/screens/homeDriverScreen.dart';
 import 'package:telpoapp/screens/routesScreen.dart';
-import 'package:telpoapp/widgets/line.dart';
+//import 'package:telpoapp/widgets/line.dart';
 import 'package:telpoapp/widgets/submitButton.dart';
 import 'package:telpoapp/widgets/sundry_components.dart';
 
-import '../widgets/inputTextWidget.dart';
+//import '../widgets/inputTextWidget.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -37,7 +37,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   final authController = Get.find<AuthController>();
   final locationController = Get.find<LocationController>();
-  final MapController _mapctl = MapController();
+  //final MapController _mapctl = MapController();
   final psgCtl = TextEditingController();
   @override
   Widget build(BuildContext context) {
@@ -50,7 +50,7 @@ class _HomeScreenState extends State<HomeScreen> {
             width: Get.width,
             decoration: const BoxDecoration(
               image: DecorationImage(
-                  image: AssetImage('assets/images/logo_full.jpeg'),
+                  image: AssetImage('assets/images/transcar_bg.jpg'),
                   fit: BoxFit.cover),
             ),
             child: Stack(
@@ -187,7 +187,19 @@ class _HomeScreenState extends State<HomeScreen> {
                                               style:
                                                   secondaryTextStyle(size: 12),
                                               textAlign: TextAlign.center,
-                                            )
+                                            ),
+                                            /* Obx(() {
+                                              return Text(
+                                                routeController.activeRoute
+                                                            .value ==
+                                                        null
+                                                    ? ""
+                                                    : '${routeController.activeRoute.value!.passengers}',
+                                                style: secondaryTextStyle(
+                                                    size: 15),
+                                                textAlign: TextAlign.center,
+                                              );
+                                            }),*/
                                           ]),
                                         )),
                                     Expanded(
@@ -244,320 +256,314 @@ class _HomeScreenState extends State<HomeScreen> {
                 Align(
                     alignment: Alignment.bottomCenter,
                     child: Obx(() {
-                      return Container(
-                        padding: const EdgeInsets.all(8),
-                        child: routeController.activeRoute.value != null
-                            ? Row(children: [
-                                Container(
-                                    width:
-                                        MediaQuery.of(context).size.width / 3,
-                                    child: SubmitButton(
-                                        onPressed: () {
-                                          psgCtl.text = "0";
-                                          Get.defaultDialog(
-                                              title: "Ajouter passagers",
-                                              content: Container(
-                                                  child: Form(
-                                                      child:
-                                                          SingleChildScrollView(
-                                                              child: Column(
-                                                children: [
-                                                  Padding(
-                                                      padding:
-                                                          const EdgeInsets.only(
-                                                              left: 15,
-                                                              right: 15),
-                                                      child: TextFormField(
-                                                        decoration:
-                                                            textInputDecoration(
-                                                                "Nombre de passagers"),
-                                                        controller: psgCtl,
-                                                        keyboardType:
-                                                            const TextInputType
-                                                                    .numberWithOptions(
-                                                                signed: false,
-                                                                decimal: false),
-                                                        readOnly: true,
-                                                      )),
-                                                  15.height,
-                                                  Row(
-                                                    children: [
-                                                      Container(
-                                                        width: MediaQuery.of(
-                                                                    context)
-                                                                .size
-                                                                .width /
-                                                            4,
-                                                        child: SubmitButton(
-                                                          bgColor: primaryBlack
-                                                              .withOpacity(0.7),
-                                                          onPressed: () {
-                                                            int p = int.parse(
-                                                                    psgCtl
-                                                                        .text) +
-                                                                1;
-                                                            psgCtl.text = "$p";
-                                                          },
-                                                          text: "+1",
-                                                        ),
-                                                      ),
-                                                      Container(
-                                                        width: MediaQuery.of(
-                                                                    context)
-                                                                .size
-                                                                .width /
-                                                            4,
-                                                        child: SubmitButton(
-                                                          bgColor: primaryBlack,
-                                                          onPressed: () {
-                                                            int p = int.parse(
-                                                                    psgCtl
-                                                                        .text) +
-                                                                5;
-                                                            psgCtl.text = "$p";
-                                                          },
-                                                          text: "+5",
-                                                        ),
-                                                      ),
-                                                      Container(
-                                                        width: MediaQuery.of(
-                                                                    context)
-                                                                .size
-                                                                .width /
-                                                            4,
-                                                        child: SubmitButton(
-                                                          bgColor: redColor
-                                                              .withOpacity(0.7),
-                                                          onPressed: () {
-                                                            int p = int.parse(
-                                                                    psgCtl
-                                                                        .text) -
-                                                                5;
-                                                            psgCtl.text = "$p";
-                                                          },
-                                                          text: "-1",
-                                                        ),
-                                                      ),
-                                                      Container(
-                                                        width: MediaQuery.of(
-                                                                    context)
-                                                                .size
-                                                                .width /
-                                                            4,
-                                                        child: SubmitButton(
-                                                          bgColor: redColor,
-                                                          onPressed: () {
-                                                            int p = int.parse(
-                                                                    psgCtl
-                                                                        .text) -
-                                                                5;
-                                                            psgCtl.text = "$p";
-                                                          },
-                                                          text: "-5",
-                                                        ),
-                                                      )
-                                                    ],
-                                                  ),
-                                                  15.height,
-                                                  SubmitButton(
+                      return routeController.search_process.isTrue ||
+                              routeController.paying_process.isTrue
+                          ? const LinearProgressIndicator()
+                          : Container(
+                              padding: const EdgeInsets.all(8),
+                              child: routeController.activeRoute.value != null
+                                  ? Row(children: [
+                                      Container(
+                                          width: MediaQuery.of(context)
+                                                  .size
+                                                  .width /
+                                              3,
+                                          child:
+                                              routeController
+                                                      .process_add_pass.isTrue
+                                                  ? LinearProgressIndicator()
+                                                  : SubmitButton(
                                                       onPressed: () {
-                                                        routeController
-                                                            .addPassengers(
-                                                                psgCtl.text);
-                                                        Get.back();
-                                                      },
-                                                      text: "Valider",
-                                                      bgColor: primaryColor)
-                                                ],
-                                              )))));
-                                        },
-                                        text: "+Passagers",
-                                        bgColor: primaryColor)),
-                                Expanded(
-                                    child: SubmitButton(
-                                        onPressed: () {
-                                          routeController.endCurrentRoute();
-                                        },
-                                        text: "Arrive",
-                                        bgColor: redColor))
-                              ])
-                            : routeController.process_route.isTrue
-                                ? LinearProgressIndicator()
-                                : SubmitButton(
-                                    onPressed: () {
-                                      showDialog(
-                                        context: context,
-                                        builder: (_) => StatefulBuilder(
-                                          builder:
-                                              (BuildContext context, setState) {
-                                            return AlertDialog(
-                                                scrollable: true,
-                                                title: Text("ITINERAIRE"),
-                                                content:
-                                                    Container(child: Obx(() {
-                                                  return Container(
-                                                      child: Form(
-                                                          key: _formkey,
-                                                          child:
-                                                              SingleChildScrollView(
-                                                            child: Column(
+                                                        psgCtl.text = "0";
+                                                        Get.defaultDialog(
+                                                            title:
+                                                                "Ajouter passagers",
+                                                            content: Container(
+                                                                child: Form(
+                                                                    child: SingleChildScrollView(
+                                                                        child: Column(
                                                               children: [
-                                                                DropdownSearch<
-                                                                    Place>(
-                                                                  filterFn: (item,
-                                                                      filter) {
-                                                                    return item
-                                                                        .name!
-                                                                        .toUpperCase()
-                                                                        .contains(
-                                                                            filter.toUpperCase());
-                                                                  },
-                                                                  popupProps:
-                                                                      PopupProps
-                                                                          .menu(
-                                                                    searchFieldProps:
-                                                                        TextFieldProps(
-                                                                      cursorColor:
-                                                                          primaryColor,
+                                                                Padding(
+                                                                    padding: const EdgeInsets
+                                                                        .only(
+                                                                        left:
+                                                                            15,
+                                                                        right:
+                                                                            15),
+                                                                    child:
+                                                                        TextFormField(
                                                                       decoration:
                                                                           textInputDecoration(
-                                                                              "Depart"),
-                                                                    ),
-                                                                    showSearchBox:
-                                                                        true,
-                                                                    showSelectedItems:
-                                                                        true,
-                                                                    //showSearchBox: true,
-                                                                    disabledItemFn: (Place
-                                                                            p) =>
-                                                                        p.name ==
-                                                                        routeController
-                                                                            .toContrl
-                                                                            .value,
-                                                                  ),
-                                                                  items:
-                                                                      routeController
-                                                                          .places
-                                                                          .value,
-                                                                  dropdownDecoratorProps:
-                                                                      DropDownDecoratorProps(
-                                                                    dropdownSearchDecoration:
-                                                                        textInputDecoration(
-                                                                            "Rechercher...",
-                                                                            "",
-                                                                            ""),
-                                                                  ),
-                                                                  onChanged:
-                                                                      (value) {
-                                                                    if (value !=
-                                                                        null) {
-                                                                      routeController
-                                                                          .fromContrl
-                                                                          .value = value.name!;
-                                                                      // _province = value;
-                                                                    }
-                                                                  },
-                                                                  validator:
-                                                                      (value) {
-                                                                    if (value ==
-                                                                        null) {
-                                                                      return "Ce champs est requis";
-                                                                    } else {
-                                                                      return null;
-                                                                    }
-                                                                  },
-                                                                  itemAsString:
-                                                                      (Place p) =>
-                                                                          p.name!,
-                                                                  //selectedItem: provices.first,
-                                                                ),
-                                                                10.height,
-                                                                DropdownSearch<
-                                                                    Place>(
-                                                                  filterFn: (item,
-                                                                      filter) {
-                                                                    return item
-                                                                        .name!
-                                                                        .toUpperCase()
-                                                                        .contains(
-                                                                            filter.toUpperCase());
-                                                                  },
-                                                                  popupProps:
-                                                                      PopupProps
-                                                                          .menu(
-                                                                    searchFieldProps:
-                                                                        TextFieldProps(
-                                                                      cursorColor:
-                                                                          primaryColor,
-                                                                      decoration:
-                                                                          textInputDecoration(
-                                                                              "rechercher..."),
-                                                                    ),
-                                                                    showSearchBox:
-                                                                        true,
-                                                                    showSelectedItems:
-                                                                        true,
-                                                                    //showSearchBox: true,
-                                                                    disabledItemFn: (Place
-                                                                            p) =>
-                                                                        p.name ==
-                                                                        routeController
-                                                                            .fromContrl
-                                                                            .value,
-                                                                  ),
-                                                                  items:
-                                                                      routeController
-                                                                          .places
-                                                                          .value,
-                                                                  dropdownDecoratorProps:
-                                                                      DropDownDecoratorProps(
-                                                                    dropdownSearchDecoration:
-                                                                        textInputDecoration(
-                                                                            "Destination",
-                                                                            "",
-                                                                            ""),
-                                                                  ),
-                                                                  onChanged:
-                                                                      (value) {
-                                                                    if (value !=
-                                                                        null) {
-                                                                      routeController
-                                                                          .toContrl
-                                                                          .value = value.name!;
-                                                                      // _province = value;
-                                                                    }
-                                                                  },
-                                                                  validator:
-                                                                      (value) {
-                                                                    if (value ==
-                                                                        null) {
-                                                                      return "Ce champs est requis";
-                                                                    } else {
-                                                                      return null;
-                                                                    }
-                                                                  },
-                                                                  itemAsString:
-                                                                      (Place p) =>
-                                                                          p.name!,
-                                                                  //selectedItem: provices.first,
-                                                                ),
-                                                                10.height,
-                                                                TextFormField(
-                                                                  decoration:
-                                                                      textInputDecoration(
-                                                                          "Nombre de passagers"),
-                                                                  controller:
-                                                                      routeController
-                                                                          .passangenrContrl
-                                                                          .value,
-                                                                  keyboardType: const TextInputType
+                                                                              "Nombre de passagers"),
+                                                                      controller:
+                                                                          psgCtl,
+                                                                      keyboardType: const TextInputType
                                                                           .numberWithOptions(
-                                                                      signed:
-                                                                          false,
-                                                                      decimal:
-                                                                          false),
-                                                                )
-                                                                /*InputTextWidget(
+                                                                          signed:
+                                                                              false,
+                                                                          decimal:
+                                                                              false),
+                                                                      readOnly:
+                                                                          true,
+                                                                    )),
+                                                                15.height,
+                                                                Row(
+                                                                  children: [
+                                                                    Expanded(
+                                                                      child:
+                                                                          SubmitButton(
+                                                                        bgColor:
+                                                                            primaryBlack.withOpacity(0.5),
+                                                                        onPressed:
+                                                                            () {
+                                                                          int p =
+                                                                              int.parse(psgCtl.text) + 1;
+                                                                          psgCtl.text =
+                                                                              "$p";
+                                                                        },
+                                                                        text:
+                                                                            "+1",
+                                                                      ),
+                                                                    ),
+                                                                    Expanded(
+                                                                      child:
+                                                                          SubmitButton(
+                                                                        bgColor:
+                                                                            primaryBlack,
+                                                                        onPressed:
+                                                                            () {
+                                                                          int p =
+                                                                              int.parse(psgCtl.text) + 5;
+                                                                          psgCtl.text =
+                                                                              "$p";
+                                                                        },
+                                                                        text:
+                                                                            "+5",
+                                                                      ),
+                                                                    ),
+                                                                    Expanded(
+                                                                      child:
+                                                                          SubmitButton(
+                                                                        bgColor:
+                                                                            redColor.withOpacity(0.5),
+                                                                        onPressed:
+                                                                            () {
+                                                                          int p =
+                                                                              int.parse(psgCtl.text) - 5;
+                                                                          psgCtl.text =
+                                                                              "$p";
+                                                                        },
+                                                                        text:
+                                                                            "-1",
+                                                                      ),
+                                                                    ),
+                                                                    Expanded(
+                                                                      child:
+                                                                          SubmitButton(
+                                                                        bgColor:
+                                                                            redColor,
+                                                                        onPressed:
+                                                                            () {
+                                                                          int p =
+                                                                              int.parse(psgCtl.text) - 5;
+                                                                          psgCtl.text =
+                                                                              "$p";
+                                                                        },
+                                                                        text:
+                                                                            "-5",
+                                                                      ),
+                                                                    )
+                                                                  ],
+                                                                ),
+                                                                15.height,
+                                                                SubmitButton(
+                                                                    onPressed:
+                                                                        () {
+                                                                      routeController
+                                                                          .addPassengers(
+                                                                              psgCtl.text);
+                                                                      Get.back();
+                                                                    },
+                                                                    text:
+                                                                        "Valider",
+                                                                    bgColor:
+                                                                        primaryColor)
+                                                              ],
+                                                            )))));
+                                                      },
+                                                      text: "+Passagers",
+                                                      bgColor: primaryColor)),
+                                      Expanded(
+                                          child: routeController
+                                                  .process_route_end.isTrue
+                                              ? LinearProgressIndicator()
+                                              : SubmitButton(
+                                                  onPressed: () {
+                                                    routeController
+                                                        .endCurrentRoute();
+                                                  },
+                                                  text: "Arrive",
+                                                  bgColor: redColor))
+                                    ])
+                                  : routeController.process_create_route.isTrue
+                                      ? LinearProgressIndicator()
+                                      : SubmitButton(
+                                          onPressed: () {
+                                            showDialog(
+                                              context: context,
+                                              builder: (_) => StatefulBuilder(
+                                                builder: (BuildContext context,
+                                                    setState) {
+                                                  return AlertDialog(
+                                                      scrollable: true,
+                                                      title: Text("ITINERAIRE"),
+                                                      content: Container(
+                                                          child: Obx(() {
+                                                        return Container(
+                                                            child: Form(
+                                                                key: _formkey,
+                                                                child:
+                                                                    SingleChildScrollView(
+                                                                  child: Column(
+                                                                    children: [
+                                                                      DropdownSearch<
+                                                                          Place>(
+                                                                        filterFn:
+                                                                            (item,
+                                                                                filter) {
+                                                                          return item
+                                                                              .name!
+                                                                              .toUpperCase()
+                                                                              .contains(filter.toUpperCase());
+                                                                        },
+                                                                        popupProps:
+                                                                            PopupProps.menu(
+                                                                          searchFieldProps:
+                                                                              TextFieldProps(
+                                                                            cursorColor:
+                                                                                primaryColor,
+                                                                            decoration:
+                                                                                textInputDecoration("Rechercher..."),
+                                                                          ),
+                                                                          showSearchBox:
+                                                                              true,
+                                                                          showSelectedItems:
+                                                                              false,
+                                                                          //showSearchBox: true,
+                                                                          disabledItemFn: (Place p) =>
+                                                                              p.name ==
+                                                                              routeController.toContrl.value,
+                                                                        ),
+                                                                        items: routeController
+                                                                            .places
+                                                                            .value,
+                                                                        dropdownDecoratorProps:
+                                                                            DropDownDecoratorProps(
+                                                                          dropdownSearchDecoration: textInputDecoration(
+                                                                              "Depart",
+                                                                              "",
+                                                                              ""),
+                                                                        ),
+                                                                        onChanged:
+                                                                            (value) {
+                                                                          if (value !=
+                                                                              null) {
+                                                                            routeController.fromContrl.value =
+                                                                                value.name!;
+                                                                            // _province = value;
+                                                                          }
+                                                                        },
+                                                                        validator:
+                                                                            (value) {
+                                                                          if (value ==
+                                                                              null) {
+                                                                            return "Ce champs est requis";
+                                                                          } else {
+                                                                            return null;
+                                                                          }
+                                                                        },
+                                                                        itemAsString:
+                                                                            (Place p) =>
+                                                                                p.name!,
+                                                                        //selectedItem: provices.first,
+                                                                      ),
+                                                                      10.height,
+                                                                      DropdownSearch<
+                                                                          Place>(
+                                                                        filterFn:
+                                                                            (item,
+                                                                                filter) {
+                                                                          return item
+                                                                              .name!
+                                                                              .toUpperCase()
+                                                                              .contains(filter.toUpperCase());
+                                                                        },
+                                                                        popupProps:
+                                                                            PopupProps.menu(
+                                                                          searchFieldProps:
+                                                                              TextFieldProps(
+                                                                            cursorColor:
+                                                                                primaryColor,
+                                                                            decoration:
+                                                                                textInputDecoration("rechercher..."),
+                                                                          ),
+                                                                          showSearchBox:
+                                                                              true,
+                                                                          showSelectedItems:
+                                                                              false,
+                                                                          //showSearchBox: true,
+                                                                          disabledItemFn: (Place p) =>
+                                                                              p.name ==
+                                                                              routeController.fromContrl.value,
+                                                                        ),
+                                                                        items: routeController
+                                                                            .places
+                                                                            .value,
+                                                                        dropdownDecoratorProps:
+                                                                            DropDownDecoratorProps(
+                                                                          dropdownSearchDecoration: textInputDecoration(
+                                                                              "Destination",
+                                                                              "",
+                                                                              ""),
+                                                                        ),
+                                                                        onChanged:
+                                                                            (value) {
+                                                                          if (value !=
+                                                                              null) {
+                                                                            routeController.toContrl.value =
+                                                                                value.name!;
+                                                                            // _province = value;
+                                                                          }
+                                                                        },
+                                                                        validator:
+                                                                            (value) {
+                                                                          if (value ==
+                                                                              null) {
+                                                                            return "Ce champs est requis";
+                                                                          } else {
+                                                                            return null;
+                                                                          }
+                                                                        },
+                                                                        itemAsString:
+                                                                            (Place p) =>
+                                                                                p.name!,
+                                                                        //selectedItem: provices.first,
+                                                                      ),
+                                                                      10.height,
+                                                                      TextFormField(
+                                                                        decoration:
+                                                                            textInputDecoration("Nombre de passagers"),
+                                                                        controller: routeController
+                                                                            .passangenrContrl
+                                                                            .value,
+                                                                        keyboardType: const TextInputType
+                                                                            .numberWithOptions(
+                                                                            signed:
+                                                                                false,
+                                                                            decimal:
+                                                                                false),
+                                                                      )
+                                                                      /*InputTextWidget(
                                                               controller:
                                                                   routeController
                                                                       .fromContrl
@@ -571,17 +577,15 @@ class _HomeScreenState extends State<HomeScreen> {
                                                               keyboardType:
                                                                   const TextInputType
                                                                       .numberWithOptions())*/
-                                                                ,
-                                                                10.height,
-                                                                Row(
-                                                                  mainAxisAlignment:
-                                                                      MainAxisAlignment
-                                                                          .spaceBetween,
-                                                                  crossAxisAlignment:
-                                                                      CrossAxisAlignment
-                                                                          .center,
-                                                                  children: [
-                                                                    /*Padding(
+                                                                      ,
+                                                                      10.height,
+                                                                      Row(
+                                                                        mainAxisAlignment:
+                                                                            MainAxisAlignment.spaceBetween,
+                                                                        crossAxisAlignment:
+                                                                            CrossAxisAlignment.center,
+                                                                        children: [
+                                                                          /*Padding(
                                                                       padding: const EdgeInsets
                                                                           .only(
                                                                           left:
@@ -600,40 +604,36 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                             Icons.change_circle,
                                                                           ),
                                                                           color: primaryBlack)),*/
-                                                                    Expanded(
-                                                                        child:
-                                                                            SubmitButton(
-                                                                      onPressed:
-                                                                          () {
-                                                                        var form =
-                                                                            _formkey.currentState;
-                                                                        if (form!
-                                                                            .validate()) {
-                                                                          routeController
-                                                                              .setCurrentRoute();
-                                                                          Get.back();
-                                                                        }
-                                                                      },
-                                                                      text:
-                                                                          "Valider",
-                                                                      bgColor:
-                                                                          greenColor,
-                                                                      height:
-                                                                          40.0,
-                                                                    ))
-                                                                  ],
-                                                                )
-                                                              ],
-                                                            ),
-                                                          )));
-                                                })));
+                                                                          Expanded(
+                                                                              child: SubmitButton(
+                                                                            onPressed:
+                                                                                () {
+                                                                              var form = _formkey.currentState;
+                                                                              if (form!.validate()) {
+                                                                                routeController.setCurrentRoute();
+                                                                                Get.back();
+                                                                              }
+                                                                            },
+                                                                            text:
+                                                                                "Valider",
+                                                                            bgColor:
+                                                                                greenColor,
+                                                                            height:
+                                                                                40.0,
+                                                                          ))
+                                                                        ],
+                                                                      )
+                                                                    ],
+                                                                  ),
+                                                                )));
+                                                      })));
+                                                },
+                                              ),
+                                            );
                                           },
-                                        ),
-                                      );
-                                    },
-                                    text: "Nouvel itinéraire",
-                                    bgColor: primaryColor),
-                      );
+                                          text: "Nouvel itinéraire",
+                                          bgColor: primaryColor),
+                            );
                     })),
               ],
             )),
@@ -658,7 +658,7 @@ class ExampleSidebarX extends StatelessWidget {
       theme: SidebarXTheme(
         margin: const EdgeInsets.all(10),
         decoration: BoxDecoration(
-          color: secondaryColoro,
+          color: secondaryColor,
           borderRadius: BorderRadius.circular(20),
         ),
         hoverColor: primaryWhite,
@@ -670,7 +670,7 @@ class ExampleSidebarX extends StatelessWidget {
         selectedItemTextPadding: const EdgeInsets.only(left: 30),
         itemDecoration: BoxDecoration(
           borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: secondaryColoro),
+          border: Border.all(color: secondaryColor),
         ),
         selectedItemDecoration: BoxDecoration(
           borderRadius: BorderRadius.circular(10),
@@ -678,7 +678,7 @@ class ExampleSidebarX extends StatelessWidget {
             color: primaryColor.withOpacity(0.37),
           ),
           gradient: const LinearGradient(
-            colors: [primaryColor, secondaryColoro],
+            colors: [primaryColor, secondaryColor],
           ),
           boxShadow: [
             BoxShadow(
@@ -699,7 +699,7 @@ class ExampleSidebarX extends StatelessWidget {
       extendedTheme: SidebarXTheme(
         width: MediaQuery.of(context).size.width / 1.5,
         decoration: const BoxDecoration(
-          color: secondaryColoro,
+          color: secondaryColor,
         ),
       ),
       footerDivider: divider,
@@ -730,30 +730,30 @@ class ExampleSidebarX extends StatelessWidget {
             Get.to(() => const HomeScreen());
           },
         ),
-        SidebarXItem(
+        /*SidebarXItem(
           icon: Icons.home,
           label: 'Dashboard',
           onTap: () {
             Get.back();
             Get.to(() => const DashboardScreen());
           },
-        ),
-        SidebarXItem(
+        ),*/
+        /* SidebarXItem(
           icon: Icons.app_registration,
           label: 'Itineraires',
           onTap: () {
             Get.back();
             Get.to(() => const RoutesScreen());
           },
-        ),
-        SidebarXItem(
+        ),*/
+        /* SidebarXItem(
           icon: Icons.app_registration,
           label: 'Home Driver',
           onTap: () {
             Get.back();
             Get.to(() => const HomeDriverScreen());
           },
-        ),
+        ),*/
         /* const SidebarXItem(
           icon: Icons.people,
           label: 'People',

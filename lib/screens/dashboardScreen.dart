@@ -3,7 +3,9 @@ import 'package:get/get.dart';
 import 'package:nb_utils/nb_utils.dart';
 import 'package:telpoapp/controller/route_controller.dart';
 import 'package:telpoapp/res/colors.dart';
+import 'package:telpoapp/screens/routesScreen.dart';
 import 'package:telpoapp/widgets/my_files.dart';
+import 'package:telpoapp/widgets/submitButton.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -49,11 +51,37 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 const SizedBox(
                   height: 12.0,
                 ),
-                Padding(
+                /*Padding(
                     padding: EdgeInsets.only(left: 20, right: 20),
                     child: MyFiles(
                       infos: routeController.routesInfoList.value,
-                    )),
+                    )),*/
+                Card(
+                  elevation: 2,
+                  margin: EdgeInsets.all(30),
+                  child: Column(children: [
+                    Text("Details"),
+                    16.height,
+                    Text(
+                        'Total d\'Itineraires: ${routeController.todayRoutes.value}'),
+                    const Divider(),
+                    13.height,
+                    Text(
+                        'Total Passagers: ${routeController.todayPassengers.value}'),
+                    const Divider(),
+                    13.height,
+                    Text('Montant: ${routeController.todayAmount.value}'),
+                    16.height,
+                    SubmitButton(
+                        onPressed: () {
+                          Get.to(() => const RoutesScreen(
+                                flag: 1,
+                              ));
+                        },
+                        text: "voir list",
+                        bgColor: blackColor)
+                  ]),
+                ),
 
                 /*Padding(
                 padding: const EdgeInsets.only(right: 25.0, top: 10.0),
@@ -91,14 +119,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
       body: CustomScrollView(
         slivers: <Widget>[
           SliverAppBar(
-            title: Text("Dashboard",
+            title: const Text("Dashboard",
                 style: TextStyle(
                   color: primaryWhite,
                   fontFamily: 'Segoe UI',
                   fontSize: 30,
                   shadows: [
                     Shadow(
-                      color: const Color(0xba000000),
+                      color: Color(0xba000000),
                       offset: Offset(0, 3),
                       blurRadius: 6,
                     )

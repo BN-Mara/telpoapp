@@ -1,8 +1,8 @@
-import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter_map/plugin_api.dart';
-import 'package:flutter_map_location_marker/flutter_map_location_marker.dart';
-import 'package:geolocator/geolocator.dart';
-import 'package:latlong2/latlong.dart';
+//import 'package:flutter_map_location_marker/flutter_map_location_marker.dart';
+//import 'package:geolocator/geolocator.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart' as google;
+//import 'package:latlong2/latlong.dart';
 import 'package:nb_utils/nb_utils.dart';
 import 'package:telpoapp/controller/auth_controller.dart';
 import 'package:telpoapp/controller/check_route.dart';
@@ -13,13 +13,14 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:sidebarx/sidebarx.dart';
 import 'package:telpoapp/res/colors.dart' as res;
+import 'package:telpoapp/res/strings.dart';
 import 'package:telpoapp/screens/dashboardScreen.dart';
 import 'package:telpoapp/screens/routesScreen.dart';
-import 'package:telpoapp/widgets/line.dart';
+//import 'package:telpoapp/widgets/line.dart';
 import 'package:telpoapp/widgets/submitButton.dart';
 import 'package:telpoapp/widgets/sundry_components.dart';
 
-import '../widgets/inputTextWidget.dart';
+//import '../widgets/inputTextWidget.dart';
 
 class HomeDriverScreen extends StatefulWidget {
   const HomeDriverScreen({super.key});
@@ -39,23 +40,256 @@ class _HomeDriverScreenState extends State<HomeDriverScreen> {
   final locationController = Get.find<LocationController>();
   final MapController _mapctl = MapController();
   final psgCtl = TextEditingController();
+  google.GoogleMapController? mapController;
+  // For holding Co-ordinates as LatLng
+  final List<google.LatLng> polyPoints = [];
+
+//For holding instance of Polyline
+  final Set<google.Polyline> polyLines = {};
+// For holding instance of Marker
+  final Set<google.Marker> markers = {};
+  var data;
+  // Dummy Start and Destination Points
+
+  void _onMapCreated(google.GoogleMapController controller) {
+    mapController = controller;
+
+    if (checkController.markers.isNotEmpty) {
+      mapController!.animateCamera(google.CameraUpdate.newLatLngZoom(
+          google.LatLng(checkController.markers.first.position.latitude,
+              checkController.markers.first.position.longitude),
+          12));
+    } else {
+      locationController.getCurrentPosition().then((value) {
+        mapController!.animateCamera(google.CameraUpdate.newLatLngZoom(
+            google.LatLng(value.latitude, value.longitude), 12));
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Scaffold(
-        key: _key,
-        drawer: ExampleSidebarX(controller: _controller),
-        body: Container(
-            height: Get.height,
-            width: Get.width,
-            decoration: const BoxDecoration(
-                /*image: DecorationImage(
+    return GetBuilder<CheckRouteController>(
+        init: checkController,
+        builder: (controller) {
+          if (controller.markers.isNotEmpty) {}
+          return SafeArea(
+            child: Scaffold(
+              key: _key,
+              drawer: ExampleSidebarX(controller: _controller),
+              body: Container(
+                  height: Get.height,
+                  width: Get.width,
+                  decoration: const BoxDecoration(
+                      /*image: DecorationImage(
                   image: AssetImage('assets/images/wa_bg.jpg'),
                   fit: BoxFit.cover),*/
-                ),
-            child: Stack(
-              children: [
-                FlutterMap(
+                      ),
+                  child: Stack(
+                    children: [
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Obx(() {
+                              print("polylines");
+                              print(checkController.polyLines.value);
+
+                              return google.GoogleMap(
+                                onMapCreated: _onMapCreated,
+                                initialCameraPosition:
+                                    const google.CameraPosition(
+                                  target: google.LatLng(
+                                      -4.307667545627436, 15.291246101191055),
+                                  zoom: 13,
+                                ),
+                                markers: controller.markers,
+                                polylines: checkController.polyLines.value,
+                                myLocationEnabled: true,
+                                trafficEnabled: true,
+                              );
+                            }),
+                          ),
+                          Container(
+                            width: MediaQuery.sizeOf(context).width / 3.5,
+                            child: Obx(() {
+                              return Column(children: [
+                                checkController.currentRoute.value != null
+                                    ? Expanded(
+                                        child: Container(
+                                            padding: EdgeInsets.all(8),
+                                            child: SingleChildScrollView(
+                                              child: Column(children: [
+                                                const Text("En cours..."),
+                                                16.height,
+                                                Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.start,
+                                                  children: [
+                                                    const Icon(
+                                                      Icons.pin_drop,
+                                                      color: greenColor,
+                                                      size: 30,
+                                                    ),
+                                                    Expanded(
+                                                        child: Text(
+                                                      checkController
+                                                                  .currentRoute
+                                                                  .value ==
+                                                              null
+                                                          ? ""
+                                                          : '${checkController.currentRoute.value!.origine!}',
+                                                      style: secondaryTextStyle(
+                                                          size: 15),
+                                                      textAlign:
+                                                          TextAlign.center,
+                                                    )),
+                                                  ],
+                                                ),
+                                                16.height,
+                                                Row(
+                                                  children: [
+                                                    const Icon(
+                                                      Icons.pin_drop,
+                                                      color: redColor,
+                                                      size: 30,
+                                                    ),
+                                                    Expanded(
+                                                        child: Text(
+                                                      checkController
+                                                                  .currentRoute
+                                                                  .value ==
+                                                              null
+                                                          ? ""
+                                                          : '${checkController.currentRoute.value!.destination!}',
+                                                      style: secondaryTextStyle(
+                                                          size: 15),
+                                                      textAlign:
+                                                          TextAlign.center,
+                                                    )),
+                                                  ],
+                                                ),
+                                                16.height,
+                                                Row(
+                                                  children: [
+                                                    const Icon(
+                                                      Icons.people_alt,
+                                                      color: redColor,
+                                                      size: 30,
+                                                    ),
+                                                    Expanded(
+                                                        child: Text(
+                                                      checkController
+                                                                  .currentRoute
+                                                                  .value ==
+                                                              null
+                                                          ? ""
+                                                          : '${checkController.currentRoute.value!.passengers}',
+                                                      style: secondaryTextStyle(
+                                                          size: 18),
+                                                      textAlign:
+                                                          TextAlign.center,
+                                                    )),
+                                                  ],
+                                                ),
+                                                16.height,
+                                                checkController.currentRoute
+                                                            .value!.status ==
+                                                        WAITING_STATE
+                                                    ? Form(
+                                                        key: _formkey,
+                                                        child: Column(
+                                                          children: [
+                                                            TextFormField(
+                                                              decoration:
+                                                                  textInputDecoration(
+                                                                      "Nombre de passagers"),
+                                                              controller:
+                                                                  checkController
+                                                                      .passagerCtr
+                                                                      .value,
+                                                              keyboardType:
+                                                                  const TextInputType
+                                                                      .numberWithOptions(
+                                                                      signed:
+                                                                          false,
+                                                                      decimal:
+                                                                          false),
+                                                            ),
+                                                            10.height,
+                                                            checkController
+                                                                    .process_route_end
+                                                                    .isTrue
+                                                                ? LinearProgressIndicator()
+                                                                : SubmitButton(
+                                                                    onPressed:
+                                                                        () {
+                                                                      if (_formkey
+                                                                          .currentState!
+                                                                          .validate()) {
+                                                                        checkController
+                                                                            .endCurrentRoute();
+                                                                      }
+                                                                    },
+                                                                    text:
+                                                                        "Valider",
+                                                                    bgColor:
+                                                                        primaryColor),
+                                                            16.height,
+                                                          ],
+                                                        ))
+                                                    : Container(),
+                                              ]),
+                                            )))
+                                    : Expanded(
+                                        child: Container(
+                                        child: const Center(
+                                          child: Text("No active route"),
+                                        ),
+                                      )),
+                                16.height,
+                                SubmitButton(
+                                  onPressed: () {
+                                    Get.to(() => DashboardScreen());
+                                  },
+                                  text: "Details",
+                                  bgColor: primaryColor,
+                                  height: 30,
+                                ),
+                                16.height,
+                                Container(
+                                    width: 100,
+                                    height: 30,
+                                    color: whiteColor,
+                                    child: IconButton(
+                                        icon:
+                                            const Icon(Icons.video_camera_back),
+                                        onPressed: () {
+                                          showModalBottomSheet(
+                                              context: context,
+                                              isScrollControlled: true,
+                                              builder: (context) {
+                                                return FractionallySizedBox(
+                                                  heightFactor: 1,
+                                                  child: Container(),
+                                                );
+                                              });
+                                        }))
+                              ]
+                                  //Expanded(child: Line()
+                                  /*Divider(
+                              thickness: 3,
+                              height: 5,
+                              color: primaryColor,
+                            )*/
+                                  //),
+
+                                  );
+                            }),
+                          )
+                        ],
+                      )
+
+                      /*FlutterMap(
                   mapController: _mapctl,
                   options: MapOptions(
                       center: const LatLng(-4.325, 15.322222),
@@ -86,161 +320,91 @@ class _HomeDriverScreenState extends State<HomeDriverScreen> {
                     )
                   ],
                 ),
-                Container(
-                  child: SingleChildScrollView(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const SizedBox(height: 20),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            GestureDetector(
-                                onTap: () async {
-                                  //_key.currentState!.openDrawer();
-                                  var pose = await locationController
+                */
+                      ,
+                      Container(
+                        child: SingleChildScrollView(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const SizedBox(height: 20),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                children: [
+                                  GestureDetector(
+                                      onTap: () async {
+                                        _key.currentState!.openDrawer();
+                                        /*var pose = await locationController
                                       .getCurrentPosition();
                                   _mapctl.move(
                                       LatLng(pose.latitude, pose.longitude),
-                                      16.5);
-                                },
-                                child: Container(
-                                  width: 40,
-                                  height: 40,
-                                  decoration: boxDecorationWithRoundedCorners(
-                                    backgroundColor: Colors.white,
-                                    borderRadius: BorderRadius.circular(12),
-                                    border: Border.all(
-                                        color: Colors.grey.withOpacity(0.2)),
+                                      16.5);*/
+                                        //Get.back();
+                                      },
+                                      child: Container(
+                                        width: 40,
+                                        height: 40,
+                                        decoration:
+                                            boxDecorationWithRoundedCorners(
+                                          backgroundColor: Colors.white,
+                                          borderRadius:
+                                              BorderRadius.circular(12),
+                                          border: Border.all(
+                                              color:
+                                                  Colors.grey.withOpacity(0.2)),
+                                        ),
+                                        child: const Icon(
+                                          Icons.menu,
+                                          color: primaryColor,
+                                        ),
+                                      )),
+                                  SizedBox(
+                                    width:
+                                        MediaQuery.of(context).size.width / 2,
                                   ),
-                                  child: const Icon(
-                                    Icons.menu,
-                                    color: primaryColor,
-                                  ),
-                                )),
-                            GestureDetector(
-                                onTap: (() {
-                                  authController.logoff();
-                                }),
-                                child: Container(
-                                  width: 40,
-                                  height: 40,
-                                  decoration: boxDecorationWithRoundedCorners(
-                                    backgroundColor: Colors.white,
-                                    borderRadius: BorderRadius.circular(12),
-                                    border: Border.all(
-                                        color: Colors.grey.withOpacity(0.2)),
-                                  ),
-                                  alignment: Alignment.center,
-                                  child: const Icon(Icons.logout,
-                                      color: res.errorColor),
-                                ))
-                          ],
-                        ).paddingOnly(left: 16, right: 16, bottom: 16),
-                        Text('${authController.user.value != null ? authController.user.value!.fullname : "test testR"},',
-                                style: secondaryTextStyle())
-                            .paddingOnly(left: 16, right: 16),
-                        Text('Welcome Back', style: boldTextStyle(size: 20))
-                            .paddingOnly(left: 16, right: 16),
-                        SingleChildScrollView(
-                          scrollDirection: Axis.horizontal,
-                          child: Container(),
+                                  GestureDetector(
+                                      onTap: (() {
+                                        authController.logoff();
+                                        //checkController.updatingRoute(1);
+                                      }),
+                                      child: Container(
+                                        width: 40,
+                                        height: 40,
+                                        decoration:
+                                            boxDecorationWithRoundedCorners(
+                                          backgroundColor: Colors.white,
+                                          borderRadius:
+                                              BorderRadius.circular(12),
+                                          border: Border.all(
+                                              color:
+                                                  Colors.grey.withOpacity(0.2)),
+                                        ),
+                                        alignment: Alignment.center,
+                                        child: const Icon(Icons.logout,
+                                            color: res.errorColor),
+                                      ))
+                                ],
+                              ).paddingOnly(left: 16, right: 16, bottom: 16),
+                              Text('${authController.user.value != null ? authController.user.value!.fullname : "test testR"},',
+                                      style: secondaryTextStyle())
+                                  .paddingOnly(left: 16, right: 16),
+                              Text('Welcome Back',
+                                      style: boldTextStyle(size: 20))
+                                  .paddingOnly(left: 16, right: 16),
+                              SingleChildScrollView(
+                                scrollDirection: Axis.horizontal,
+                                child: Container(),
+                              ),
+                              16.height,
+                            ],
+                          ),
                         ),
-                        16.height,
-                        Obx(() {
-                          return checkController.currentRoute.value != null
-                              ? Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    GestureDetector(
-                                        onTap: () async {
-                                          //_key.currentState!.openDrawer();
-                                        },
-                                        child: Container(
-                                          padding: EdgeInsets.all(8),
-                                          width: MediaQuery.of(context)
-                                                  .size
-                                                  .width /
-                                              2,
-                                          height: MediaQuery.of(context)
-                                                  .size
-                                                  .width /
-                                              2,
-                                          decoration:
-                                              boxDecorationWithRoundedCorners(
-                                            backgroundColor:
-                                                Colors.white.withOpacity(0.8),
-                                            borderRadius:
-                                                BorderRadius.circular(50),
-                                            border: Border.all(
-                                                color: Colors.grey
-                                                    .withOpacity(0.2)),
-                                          ),
-                                          child: Column(children: [
-                                            const Icon(
-                                              Icons.pin_drop_outlined,
-                                              color: greenColor,
-                                              size: 40,
-                                            ),
-                                            Text(
-                                              checkController
-                                                          .currentRoute.value ==
-                                                      null
-                                                  ? ""
-                                                  : 'Orgine: ${checkController.currentRoute.value!.origine!}',
-                                              style:
-                                                  secondaryTextStyle(size: 12),
-                                              textAlign: TextAlign.center,
-                                            ),
-                                            Text(
-                                              checkController
-                                                          .currentRoute.value ==
-                                                      null
-                                                  ? ""
-                                                  : ' dest: ${checkController.currentRoute.value!.destination!}',
-                                              style:
-                                                  secondaryTextStyle(size: 12),
-                                              textAlign: TextAlign.center,
-                                            ),
-                                            Text(
-                                              checkController
-                                                          .currentRoute.value ==
-                                                      null
-                                                  ? ""
-                                                  : 'passagers: ${checkController.currentRoute.value!.passengers}',
-                                              style:
-                                                  secondaryTextStyle(size: 12),
-                                              textAlign: TextAlign.center,
-                                            ),
-                                            SubmitButton(
-                                                onPressed: () {
-                                                  Get.to(
-                                                      () => DashboardScreen());
-                                                },
-                                                text: "Voir tout",
-                                                bgColor: primaryColor)
-                                          ]),
-                                        )),
-                                    //Expanded(child: Line()
-                                    /*Divider(
-                              thickness: 3,
-                              height: 5,
-                              color: primaryColor,
-                            )*/
-                                    //),
-                                  ],
-                                ).paddingOnly(left: 16, right: 16, bottom: 16)
-                              : Container();
-                        })
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            )),
-      ),
-    );
+                      ),
+                    ],
+                  )),
+            ),
+          );
+        });
   }
 }
 
@@ -260,7 +424,7 @@ class ExampleSidebarX extends StatelessWidget {
       theme: SidebarXTheme(
         margin: const EdgeInsets.all(10),
         decoration: BoxDecoration(
-          color: secondaryColoro,
+          color: secondaryColor,
           borderRadius: BorderRadius.circular(20),
         ),
         hoverColor: primaryWhite,
@@ -272,7 +436,7 @@ class ExampleSidebarX extends StatelessWidget {
         selectedItemTextPadding: const EdgeInsets.only(left: 30),
         itemDecoration: BoxDecoration(
           borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: secondaryColoro),
+          border: Border.all(color: secondaryColor),
         ),
         selectedItemDecoration: BoxDecoration(
           borderRadius: BorderRadius.circular(10),
@@ -280,7 +444,7 @@ class ExampleSidebarX extends StatelessWidget {
             color: primaryColor.withOpacity(0.37),
           ),
           gradient: const LinearGradient(
-            colors: [primaryColor, secondaryColoro],
+            colors: [primaryColor, secondaryColor],
           ),
           boxShadow: [
             BoxShadow(
@@ -301,7 +465,7 @@ class ExampleSidebarX extends StatelessWidget {
       extendedTheme: SidebarXTheme(
         width: MediaQuery.of(context).size.width / 1.5,
         decoration: const BoxDecoration(
-          color: secondaryColoro,
+          color: secondaryColor,
         ),
       ),
       footerDivider: divider,
@@ -340,14 +504,14 @@ class ExampleSidebarX extends StatelessWidget {
             Get.to(() => const DashboardScreen());
           },
         ),
-        SidebarXItem(
+        /* SidebarXItem(
           icon: Icons.app_registration,
           label: 'Itineraires',
           onTap: () {
             Get.back();
             Get.to(() => const RoutesScreen());
           },
-        ),
+        ),*/
         /* const SidebarXItem(
           icon: Icons.people,
           label: 'People',

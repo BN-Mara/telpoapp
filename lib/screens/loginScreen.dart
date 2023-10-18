@@ -50,7 +50,7 @@ class _SearchScreenState extends State<LoginScreen> {
         ],
       ),
       const SizedBox(
-        height: 12.0,
+        height: 20.0,
       ),
       Form(
           key: _formKey,
@@ -63,7 +63,7 @@ class _SearchScreenState extends State<LoginScreen> {
                   obscureText: false,
                   keyboardType: TextInputType.emailAddress),
               const SizedBox(
-                height: 12.0,
+                height: 20.0,
               ),
               InputTextWidget(
                   controller: _pwdController,
@@ -90,7 +90,7 @@ class _SearchScreenState extends State<LoginScreen> {
                     )),
               ),*/
               const SizedBox(
-                height: 15.0,
+                height: 25.0,
               ),
               Obx(() {
                 return authController.login_process.isTrue
@@ -109,6 +109,7 @@ class _SearchScreenState extends State<LoginScreen> {
                         },
                         text: 'Connexion',
                         bgColor: primaryColor,
+                        height: 50,
                       );
               }),
             ],
@@ -133,12 +134,13 @@ class _SearchScreenState extends State<LoginScreen> {
             flexibleSpace: FlexibleSpaceBar(
               centerTitle: true,
               background: Container(
-                  color: primaryColor,
-                  child:
-                      Container() /*Image.asset(
-                  "assets/images/wlogo.png",
-                ),*/
-                  ),
+                color: primaryColor,
+                child: Image.asset(
+                  "assets/images/logo_transcar.png",
+                  height: 50,
+                  scale: 2,
+                ),
+              ),
             ),
           ),
           SliverToBoxAdapter(
