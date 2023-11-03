@@ -58,6 +58,15 @@ class RouteApi {
     );
   }
 
+  static Future<Response> getTicketPrice() async {
+    var token = GetStorage().read("token");
+    //AppUtils.http.headers['Authorization'] = "Bearer $token";
+    return await DIO.get(
+      AppUtils.http.GET_TICKET_PRICE,
+      options: Options(headers: AppUtils.http.headers),
+    );
+  }
+
   static Future<Response> getDataRoute(Place s, Place d) async {
     final String url = 'https://api.openrouteservice.org/v2/directions/';
     final String apiKey =
@@ -90,5 +99,18 @@ class RouteApi {
       AppUtils.http.GET_CARD_ALL,
       options: Options(headers: AppUtils.http.headers),
     );
+  }
+
+  static Future<Response> postCardRecharge(Map<String, dynamic> card) async {
+    var token = GetStorage().read("token");
+    AppUtils.http.headers['Authorization'] = "Bearer $token";
+
+    print(AppUtils.http.CARD_RECHRGE_URL);
+    return await DIO.post(
+      AppUtils.http.CARD_RECHRGE_URL,
+      data: card,
+      options: Options(headers: AppUtils.http.headers),
+    );
+    // return await http.get(Configs.http.GET_PING, headers: Configs.http.headers);
   }
 }

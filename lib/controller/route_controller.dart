@@ -13,6 +13,7 @@ import 'package:telpoapp/model/client_card.dart';
 import 'package:telpoapp/model/itineraire.dart';
 import 'package:telpoapp/model/my_card_info.dart';
 import 'package:telpoapp/model/place.dart';
+import 'package:telpoapp/model/ticket_price.dart';
 import 'package:telpoapp/res/colors.dart';
 import 'package:telpoapp/res/strings.dart';
 import 'package:telpoapp/screens/routesScreen.dart';
@@ -50,6 +51,7 @@ class RouteController extends GetxController {
 
   var cardList = <ClientCard>[].obs;
   var process_get_cards = false.obs;
+  var ticketPrice = <TicketPrice>[].obs;
 
   @override
   void onInit() {
@@ -57,6 +59,7 @@ class RouteController extends GetxController {
     super.onInit();
     getPlaces();
     getCards();
+    getTicketPrices();
   }
 
   @override
@@ -64,6 +67,7 @@ class RouteController extends GetxController {
     getMyRoutes();
     getPlaces();
     getCards();
+    getTicketPrices();
   }
 
   getPlaces() async {
@@ -80,6 +84,14 @@ class RouteController extends GetxController {
     }).whenComplete(() {
       process_places.value = false;
     });
+  }
+
+  getTicketPrices() async {
+    RouteApi.getTicketPrice().then((value) async {
+      ticketPrice.value = await TicketPrice.ticketsfromJson(value.data);
+    }).onError((DioException error, stackTrace) {
+      print("${error.response!.data}");
+    }).whenComplete(() {});
   }
 
   getCards() async {

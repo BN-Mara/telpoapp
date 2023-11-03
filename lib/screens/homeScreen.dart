@@ -55,88 +55,13 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             child: Stack(
               children: [
-                /*FlutterMap(
-                  mapController: _mapctl,
-                  options: MapOptions(
-                      center: const LatLng(-4.325, 15.322222),
-                      zoom: 16.5,
-                      maxZoom: 19.0,
-                      minZoom: 13),
-                  children: [
-                    TileLayer(
-                      urlTemplate:
-                          'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-                      subdomains: ['a', 'b', 'c'],
-                      maxZoom: 19.0,
-                      minZoom: 13.0,
-                    ),
-                    CurrentLocationLayer(
-                      followOnLocationUpdate: FollowOnLocationUpdate.always,
-                      turnOnHeadingUpdate: TurnOnHeadingUpdate.never,
-                      style: const LocationMarkerStyle(
-                        marker: DefaultLocationMarker(
-                          child: Icon(
-                            Icons.navigation,
-                            color: Colors.white,
-                          ),
-                        ),
-                        markerSize: Size(40, 40),
-                        markerDirection: MarkerDirection.heading,
-                      ),
-                    )
-                  ],
-                ),*/
                 Container(
                   child: SingleChildScrollView(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const SizedBox(height: 20),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            GestureDetector(
-                                onTap: () async {
-                                  _key.currentState!.openDrawer();
-                                  /*var pose = await locationController
-                                      .getCurrentPosition();
-                                  _mapctl.move(
-                                      LatLng(pose.latitude, pose.longitude),
-                                      16.5);*/
-                                },
-                                child: Container(
-                                  width: 40,
-                                  height: 40,
-                                  decoration: boxDecorationWithRoundedCorners(
-                                    backgroundColor: Colors.white,
-                                    borderRadius: BorderRadius.circular(12),
-                                    border: Border.all(
-                                        color: Colors.grey.withOpacity(0.2)),
-                                  ),
-                                  child: const Icon(
-                                    Icons.menu,
-                                    color: primaryColor,
-                                  ),
-                                )),
-                            GestureDetector(
-                                onTap: (() {
-                                  authController.logoff();
-                                }),
-                                child: Container(
-                                  width: 40,
-                                  height: 40,
-                                  decoration: boxDecorationWithRoundedCorners(
-                                    backgroundColor: Colors.white,
-                                    borderRadius: BorderRadius.circular(12),
-                                    border: Border.all(
-                                        color: Colors.grey.withOpacity(0.2)),
-                                  ),
-                                  alignment: Alignment.center,
-                                  child: const Icon(Icons.logout,
-                                      color: res.errorColor),
-                                ))
-                          ],
-                        ).paddingOnly(left: 16, right: 16, bottom: 16),
+                        rowMenuAndLogout(),
                         Text('${authController.user.value != null ? authController.user.value!.fullname : "test testR"},',
                                 style: secondaryTextStyle())
                             .paddingOnly(left: 16, right: 16),
@@ -149,104 +74,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         16.height,
                         Obx(() {
                           return routeController.activeRoute.value != null
-                              ? Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    GestureDetector(
-                                        onTap: () async {
-                                          //_key.currentState!.openDrawer();
-                                        },
-                                        child: Container(
-                                          padding: EdgeInsets.all(8),
-                                          width: 100,
-                                          height: 100,
-                                          decoration:
-                                              boxDecorationWithRoundedCorners(
-                                            backgroundColor:
-                                                Colors.white.withOpacity(0.8),
-                                            borderRadius:
-                                                BorderRadius.circular(50),
-                                            border: Border.all(
-                                                color: Colors.grey
-                                                    .withOpacity(0.2)),
-                                          ),
-                                          child: Column(children: [
-                                            const Icon(
-                                              Icons.pin_drop_outlined,
-                                              color: greenColor,
-                                              size: 40,
-                                            ),
-                                            Text(
-                                              routeController
-                                                          .activeRoute.value ==
-                                                      null
-                                                  ? ""
-                                                  : routeController.activeRoute
-                                                      .value!.origine!,
-                                              style:
-                                                  secondaryTextStyle(size: 12),
-                                              textAlign: TextAlign.center,
-                                            ),
-                                            /* Obx(() {
-                                              return Text(
-                                                routeController.activeRoute
-                                                            .value ==
-                                                        null
-                                                    ? ""
-                                                    : '${routeController.activeRoute.value!.passengers}',
-                                                style: secondaryTextStyle(
-                                                    size: 15),
-                                                textAlign: TextAlign.center,
-                                              );
-                                            }),*/
-                                          ]),
-                                        )),
-                                    Expanded(
-                                        /*child: Line()*/
-                                        child: Divider(
-                                      thickness: 3,
-                                      height: 5,
-                                      color: primaryColor.withOpacity(0.3),
-                                    )),
-                                    GestureDetector(
-                                        onTap: (() {}),
-                                        child: Container(
-                                          padding: EdgeInsets.all(8),
-                                          width: 100,
-                                          height: 100,
-                                          decoration:
-                                              boxDecorationWithRoundedCorners(
-                                            backgroundColor:
-                                                Colors.white.withOpacity(0.8),
-                                            borderRadius:
-                                                BorderRadius.circular(50),
-                                            border: Border.all(
-                                                color: Colors.grey
-                                                    .withOpacity(0.2)),
-                                          ),
-                                          alignment: Alignment.center,
-                                          child: Column(children: [
-                                            const Icon(
-                                              Icons.pin_drop,
-                                              color: res.errorColor,
-                                              size: 40,
-                                            ),
-                                            Text(
-                                              routeController
-                                                          .activeRoute.value ==
-                                                      null
-                                                  ? ""
-                                                  : routeController.activeRoute
-                                                      .value!.destination!,
-                                              style:
-                                                  secondaryTextStyle(size: 12),
-                                              textAlign: TextAlign.center,
-                                            )
-                                          ]),
-                                        ))
-                                  ],
-                                ).paddingOnly(left: 16, right: 16, bottom: 16)
+                              ? showRoute()
                               : Container();
                         })
                       ],
@@ -268,131 +96,22 @@ class _HomeScreenState extends State<HomeScreen> {
                                                   .size
                                                   .width /
                                               3,
-                                          child:
-                                              routeController
-                                                      .process_add_pass.isTrue
-                                                  ? LinearProgressIndicator()
-                                                  : SubmitButton(
-                                                      onPressed: () {
-                                                        psgCtl.text = "0";
-                                                        Get.defaultDialog(
-                                                            title:
-                                                                "Ajouter passagers",
-                                                            content: Container(
-                                                                child: Form(
-                                                                    child: SingleChildScrollView(
-                                                                        child: Column(
-                                                              children: [
-                                                                Padding(
-                                                                    padding: const EdgeInsets
-                                                                        .only(
-                                                                        left:
-                                                                            15,
-                                                                        right:
-                                                                            15),
-                                                                    child:
-                                                                        TextFormField(
-                                                                      decoration:
-                                                                          textInputDecoration(
-                                                                              "Nombre de passagers"),
-                                                                      controller:
-                                                                          psgCtl,
-                                                                      keyboardType: const TextInputType
-                                                                          .numberWithOptions(
-                                                                          signed:
-                                                                              false,
-                                                                          decimal:
-                                                                              false),
-                                                                      readOnly:
-                                                                          true,
-                                                                    )),
-                                                                15.height,
-                                                                Row(
-                                                                  children: [
-                                                                    Expanded(
-                                                                      child:
-                                                                          SubmitButton(
-                                                                        bgColor:
-                                                                            primaryBlack.withOpacity(0.5),
-                                                                        onPressed:
-                                                                            () {
-                                                                          int p =
-                                                                              int.parse(psgCtl.text) + 1;
-                                                                          psgCtl.text =
-                                                                              "$p";
-                                                                        },
-                                                                        text:
-                                                                            "+1",
-                                                                      ),
-                                                                    ),
-                                                                    Expanded(
-                                                                      child:
-                                                                          SubmitButton(
-                                                                        bgColor:
-                                                                            primaryBlack,
-                                                                        onPressed:
-                                                                            () {
-                                                                          int p =
-                                                                              int.parse(psgCtl.text) + 5;
-                                                                          psgCtl.text =
-                                                                              "$p";
-                                                                        },
-                                                                        text:
-                                                                            "+5",
-                                                                      ),
-                                                                    ),
-                                                                    Expanded(
-                                                                      child:
-                                                                          SubmitButton(
-                                                                        bgColor:
-                                                                            redColor.withOpacity(0.5),
-                                                                        onPressed:
-                                                                            () {
-                                                                          int p =
-                                                                              int.parse(psgCtl.text) - 5;
-                                                                          psgCtl.text =
-                                                                              "$p";
-                                                                        },
-                                                                        text:
-                                                                            "-1",
-                                                                      ),
-                                                                    ),
-                                                                    Expanded(
-                                                                      child:
-                                                                          SubmitButton(
-                                                                        bgColor:
-                                                                            redColor,
-                                                                        onPressed:
-                                                                            () {
-                                                                          int p =
-                                                                              int.parse(psgCtl.text) - 5;
-                                                                          psgCtl.text =
-                                                                              "$p";
-                                                                        },
-                                                                        text:
-                                                                            "-5",
-                                                                      ),
-                                                                    )
-                                                                  ],
-                                                                ),
-                                                                15.height,
-                                                                SubmitButton(
-                                                                    onPressed:
-                                                                        () {
-                                                                      routeController
-                                                                          .addPassengers(
-                                                                              psgCtl.text);
-                                                                      Get.back();
-                                                                    },
-                                                                    text:
-                                                                        "Valider",
-                                                                    bgColor:
-                                                                        primaryColor)
-                                                              ],
-                                                            )))));
-                                                      },
-                                                      text: "+Passagers",
-                                                      bgColor: primaryColor)),
+                                          child: routeController
+                                                  .process_add_pass.isTrue
+                                              ? LinearProgressIndicator()
+                                              : SubmitButton(
+                                                  onPressed: () {
+                                                    psgCtl.text = "0";
+                                                    Get.defaultDialog(
+                                                        title:
+                                                            "Ajouter passagers",
+                                                        content:
+                                                            addPassengersForm());
+                                                  },
+                                                  text: "+Passagers",
+                                                  bgColor: primaryColor,
+                                                  icon: Icons.add,
+                                                )),
                                       Expanded(
                                           child: routeController
                                                   .process_route_end.isTrue
@@ -403,7 +122,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                                         .endCurrentRoute();
                                                   },
                                                   text: "Arrive",
-                                                  bgColor: redColor))
+                                                  bgColor: redColor,
+                                                  icon: Icons.stop_outlined,
+                                                ))
                                     ])
                                   : routeController.process_create_route.isTrue
                                       ? LinearProgressIndicator()
@@ -417,228 +138,342 @@ class _HomeScreenState extends State<HomeScreen> {
                                                   return AlertDialog(
                                                       scrollable: true,
                                                       title: Text("ITINERAIRE"),
-                                                      content: Container(
-                                                          child: Obx(() {
-                                                        return Container(
-                                                            child: Form(
-                                                                key: _formkey,
-                                                                child:
-                                                                    SingleChildScrollView(
-                                                                  child: Column(
-                                                                    children: [
-                                                                      DropdownSearch<
-                                                                          Place>(
-                                                                        filterFn:
-                                                                            (item,
-                                                                                filter) {
-                                                                          return item
-                                                                              .name!
-                                                                              .toUpperCase()
-                                                                              .contains(filter.toUpperCase());
-                                                                        },
-                                                                        popupProps:
-                                                                            PopupProps.menu(
-                                                                          searchFieldProps:
-                                                                              TextFieldProps(
-                                                                            cursorColor:
-                                                                                primaryColor,
-                                                                            decoration:
-                                                                                textInputDecoration("Rechercher..."),
-                                                                          ),
-                                                                          showSearchBox:
-                                                                              true,
-                                                                          showSelectedItems:
-                                                                              false,
-                                                                          //showSearchBox: true,
-                                                                          disabledItemFn: (Place p) =>
-                                                                              p.name ==
-                                                                              routeController.toContrl.value,
-                                                                        ),
-                                                                        items: routeController
-                                                                            .places
-                                                                            .value,
-                                                                        dropdownDecoratorProps:
-                                                                            DropDownDecoratorProps(
-                                                                          dropdownSearchDecoration: textInputDecoration(
-                                                                              "Depart",
-                                                                              "",
-                                                                              ""),
-                                                                        ),
-                                                                        onChanged:
-                                                                            (value) {
-                                                                          if (value !=
-                                                                              null) {
-                                                                            routeController.fromContrl.value =
-                                                                                value.name!;
-                                                                            // _province = value;
-                                                                          }
-                                                                        },
-                                                                        validator:
-                                                                            (value) {
-                                                                          if (value ==
-                                                                              null) {
-                                                                            return "Ce champs est requis";
-                                                                          } else {
-                                                                            return null;
-                                                                          }
-                                                                        },
-                                                                        itemAsString:
-                                                                            (Place p) =>
-                                                                                p.name!,
-                                                                        //selectedItem: provices.first,
-                                                                      ),
-                                                                      10.height,
-                                                                      DropdownSearch<
-                                                                          Place>(
-                                                                        filterFn:
-                                                                            (item,
-                                                                                filter) {
-                                                                          return item
-                                                                              .name!
-                                                                              .toUpperCase()
-                                                                              .contains(filter.toUpperCase());
-                                                                        },
-                                                                        popupProps:
-                                                                            PopupProps.menu(
-                                                                          searchFieldProps:
-                                                                              TextFieldProps(
-                                                                            cursorColor:
-                                                                                primaryColor,
-                                                                            decoration:
-                                                                                textInputDecoration("rechercher..."),
-                                                                          ),
-                                                                          showSearchBox:
-                                                                              true,
-                                                                          showSelectedItems:
-                                                                              false,
-                                                                          //showSearchBox: true,
-                                                                          disabledItemFn: (Place p) =>
-                                                                              p.name ==
-                                                                              routeController.fromContrl.value,
-                                                                        ),
-                                                                        items: routeController
-                                                                            .places
-                                                                            .value,
-                                                                        dropdownDecoratorProps:
-                                                                            DropDownDecoratorProps(
-                                                                          dropdownSearchDecoration: textInputDecoration(
-                                                                              "Destination",
-                                                                              "",
-                                                                              ""),
-                                                                        ),
-                                                                        onChanged:
-                                                                            (value) {
-                                                                          if (value !=
-                                                                              null) {
-                                                                            routeController.toContrl.value =
-                                                                                value.name!;
-                                                                            // _province = value;
-                                                                          }
-                                                                        },
-                                                                        validator:
-                                                                            (value) {
-                                                                          if (value ==
-                                                                              null) {
-                                                                            return "Ce champs est requis";
-                                                                          } else {
-                                                                            return null;
-                                                                          }
-                                                                        },
-                                                                        itemAsString:
-                                                                            (Place p) =>
-                                                                                p.name!,
-                                                                        //selectedItem: provices.first,
-                                                                      ),
-                                                                      10.height,
-                                                                      TextFormField(
-                                                                        decoration:
-                                                                            textInputDecoration("Nombre de passagers"),
-                                                                        controller: routeController
-                                                                            .passangenrContrl
-                                                                            .value,
-                                                                        keyboardType: const TextInputType
-                                                                            .numberWithOptions(
-                                                                            signed:
-                                                                                false,
-                                                                            decimal:
-                                                                                false),
-                                                                      )
-                                                                      /*InputTextWidget(
-                                                              controller:
-                                                                  routeController
-                                                                      .fromContrl
-                                                                      .value,
-                                                              labelText:
-                                                                  "Nombre passagers",
-                                                              icon: Icons
-                                                                  .people_alt,
-                                                              obscureText:
-                                                                  false,
-                                                              keyboardType:
-                                                                  const TextInputType
-                                                                      .numberWithOptions())*/
-                                                                      ,
-                                                                      10.height,
-                                                                      Row(
-                                                                        mainAxisAlignment:
-                                                                            MainAxisAlignment.spaceBetween,
-                                                                        crossAxisAlignment:
-                                                                            CrossAxisAlignment.center,
-                                                                        children: [
-                                                                          /*Padding(
-                                                                      padding: const EdgeInsets
-                                                                          .only(
-                                                                          left:
-                                                                              20),
-                                                                      child: IconButton(
-                                                                          iconSize: 35,
-                                                                          onPressed: () {
-                                                                            var tp =
-                                                                                routeController.fromContrl.value;
-                                                                            routeController.fromContrl.value =
-                                                                                routeController.toContrl.value;
-                                                                            routeController.toContrl.value =
-                                                                                tp;
-                                                                          },
-                                                                          icon: const Icon(
-                                                                            Icons.change_circle,
-                                                                          ),
-                                                                          color: primaryBlack)),*/
-                                                                          Expanded(
-                                                                              child: SubmitButton(
-                                                                            onPressed:
-                                                                                () {
-                                                                              var form = _formkey.currentState;
-                                                                              if (form!.validate()) {
-                                                                                routeController.setCurrentRoute();
-                                                                                Get.back();
-                                                                              }
-                                                                            },
-                                                                            text:
-                                                                                "Valider",
-                                                                            bgColor:
-                                                                                greenColor,
-                                                                            height:
-                                                                                40.0,
-                                                                          ))
-                                                                        ],
-                                                                      )
-                                                                    ],
-                                                                  ),
-                                                                )));
-                                                      })));
+                                                      content: routeAdd());
                                                 },
                                               ),
                                             );
                                           },
                                           text: "Nouvel itinéraire",
-                                          bgColor: primaryColor),
+                                          bgColor: primaryColor,
+                                          icon: Icons.arrow_right_alt_outlined,
+                                        ),
                             );
                     })),
               ],
             )),
       ),
     );
+  }
+
+  Widget showRoute() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        GestureDetector(
+            onTap: () async {
+              //_key.currentState!.openDrawer();
+            },
+            child: Container(
+              padding: EdgeInsets.all(8),
+              width: 100,
+              height: 100,
+              decoration: boxDecorationWithRoundedCorners(
+                backgroundColor: Colors.white.withOpacity(0.8),
+                borderRadius: BorderRadius.circular(50),
+                border: Border.all(color: Colors.grey.withOpacity(0.2)),
+              ),
+              child: Column(children: [
+                const Icon(
+                  Icons.pin_drop_outlined,
+                  color: greenColor,
+                  size: 40,
+                ),
+                Text(
+                  routeController.activeRoute.value == null
+                      ? ""
+                      : routeController.activeRoute.value!.origine!,
+                  style: secondaryTextStyle(size: 12),
+                  textAlign: TextAlign.center,
+                ),
+                /* Obx(() {
+                                              return Text(
+                                                routeController.activeRoute
+                                                            .value ==
+                                                        null
+                                                    ? ""
+                                                    : '${routeController.activeRoute.value!.passengers}',
+                                                style: secondaryTextStyle(
+                                                    size: 15),
+                                                textAlign: TextAlign.center,
+                                              );
+                                            }),*/
+              ]),
+            )),
+        const Expanded(
+            /*child: Line()*/
+            child: Divider(
+          thickness: 3,
+          height: 5,
+          color: Colors.transparent,
+        )),
+        GestureDetector(
+            onTap: (() {}),
+            child: Container(
+              padding: EdgeInsets.all(8),
+              width: 100,
+              height: 100,
+              decoration: boxDecorationWithRoundedCorners(
+                backgroundColor: Colors.white.withOpacity(0.8),
+                borderRadius: BorderRadius.circular(50),
+                border: Border.all(color: Colors.grey.withOpacity(0.2)),
+              ),
+              alignment: Alignment.center,
+              child: Column(children: [
+                const Icon(
+                  Icons.pin_drop,
+                  color: res.errorColor,
+                  size: 40,
+                ),
+                Text(
+                  routeController.activeRoute.value == null
+                      ? ""
+                      : routeController.activeRoute.value!.destination!,
+                  style: secondaryTextStyle(size: 12),
+                  textAlign: TextAlign.center,
+                )
+              ]),
+            ))
+      ],
+    ).paddingOnly(left: 16, right: 16, bottom: 16);
+  }
+
+  Widget rowMenuAndLogout() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        GestureDetector(
+            onTap: () async {
+              _key.currentState!.openDrawer();
+              /*var pose = await locationController
+                                      .getCurrentPosition();
+                                  _mapctl.move(
+                                      LatLng(pose.latitude, pose.longitude),
+                                      16.5);*/
+            },
+            child: Container(
+              width: 40,
+              height: 40,
+              decoration: boxDecorationWithRoundedCorners(
+                backgroundColor: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: Colors.grey.withOpacity(0.2)),
+              ),
+              child: const Icon(
+                Icons.menu,
+                color: primaryColor,
+              ),
+            )),
+        GestureDetector(
+            onTap: (() {
+              authController.logoff();
+            }),
+            child: Container(
+              width: 40,
+              height: 40,
+              decoration: boxDecorationWithRoundedCorners(
+                backgroundColor: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: Colors.grey.withOpacity(0.2)),
+              ),
+              alignment: Alignment.center,
+              child: const Icon(Icons.logout, color: res.errorColor),
+            ))
+      ],
+    ).paddingOnly(left: 16, right: 16, bottom: 16);
+  }
+
+  Widget routeAdd() {
+    return Container(child: Obx(() {
+      return Container(
+          child: Form(
+              key: _formkey,
+              child: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    DropdownSearch<Place>(
+                      filterFn: (item, filter) {
+                        return item.name!
+                            .toUpperCase()
+                            .contains(filter.toUpperCase());
+                      },
+                      popupProps: PopupProps.menu(
+                        searchFieldProps: TextFieldProps(
+                          cursorColor: primaryColor,
+                          decoration: textInputDecoration("Rechercher..."),
+                        ),
+                        showSearchBox: true,
+                        showSelectedItems: false,
+                        //showSearchBox: true,
+                        disabledItemFn: (Place p) =>
+                            p.name == routeController.toContrl.value,
+                      ),
+                      items: routeController.places.value,
+                      dropdownDecoratorProps: DropDownDecoratorProps(
+                        dropdownSearchDecoration:
+                            textInputDecoration("Depart", "", ""),
+                      ),
+                      onChanged: (value) {
+                        if (value != null) {
+                          routeController.fromContrl.value = value.name!;
+                          // _province = value;
+                        }
+                      },
+                      validator: (value) {
+                        if (value == null) {
+                          return "Ce champs est requis";
+                        } else {
+                          return null;
+                        }
+                      },
+                      itemAsString: (Place p) => p.name!,
+                      //selectedItem: provices.first,
+                    ),
+                    10.height,
+                    DropdownSearch<Place>(
+                      filterFn: (item, filter) {
+                        return item.name!
+                            .toUpperCase()
+                            .contains(filter.toUpperCase());
+                      },
+                      popupProps: PopupProps.menu(
+                        searchFieldProps: TextFieldProps(
+                          cursorColor: primaryColor,
+                          decoration: textInputDecoration("rechercher..."),
+                        ),
+                        showSearchBox: true,
+                        showSelectedItems: false,
+                        //showSearchBox: true,
+                        disabledItemFn: (Place p) =>
+                            p.name == routeController.fromContrl.value,
+                      ),
+                      items: routeController.places.value,
+                      dropdownDecoratorProps: DropDownDecoratorProps(
+                        dropdownSearchDecoration:
+                            textInputDecoration("Destination", "", ""),
+                      ),
+                      onChanged: (value) {
+                        if (value != null) {
+                          routeController.toContrl.value = value.name!;
+                          // _province = value;
+                        }
+                      },
+                      validator: (value) {
+                        if (value == null) {
+                          return "Ce champs est requis";
+                        } else {
+                          return null;
+                        }
+                      },
+                      itemAsString: (Place p) => p.name!,
+                      //selectedItem: provices.first,
+                    ),
+                    10.height,
+                    TextFormField(
+                      decoration: textInputDecoration("Nombre de passagers"),
+                      controller: routeController.passangenrContrl.value,
+                      keyboardType: const TextInputType.numberWithOptions(
+                          signed: false, decimal: false),
+                    ),
+                    10.height,
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Expanded(
+                            child: SubmitButton(
+                          onPressed: () {
+                            var form = _formkey.currentState;
+                            if (form!.validate()) {
+                              routeController.setCurrentRoute();
+                              Get.back();
+                            }
+                          },
+                          text: "Valider",
+                          bgColor: greenColor,
+                          height: 40.0,
+                        ))
+                      ],
+                    )
+                  ],
+                ),
+              )));
+    }));
+  }
+
+  Widget addPassengersButtons() {
+    return Row(
+      children: [
+        Expanded(
+          child: SubmitButton(
+            bgColor: primaryBlack.withOpacity(0.5),
+            onPressed: () {
+              int p = int.parse(psgCtl.text) + 1;
+              psgCtl.text = "$p";
+            },
+            text: "+1",
+          ),
+        ),
+        Expanded(
+          child: SubmitButton(
+            bgColor: primaryBlack,
+            onPressed: () {
+              int p = int.parse(psgCtl.text) + 5;
+              psgCtl.text = "$p";
+            },
+            text: "+5",
+          ),
+        ),
+        Expanded(
+          child: SubmitButton(
+            bgColor: redColor.withOpacity(0.5),
+            onPressed: () {
+              int p = int.parse(psgCtl.text) - 5;
+              psgCtl.text = "$p";
+            },
+            text: "-1",
+          ),
+        ),
+        Expanded(
+          child: SubmitButton(
+            bgColor: redColor,
+            onPressed: () {
+              int p = int.parse(psgCtl.text) - 5;
+              psgCtl.text = "$p";
+            },
+            text: "-5",
+          ),
+        )
+      ],
+    );
+  }
+
+  Widget addPassengersForm() {
+    return Container(
+        child: Form(
+            child: SingleChildScrollView(
+                child: Column(
+      children: [
+        Padding(
+            padding: const EdgeInsets.only(left: 15, right: 15),
+            child: TextFormField(
+              decoration: textInputDecoration("Nombre de passagers"),
+              controller: psgCtl,
+              keyboardType: const TextInputType.numberWithOptions(
+                  signed: false, decimal: false),
+              readOnly: true,
+            )),
+        15.height,
+        addPassengersButtons(),
+        15.height,
+        SubmitButton(
+            onPressed: () {
+              routeController.addPassengers(psgCtl.text);
+              Get.back();
+            },
+            text: "Valider",
+            bgColor: primaryColor)
+      ],
+    ))));
   }
 }
 

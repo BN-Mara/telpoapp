@@ -16,6 +16,7 @@ import 'package:dio/dio.dart' as dio;
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:telpoapp/screens/rechargeScreen.dart';
 
 import 'package:uuid/uuid.dart';
 
@@ -282,13 +283,19 @@ class AuthController extends GetxController {
             Get.off(() => const HomeDriverScreen(),
                 transition: AppUtils.pageTransition,
                 duration: Duration(milliseconds: AppUtils.timeTransition));
-          } else {
+          } else if (user.value!.roles!.contains('ROLE_CONVEYOR')) {
             Get.find<RouteController>().checkActiveRoute(1);
             Get.find<RouteController>().getCards();
+            Get.find<RouteController>().getTicketPrices();
+
             Get.offAll(() => const HomeScreen(),
                 transition: AppUtils.pageTransition,
                 duration: Duration(milliseconds: AppUtils.timeTransition));
-          }
+          } else if (user.value!.roles!.contains('ROLE_RECHARGEUR')) {
+            Get.offAll(() => const RechargeScreen(),
+                transition: AppUtils.pageTransition,
+                duration: Duration(milliseconds: AppUtils.timeTransition));
+          } else {}
         } else {
           popSnackError(message: value.data['message']);
         }
@@ -328,7 +335,10 @@ class AuthController extends GetxController {
           loginWithNfc(nfcId(tag));
         } else {
           print("listened");
-          Get.find<RouteController>().cardPay(nfcId(tag));
+          if (user.value!.roles!.contains("ROLE_RECHARGEUR")) {
+          } else if (user.value!.roles!.contains("ROLE_CONVEYOR")) {
+            Get.find<RouteController>().cardPay(nfcId(tag));
+          }
         }
 
         print("data nfc: ");
@@ -359,13 +369,19 @@ class AuthController extends GetxController {
         Get.offAll(() => const HomeDriverScreen(),
             transition: AppUtils.pageTransition,
             duration: Duration(milliseconds: AppUtils.timeTransition));
-      } else {
+      } else if (user.value!.roles!.contains('ROLE_CONVEYOR')) {
         Get.find<RouteController>().checkActiveRoute(1);
         Get.find<RouteController>().getCards();
+        Get.find<RouteController>().getTicketPrices();
+
         Get.offAll(() => const HomeScreen(),
             transition: AppUtils.pageTransition,
             duration: Duration(milliseconds: AppUtils.timeTransition));
-      }
+      } else if (user.value!.roles!.contains('ROLE_RECHARGEUR')) {
+        Get.offAll(() => const RechargeScreen(),
+            transition: AppUtils.pageTransition,
+            duration: Duration(milliseconds: AppUtils.timeTransition));
+      } else {}
 
       /*Get.offAll(() => const HomeScreen(),
           transition: AppUtils.pageTransition,

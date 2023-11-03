@@ -7,7 +7,7 @@ import 'package:telpoapp/controller/location_controller.dart';
 import 'package:telpoapp/controller/route_controller.dart';
 import 'package:telpoapp/res/colors.dart';
 import 'package:telpoapp/res/strings.dart';
-import 'package:telpoapp/screens/homeScreen.dart';
+//import 'package:telpoapp/screens/homeScreen.dart';
 import 'package:telpoapp/screens/loginScreen.dart';
 
 import 'controller/auth_controller.dart';
@@ -44,6 +44,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: materialPrimary,
       ),
+      debugShowCheckedModeBanner: false,
       home: LoginScreen(),
       //home: const HomeScreen(),
     );

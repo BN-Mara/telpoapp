@@ -87,7 +87,10 @@ class _Http {
   String POST_ROUTE_URL = ACCOUNT_URL + "api/routes";
   String POST_ROUTE_PLACES = ACCOUNT_URL + "api/places";
   String POST_CARD_PAY = ACCOUNT_URL + "transaction/process";
+  String POST_CARD = ACCOUNT_URL + "api/nfc_cards";
   String GET_CARD_ALL = ACCOUNT_URL + "api/nfc_cards";
+  String GET_TICKET_PRICE = ACCOUNT_URL + "api/ticket-price";
+  String CARD_RECHRGE_URL = ACCOUNT_URL + "api/transaction/recharge";
 }
 
 extension _MyDateTime on DateTime {

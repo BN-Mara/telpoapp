@@ -8,6 +8,7 @@ class User {
   String? address;
   String? refresh_token;
   bool? isActive;
+  double? balance;
 
   static User empty() => User.fromJson(null, {});
 
@@ -41,6 +42,9 @@ class User {
     if (data.containsKey('phone')) {
       phone = data['phone'];
     }
+    if (data.containsKey('balance')) {
+      balance = data['balance'];
+    }
   }
 
   Map<String, dynamic> toMap() {
@@ -52,7 +56,8 @@ class User {
       "roles": roles,
       "access_token": token,
       "isActive": isActive,
-      "refresh_token": refresh_token
+      "refresh_token": refresh_token,
+      "balance": balance
     };
   }
 
