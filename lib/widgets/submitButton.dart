@@ -7,13 +7,17 @@ class SubmitButton extends StatelessWidget {
   final Color bgColor;
   final double? height;
   final IconData? icon;
+  final Color? color;
+  final double? iconSize;
   const SubmitButton(
       {super.key,
       required this.onPressed,
       required this.text,
       required this.bgColor,
       this.icon,
-      this.height});
+      this.height,
+      this.color,
+      this.iconSize});
 
   @override
   Widget build(BuildContext context) {
@@ -42,9 +46,13 @@ class SubmitButton extends StatelessWidget {
                 border: Border.all(color: primaryColor, width: 2),
                 gradient: LinearGradient(colors: [
                   primaryWhite,
-                  primaryColor.withOpacity(0.4),
-                  primaryColor.withOpacity(0.8),
-                  primaryColor,
+                  color == null
+                      ? primaryColor.withOpacity(0.4)
+                      : color!.withOpacity(0.4),
+                  color == null
+                      ? primaryColor.withOpacity(0.8)
+                      : color!.withOpacity(0.8),
+                  color == null ? primaryColor : color!,
                 ]),
                 //color: bgColor, // Color(0xffF05945),
                 borderRadius: BorderRadius.circular(12.0)),
@@ -59,14 +67,15 @@ class SubmitButton extends StatelessWidget {
                   ),
                 ),
                 Padding(
-                    padding: EdgeInsets.all(5),
+                    padding: EdgeInsets.all(10),
                     child: Container(
-                        padding: const EdgeInsets.all(8.0),
+                        padding: EdgeInsets.all(
+                            iconSize != null ? (iconSize! / 5) : 8.0),
                         decoration: const BoxDecoration(
                             shape: BoxShape.circle, color: Colors.white),
                         child: Icon(
                           icon ?? Icons.arrow_right_alt_outlined,
-                          size: 25.0,
+                          size: iconSize ?? 40.0,
                           color: primaryColor,
                         )))
               ]),

@@ -51,7 +51,8 @@ class RouteController extends GetxController {
 
   var cardList = <ClientCard>[].obs;
   var process_get_cards = false.obs;
-  var ticketPrice = <TicketPrice>[].obs;
+  var ticketPrices = <TicketPrice>[].obs;
+  var ticketPrice = Rxn<TicketPrice>();
 
   @override
   void onInit() {
@@ -59,7 +60,6 @@ class RouteController extends GetxController {
     super.onInit();
     getPlaces();
     getCards();
-    getTicketPrices();
   }
 
   @override
@@ -67,7 +67,6 @@ class RouteController extends GetxController {
     getMyRoutes();
     getPlaces();
     getCards();
-    getTicketPrices();
   }
 
   getPlaces() async {
@@ -87,11 +86,24 @@ class RouteController extends GetxController {
   }
 
   getTicketPrices() async {
-    RouteApi.getTicketPrice().then((value) async {
-      ticketPrice.value = await TicketPrice.ticketsfromJson(value.data);
+    print("getprices");
+    print(auth.vehicle.value);
+    print(auth.vehicle.value!.region!.replaceAll("/api/regions/", ""));
+    RouteApi.getTicketPrice(
+            auth.vehicle.value!.region!.replaceAll("/api/regions/", ""))
+        .then((value) async {
+      //ticketPrice.value = await TicketPrice.ticketsfromJson(value.data);
+      ticketPrice.value = TicketPrice.fromJson(value.data);
+      Future.delayed(Duration(seconds: 10), getTicketPrices);
     }).onError((DioException error, stackTrace) {
+      print("getprices errror");
       print("${error.response!.data}");
+      Future.delayed(Duration(seconds: 10), getTicketPrices);
     }).whenComplete(() {});
+  }
+
+  replaceRegion(String r) {
+    r.replaceAll("/api/regions/", "");
   }
 
   getCards() async {
@@ -129,8 +141,9 @@ class RouteController extends GetxController {
           startingTime: DateTime.now().toIso8601String(),
           deviceId: GetStorage().read(DEVICE_ID),
           isActive: true,
-          vehicle: '/api/vehicles/1',
+          vehicle: '/api/vehicles/${auth.vehicle.value!.id!}',
           passengers: int.parse(passangenrContrl.value.text),
+          ticketPrice: ticketPrice.value!.price!.toDouble(),
           status: ONGOING_STATE);
       //print(itineraire.toJson());
       //activeRoute.value = itineraire;
@@ -247,15 +260,19 @@ class RouteController extends GetxController {
 
       print(todayList.value.length);
       todayPassengers.value = 0;
+      todayAmount.value = 0;
 
       todayList.value.forEach((element) {
         if (element.driverPassengers != null) {
           todayPassengers.value =
               todayPassengers.value + element.driverPassengers!;
+          todayAmount.value = todayRoutes.value +
+              (element.driverPassengers! * element.ticketPrice!);
         }
       });
       todayRoutes.value = todayList.value.length;
-      todayAmount.value = todayPassengers.value * 500;
+      /*todayAmount.value =
+          todayPassengers.value * ticketPrice.value!.price!.toDouble();*/
       /*monthList.value = routeList.value
           .where((element) =>
               DateTime.parse(element.startingTime!).month ==
@@ -324,12 +341,12 @@ class RouteController extends GetxController {
     paying_process.value = false;
     Map<String, dynamic> card = {
       "uid": nfcUid,
-      "amount": 500,
+      "amount": ticketPrice.value!.price!,
       "routeId": activeRoute.value!.id
     };
     var index = cardList.value.indexWhere((element) => element.uid == nfcUid);
     if (index > -1) {
-      var c = cardList[index].balance! - 500;
+      var c = cardList[index].balance! - ticketPrice.value!.price!;
       if (cardList[index].uid == null) {
         //player2.setLoopMode(LoopMode.off);
         PaymentAlert("Erreur!", "Carte invalide...", Icons.cancel, errorColor);

@@ -57,31 +57,35 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       infos: routeController.routesInfoList.value,
                     )),*/
                 Card(
-                  elevation: 2,
-                  margin: EdgeInsets.all(30),
-                  child: Column(children: [
-                    Text("Details"),
-                    16.height,
-                    Text(
-                        'Total d\'Itineraires: ${routeController.todayRoutes.value}'),
-                    const Divider(),
-                    13.height,
-                    Text(
-                        'Total Passagers: ${routeController.todayPassengers.value}'),
-                    const Divider(),
-                    13.height,
-                    Text('Montant: ${routeController.todayAmount.value}'),
-                    16.height,
-                    SubmitButton(
-                        onPressed: () {
-                          Get.to(() => const RoutesScreen(
-                                flag: 1,
-                              ));
-                        },
-                        text: "voir list",
-                        bgColor: blackColor)
-                  ]),
-                ),
+                    elevation: 2,
+                    margin: EdgeInsets.all(30),
+                    child: Padding(
+                      padding: EdgeInsets.all(15),
+                      child: Column(children: [
+                        Text("Details"),
+                        16.height,
+                        Text(
+                            'Total d\'Itineraires: ${routeController.todayRoutes.value}'),
+                        const Divider(),
+                        13.height,
+                        Text(
+                            'Total Passagers: ${routeController.todayPassengers.value}'),
+                        const Divider(),
+                        13.height,
+                        Text('Montant: ${routeController.todayAmount.value}'),
+                        16.height,
+                        SubmitButton(
+                            height: 50,
+                            iconSize: 20,
+                            onPressed: () {
+                              Get.to(() => const RoutesScreen(
+                                    flag: 1,
+                                  ));
+                            },
+                            text: "voir list",
+                            bgColor: blackColor)
+                      ]),
+                    )),
 
                 /*Padding(
                 padding: const EdgeInsets.only(right: 25.0, top: 10.0),

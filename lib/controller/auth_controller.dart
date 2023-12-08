@@ -1,12 +1,15 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:device_imei/device_imei.dart';
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:nfc_manager/nfc_manager.dart';
 import 'package:nfc_manager/platform_tags.dart';
+import 'package:telpoapp/api/vehicle.dart';
 import 'package:telpoapp/controller/check_route.dart';
+import 'package:telpoapp/controller/recharge_controller.dart';
 import 'package:telpoapp/controller/route_controller.dart';
+import 'package:telpoapp/model/vehicle.dart';
 import 'package:telpoapp/res/colors.dart';
 import 'package:telpoapp/res/strings.dart';
 import 'package:telpoapp/screens/homeDriverScreen.dart';
@@ -42,6 +45,7 @@ class AuthController extends GetxController {
   var codeSent = false.obs;
   var codeValidated = false.obs;
   var temp_user = Rxn<User>();
+  var vehicle = Rxn<Vehicle>();
 
   //forgot(Map<String, dynamic> user) {}
   /*forgot(Map<String, dynamic> user) {
@@ -152,17 +156,33 @@ class AuthController extends GetxController {
     });
   }
 */
+  deviceInfo() async {
+    DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+    AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
+    var deviceIdentifier = androidInfo.id;
+    print(deviceIdentifier);
+    GetStorage().write(DEVICE_ID, deviceIdentifier);
+  }
+
   logoff() {
     logoff_process.value = true;
+    Auth.logoff().then((value) {
+      popSnackSuccess(message: "Deconnexion de votre session!");
+      logoff_process.value = false;
+    }).onError((dio.DioException error, stackTrace) {
+      print("${error.response!.data}");
+      logoff_process.value = false;
+    }).whenComplete(() => logoff_process.value = false);
     GetStorage().remove("user");
     GetStorage().remove("token");
     //GetStorage().remove(PROFILE_PIC_FIREBASE);
+    GetStorage().remove(VEHICLE_KEY);
     user.value = null;
     isLoggedIn.value = false;
+
     Get.offAll(() => LoginScreen(),
         transition: AppUtils.pageTransition,
         duration: Duration(milliseconds: AppUtils.timeTransition));
-    logoff_process.value = false;
   }
 
   modify(Map<String, dynamic> muser) {
@@ -278,12 +298,20 @@ class AuthController extends GetxController {
           GetStorage().write("refreshToken", value.data['refresh_token']);
           print("saved user");
           print(GetStorage().read("user"));
+
+          //Get.find<RouteController>().getTicketPrices();
           if (user.value!.roles!.contains('ROLE_DRIVER')) {
-            Get.find<CheckRouteController>().updatingRoute(1);
+            var v = Vehicle.fromJson(value.data['vehicle']);
+            vehicle.value = v;
+            GetStorage().write(VEHICLE_KEY, v.toJson());
+            Get.find<RouteController>().getTicketPrices();
+
+            Get.find<CheckRouteController>().updatingRoute(v.id!);
             Get.off(() => const HomeDriverScreen(),
                 transition: AppUtils.pageTransition,
                 duration: Duration(milliseconds: AppUtils.timeTransition));
           } else if (user.value!.roles!.contains('ROLE_CONVEYOR')) {
+            getVehicle();
             Get.find<RouteController>().checkActiveRoute(1);
             Get.find<RouteController>().getCards();
             Get.find<RouteController>().getTicketPrices();
@@ -336,6 +364,7 @@ class AuthController extends GetxController {
         } else {
           print("listened");
           if (user.value!.roles!.contains("ROLE_RECHARGEUR")) {
+            Get.find<RechargeController>().process(nfcId(tag));
           } else if (user.value!.roles!.contains("ROLE_CONVEYOR")) {
             Get.find<RouteController>().cardPay(nfcId(tag));
           }
@@ -344,7 +373,6 @@ class AuthController extends GetxController {
         print("data nfc: ");
       },
     );
-
     //print("this");
     /*if (GetStorage().read<String>(DEVICE_ID) == null) {
       var deviceInfo = await DeviceImei().getDeviceInfo();
@@ -354,7 +382,7 @@ class AuthController extends GetxController {
     }*/
     //Get.offAll(() => const HomeScreen());
     try {
-      var uu = GetStorage().read("user");
+      /* var uu = GetStorage().read("user");
       print(uu);
       var token = GetStorage().read("token");
       User _user0 = User.fromJson(null, uu);
@@ -364,6 +392,8 @@ class AuthController extends GetxController {
       //Get.find<CheckRouteController>().updatingRoute(1);
       //Get.find<RouteController>().checkActiveRoute(1);
       //Get.find<RouteController>().getCards();
+      getVehicle();
+
       if (user.value!.roles!.contains('ROLE_DRIVER')) {
         Get.find<CheckRouteController>().updatingRoute(1);
         Get.offAll(() => const HomeDriverScreen(),
@@ -381,11 +411,11 @@ class AuthController extends GetxController {
         Get.offAll(() => const RechargeScreen(),
             transition: AppUtils.pageTransition,
             duration: Duration(milliseconds: AppUtils.timeTransition));
-      } else {}
+      } else {}*/
 
-      /*Get.offAll(() => const HomeScreen(),
+      Get.offAll(() => LoginScreen(),
           transition: AppUtils.pageTransition,
-          duration: Duration(milliseconds: AppUtils.timeTransition));*/
+          duration: Duration(milliseconds: AppUtils.timeTransition));
 
       /*Auth.refreshLogin(_user0.refresh_token!, _user0.email!).then((value) {
         print('data here :  ${value.data.toString()}');
@@ -430,7 +460,27 @@ class AuthController extends GetxController {
     // TODO: implement onInit
     super.onInit();
     sessionToken = const Uuid().v4();
+    deviceInfo();
+    //getVehicle();
     delayIntroScreen();
+  }
+
+  getVehicle() async {
+    print("get vehicle...");
+    VehicleApi.getVehicleByDevice().then((value) {
+      print(value.data);
+      if (value.data.length < 1) {
+        popSnackError(message: "No Vehicle registered for this device");
+        return;
+      }
+
+      var v = Vehicle.fromJson(value.data.first);
+      vehicle.value = v;
+      GetStorage().write(VEHICLE_KEY, v.toJson());
+      Get.find<RouteController>().getTicketPrices();
+    }).onError((dio.DioException error, stackTrace) {
+      print("${error.response!.data}");
+    });
   }
 
   Future<bool> refreshToken() async {

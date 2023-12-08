@@ -75,7 +75,7 @@ class _Http {
 
   String POST_LOGIN = ACCOUNT_URL + 'auth/login_check';
   String POST_LOGIN_NFC = ACCOUNT_URL + 'auth/nfc_login';
-  String POST_LOGOUT = ACCOUNT_URL + 'logout';
+  String POST_LOGOUT = ACCOUNT_URL + 'auth/logout';
   String POST_REGISTER = ACCOUNT_URL + 'register/user';
   //String POST_REGISTER_USER = ACCOUNTS_URL + 'register/user';
   String POST_UNREGISTER = ACCOUNT_URL + 'unregister';
@@ -89,8 +89,15 @@ class _Http {
   String POST_CARD_PAY = ACCOUNT_URL + "transaction/process";
   String POST_CARD = ACCOUNT_URL + "api/nfc_cards";
   String GET_CARD_ALL = ACCOUNT_URL + "api/nfc_cards";
-  String GET_TICKET_PRICE = ACCOUNT_URL + "api/ticket-price";
+  String GET_TICKET_PRICE = ACCOUNT_URL + "api/ticket_prices";
   String CARD_RECHRGE_URL = ACCOUNT_URL + "api/transaction/recharge";
+  String ALERT_URL = ACCOUNT_URL + "api/alerts";
+  String Vehicle_URL = ACCOUNT_URL + "api/vehicles";
+  String VEHICLE_BY_DEVICE_ID(String id) => Vehicle_URL + "?deviceID=$id";
+  String VEHICLE_UPDATE_URL(int id) => "$Vehicle_URL/$id";
+  String VEHICLE_TRACK_UPDATE_URL(int id) =>
+      ACCOUNT_URL + "api/vehicle/tracker/$id";
+  String TICKET_PRICE(String id) => ACCOUNT_URL + "api/ticket/$id";
 }
 
 extension _MyDateTime on DateTime {

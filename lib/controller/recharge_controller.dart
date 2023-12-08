@@ -14,6 +14,7 @@ import 'package:telpoapp/widgets/inputTextWidget.dart';
 import 'package:telpoapp/widgets/recharge_form.dart';
 import 'package:telpoapp/widgets/submitButton.dart';
 import 'package:telpoapp/widgets/sundry_components.dart';
+import 'package:telpoapp/widgets/text_styled.dart';
 
 class RechargeController extends GetxController {
   var process_recharge = false.obs;
@@ -73,32 +74,22 @@ class RechargeController extends GetxController {
 
   process(String tag) {
     Get.defaultDialog(
-      title: "Card selected",
-      content: Container(
-          width: Get.size.width,
-          padding: EdgeInsets.all(3),
-          child: Row(
-            children: [
-              Expanded(
-                  child: SubmitButton(
-                      onPressed: () {
-                        Get.back();
-                        Get.bottomSheet(RechargeForm(tag: tag));
-                      },
-                      text: "Recharger",
-                      bgColor: primaryColor)),
-              Expanded(
-                  child: SubmitButton(
-                      onPressed: () {
-                        //Get.back();
-                        Get.off(() => RegisterCardScreen(
-                              uid: tag,
-                            ));
-                      },
-                      text: "Enregister",
-                      bgColor: successColor))
-            ],
-          )),
-    );
+        title: "Carte selectoionee",
+        content: Padding(
+          padding: EdgeInsets.all(10),
+          child: textStyled(
+              "No $tag", 16, primaryBlack, primaryBlack.withOpacity(0.2)),
+        ),
+        textConfirm: "Nouvelle",
+        onConfirm: () {
+          Get.off(() => RegisterCardScreen(
+                uid: tag,
+              ));
+        },
+        textCancel: "Recharge",
+        onCancel: () {
+          Get.back();
+          Get.bottomSheet(RechargeForm(tag: tag));
+        });
   }
 }

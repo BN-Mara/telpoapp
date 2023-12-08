@@ -1,3 +1,6 @@
+import 'package:device_info_plus/device_info_plus.dart';
+import 'package:get_storage/get_storage.dart';
+import 'package:nb_utils/nb_utils.dart';
 import 'package:telpoapp/controller/auth_controller.dart';
 import 'package:telpoapp/res/colors.dart';
 import 'package:telpoapp/widgets/loadingIndicator.dart';
@@ -22,6 +25,7 @@ class _SearchScreenState extends State<LoginScreen> {
   //final snackBar = SnackBar(content: Text('email ou mot de passe incorrect'));
   final _formKey = GlobalKey<FormState>();
   var authController = Get.find<AuthController>();
+
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
@@ -50,7 +54,7 @@ class _SearchScreenState extends State<LoginScreen> {
         ],
       ),
       const SizedBox(
-        height: 20.0,
+        height: 30.0,
       ),
       Form(
           key: _formKey,
@@ -63,7 +67,7 @@ class _SearchScreenState extends State<LoginScreen> {
                   obscureText: false,
                   keyboardType: TextInputType.emailAddress),
               const SizedBox(
-                height: 20.0,
+                height: 30.0,
               ),
               InputTextWidget(
                   controller: _pwdController,
@@ -90,7 +94,7 @@ class _SearchScreenState extends State<LoginScreen> {
                     )),
               ),*/
               const SizedBox(
-                height: 25.0,
+                height: 40.0,
               ),
               Obx(() {
                 return authController.login_process.isTrue
@@ -109,9 +113,11 @@ class _SearchScreenState extends State<LoginScreen> {
                         },
                         text: 'Connexion',
                         bgColor: primaryColor,
-                        height: 50,
+                        height: 80,
                       );
               }),
+              20.height,
+              Text("ID: ${GetStorage().read("DeviceId")}")
             ],
           )),
       const SizedBox(

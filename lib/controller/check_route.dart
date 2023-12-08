@@ -89,7 +89,9 @@ class CheckRouteController extends GetxController {
     if (auth.user.value != null &&
         auth.user.value!.roles!.contains('ROLE_DRIVER')) {
       print("updating...");
-      updatingRoute(1);
+      if (auth.vehicle.value != null) {
+        updatingRoute(auth.vehicle.value!.id!);
+      }
     }
   }
 

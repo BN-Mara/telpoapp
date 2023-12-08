@@ -168,6 +168,7 @@ class _RegisterCardScreenState extends State<RegisterCardScreen> {
                                           },
                                           text: "Enregistrer",
                                           bgColor: primaryColor,
+                                          height: 80,
                                         ),
                                 ]);
                               })

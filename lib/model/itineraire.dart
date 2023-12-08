@@ -14,6 +14,7 @@ class Itineraire {
   bool? isActive;
   String? status;
   int? driverPassengers;
+  double? ticketPrice;
 
   Itineraire(
       {this.id,
@@ -31,7 +32,8 @@ class Itineraire {
       this.deviceId,
       this.isActive,
       this.status,
-      this.driverPassengers});
+      this.driverPassengers,
+      this.ticketPrice});
   factory Itineraire.fromJson(Map<String, dynamic> json) {
     return Itineraire(
         id: json['id'],
@@ -49,7 +51,8 @@ class Itineraire {
         deviceId: json['deviceId'],
         isActive: json['isActive'],
         status: json['status'],
-        driverPassengers: json['driverPassengers']);
+        driverPassengers: json['driverPassengers'],
+        ticketPrice: json['ticketPrice']);
   }
   Map<String, dynamic> toJson() {
     return {
@@ -68,7 +71,8 @@ class Itineraire {
       'deviceId': deviceId,
       'isActive': isActive,
       'status': status,
-      'driverPassengers': driverPassengers
+      'driverPassengers': driverPassengers,
+      'ticketPrice': ticketPrice
     };
   }
 

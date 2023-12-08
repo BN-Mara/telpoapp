@@ -253,12 +253,13 @@ class _HomeDriverScreenState extends State<HomeDriverScreen> {
                                   },
                                   text: "Details",
                                   bgColor: primaryColor,
-                                  height: 30,
+                                  height: 40,
+                                  iconSize: 13,
                                 ),
                                 16.height,
                                 Container(
                                     width: 100,
-                                    height: 30,
+                                    height: 40,
                                     color: whiteColor,
                                     child: IconButton(
                                         icon:

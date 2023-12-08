@@ -58,11 +58,11 @@ class RouteApi {
     );
   }
 
-  static Future<Response> getTicketPrice() async {
+  static Future<Response> getTicketPrice(String id) async {
     var token = GetStorage().read("token");
     //AppUtils.http.headers['Authorization'] = "Bearer $token";
     return await DIO.get(
-      AppUtils.http.GET_TICKET_PRICE,
+      AppUtils.http.TICKET_PRICE(id),
       options: Options(headers: AppUtils.http.headers),
     );
   }
@@ -109,6 +109,19 @@ class RouteApi {
     return await DIO.post(
       AppUtils.http.CARD_RECHRGE_URL,
       data: card,
+      options: Options(headers: AppUtils.http.headers),
+    );
+    // return await http.get(Configs.http.GET_PING, headers: Configs.http.headers);
+  }
+
+  static Future<Response> postAlert(Map<String, dynamic> alert) async {
+    var token = GetStorage().read("token");
+    AppUtils.http.headers['Authorization'] = "Bearer $token";
+
+    print(AppUtils.http.CARD_RECHRGE_URL);
+    return await DIO.post(
+      AppUtils.http.CARD_RECHRGE_URL,
+      data: alert,
       options: Options(headers: AppUtils.http.headers),
     );
     // return await http.get(Configs.http.GET_PING, headers: Configs.http.headers);

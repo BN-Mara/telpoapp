@@ -20,6 +20,7 @@ class InputTextWidget extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(left: 20.0, right: 20.0),
       child: Container(
+        height: 80,
         child: Material(
           elevation: 15.0,
           shadowColor: Colors.black,

@@ -1,16 +1,29 @@
+import 'dart:async';
+
+import 'package:dio/dio.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
+import 'package:telpoapp/api/vehicle.dart';
+import 'package:telpoapp/controller/auth_controller.dart';
+import 'package:telpoapp/model/vehicle.dart';
+import 'package:telpoapp/res/strings.dart';
 
 import '../widgets/sundry_components.dart';
 
 class LocationController extends GetxController {
   var isEnabled = false.obs;
+  final LocationSettings locationSettings = const LocationSettings(
+    accuracy: LocationAccuracy.high,
+    distanceFilter: 5,
+  );
 
   @override
   void onInit() {
     // TODO: implement onInit
     super.onInit();
     _handleLocationPermission();
+    listenLocationChange();
     /*stream.takeWhile((_) => true).forEach((element) async {
       updatingRoute(1);
     });*/
@@ -58,5 +71,27 @@ class LocationController extends GetxController {
     }
     isEnabled.value = true;
     return true;
+  }
+
+  listenLocationChange() async {
+    StreamSubscription<Position> positionStream =
+        Geolocator.getPositionStream(locationSettings: locationSettings)
+            .listen((Position? position) {
+      print(position == null
+          ? 'Unknown'
+          : 'update: ${position.latitude.toString()}, ${position.longitude.toString()}');
+      Map<String, dynamic> data = {
+        "currentLat": position!.latitude,
+        "currentLng": position.longitude
+      };
+      VehicleApi.putVehicle(data, Get.find<AuthController>().vehicle.value!.id!)
+          .then((value) {
+        var v = Vehicle.fromJson(value.data);
+        GetStorage().write(VEHICLE_KEY, v.toJson());
+        Get.find<AuthController>().vehicle.value = v;
+      }).onError((DioException error, stackTrace) {
+        print("${error.response!.data}");
+      });
+    });
   }
 }

@@ -16,9 +16,14 @@ import 'package:telpoapp/res/colors.dart' as res;
 import 'package:telpoapp/screens/dashboardScreen.dart';
 import 'package:telpoapp/screens/homeDriverScreen.dart';
 import 'package:telpoapp/screens/routesScreen.dart';
+import 'package:telpoapp/widgets/inputDecoration.dart';
+import 'package:telpoapp/widgets/inputParentWidget.dart';
+import 'package:telpoapp/widgets/inputTextNoPadding.dart';
+import 'package:telpoapp/widgets/inputTextWidget.dart';
 //import 'package:telpoapp/widgets/line.dart';
 import 'package:telpoapp/widgets/submitButton.dart';
 import 'package:telpoapp/widgets/sundry_components.dart';
+import 'package:telpoapp/widgets/text_styled.dart';
 
 //import '../widgets/inputTextWidget.dart';
 
@@ -102,15 +107,47 @@ class _HomeScreenState extends State<HomeScreen> {
                                               : SubmitButton(
                                                   onPressed: () {
                                                     psgCtl.text = "0";
-                                                    Get.defaultDialog(
+
+                                                    showModalBottomSheet(
+                                                        context: context,
+                                                        isScrollControlled:
+                                                            true,
+                                                        builder: (context) {
+                                                          return FractionallySizedBox(
+                                                            heightFactor: 0.95,
+                                                            child: Container(
+                                                              color:
+                                                                  primaryWhite,
+                                                              child: Column(
+                                                                children: [
+                                                                  Container(
+                                                                    child: textStyled(
+                                                                        "Ajouter passagers",
+                                                                        30,
+                                                                        primaryColor,
+                                                                        primaryBlack
+                                                                            .withOpacity(0.2)),
+                                                                  ),
+                                                                  16.height,
+                                                                  Divider(),
+                                                                  16.height,
+                                                                  addPassengersForm()
+                                                                ],
+                                                              ),
+                                                            ),
+                                                          );
+                                                        });
+
+                                                    /*Get.defaultDialog(
                                                         title:
                                                             "Ajouter passagers",
                                                         content:
-                                                            addPassengersForm());
+                                                            addPassengersForm());*/
                                                   },
                                                   text: "+Passagers",
                                                   bgColor: primaryColor,
                                                   icon: Icons.add,
+                                                  height: 80,
                                                 )),
                                       Expanded(
                                           child: routeController
@@ -124,28 +161,78 @@ class _HomeScreenState extends State<HomeScreen> {
                                                   text: "Arrive",
                                                   bgColor: redColor,
                                                   icon: Icons.stop_outlined,
+                                                  height: 80,
+                                                  color: redColor,
                                                 ))
                                     ])
                                   : routeController.process_create_route.isTrue
                                       ? LinearProgressIndicator()
                                       : SubmitButton(
                                           onPressed: () {
-                                            showDialog(
+                                            showModalBottomSheet(
+                                                context: context,
+                                                isScrollControlled: true,
+                                                builder: (context) {
+                                                  return FractionallySizedBox(
+                                                    heightFactor: 0.95,
+                                                    child: Container(
+                                                        color: Colors.white,
+                                                        child: Column(
+                                                          children: [
+                                                            Container(
+                                                              child: textStyled(
+                                                                  "ITINERAIRE",
+                                                                  30,
+                                                                  primaryColor,
+                                                                  primaryBlack
+                                                                      .withOpacity(
+                                                                          0.5)),
+                                                            ),
+                                                            10.height,
+                                                            Divider(),
+                                                            Expanded(
+                                                                child:
+                                                                    routeAdd())
+                                                          ],
+                                                        )),
+                                                  );
+                                                });
+                                            /*Get.bottomSheet(
+                                                FractionallySizedBox(
+                                              heightFactor: 1,
+                                              child: Container(
+                                                  color: Colors.white,
+                                                  child: Column(
+                                                    children: [
+                                                      Container(
+                                                        child:
+                                                            Text("ITINERAIRE"),
+                                                      ),
+                                                      10.height,
+                                                      Divider(),
+                                                      Expanded(
+                                                          child: routeAdd())
+                                                    ],
+                                                  )),
+                                            ));*/
+                                            /*showDialog(
                                               context: context,
                                               builder: (_) => StatefulBuilder(
                                                 builder: (BuildContext context,
                                                     setState) {
                                                   return AlertDialog(
                                                       scrollable: true,
-                                                      title: Text("ITINERAIRE"),
+                                                      title: const Text(
+                                                          "ITINERAIRE"),
                                                       content: routeAdd());
                                                 },
                                               ),
-                                            );
+                                            );*/
                                           },
                                           text: "Nouvel itinéraire",
                                           bgColor: primaryColor,
-                                          icon: Icons.arrow_right_alt_outlined,
+                                          icon: Icons.add,
+                                          height: 80,
                                         ),
                             );
                     })),
@@ -156,7 +243,8 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget showRoute() {
-    return Row(
+    return Center(
+        child: Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         GestureDetector(
@@ -165,39 +253,28 @@ class _HomeScreenState extends State<HomeScreen> {
             },
             child: Container(
               padding: EdgeInsets.all(8),
-              width: 100,
-              height: 100,
+              width: 200,
+              height: 200,
               decoration: boxDecorationWithRoundedCorners(
                 backgroundColor: Colors.white.withOpacity(0.8),
                 borderRadius: BorderRadius.circular(50),
                 border: Border.all(color: Colors.grey.withOpacity(0.2)),
               ),
-              child: Column(children: [
+              child: Center(
+                  child: Column(children: [
                 const Icon(
                   Icons.pin_drop_outlined,
                   color: greenColor,
-                  size: 40,
+                  size: 100,
                 ),
                 Text(
                   routeController.activeRoute.value == null
                       ? ""
                       : routeController.activeRoute.value!.origine!,
-                  style: secondaryTextStyle(size: 12),
+                  style: secondaryTextStyle(size: 20),
                   textAlign: TextAlign.center,
                 ),
-                /* Obx(() {
-                                              return Text(
-                                                routeController.activeRoute
-                                                            .value ==
-                                                        null
-                                                    ? ""
-                                                    : '${routeController.activeRoute.value!.passengers}',
-                                                style: secondaryTextStyle(
-                                                    size: 15),
-                                                textAlign: TextAlign.center,
-                                              );
-                                            }),*/
-              ]),
+              ])),
             )),
         const Expanded(
             /*child: Line()*/
@@ -210,8 +287,8 @@ class _HomeScreenState extends State<HomeScreen> {
             onTap: (() {}),
             child: Container(
               padding: EdgeInsets.all(8),
-              width: 100,
-              height: 100,
+              width: 200,
+              height: 200,
               decoration: boxDecorationWithRoundedCorners(
                 backgroundColor: Colors.white.withOpacity(0.8),
                 borderRadius: BorderRadius.circular(50),
@@ -222,19 +299,19 @@ class _HomeScreenState extends State<HomeScreen> {
                 const Icon(
                   Icons.pin_drop,
                   color: res.errorColor,
-                  size: 40,
+                  size: 100,
                 ),
                 Text(
                   routeController.activeRoute.value == null
                       ? ""
                       : routeController.activeRoute.value!.destination!,
-                  style: secondaryTextStyle(size: 12),
+                  style: secondaryTextStyle(size: 20),
                   textAlign: TextAlign.center,
                 )
               ]),
             ))
       ],
-    ).paddingOnly(left: 16, right: 16, bottom: 16);
+    ).paddingOnly(left: 16, right: 16, bottom: 16));
   }
 
   Widget rowMenuAndLogout() {
@@ -251,8 +328,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                       16.5);*/
             },
             child: Container(
-              width: 40,
-              height: 40,
+              width: 80,
+              height: 80,
               decoration: boxDecorationWithRoundedCorners(
                 backgroundColor: Colors.white,
                 borderRadius: BorderRadius.circular(12),
@@ -268,8 +345,8 @@ class _HomeScreenState extends State<HomeScreen> {
               authController.logoff();
             }),
             child: Container(
-              width: 40,
-              height: 40,
+              width: 80,
+              height: 80,
               decoration: boxDecorationWithRoundedCorners(
                 backgroundColor: Colors.white,
                 borderRadius: BorderRadius.circular(12),
@@ -290,46 +367,49 @@ class _HomeScreenState extends State<HomeScreen> {
               child: SingleChildScrollView(
                 child: Column(
                   children: [
-                    DropdownSearch<Place>(
-                      filterFn: (item, filter) {
-                        return item.name!
-                            .toUpperCase()
-                            .contains(filter.toUpperCase());
-                      },
-                      popupProps: PopupProps.menu(
-                        searchFieldProps: TextFieldProps(
-                          cursorColor: primaryColor,
-                          decoration: textInputDecoration("Rechercher..."),
+                    InputParentWidget(
+                      child: DropdownSearch<Place>(
+                        filterFn: (item, filter) {
+                          return item.name!
+                              .toUpperCase()
+                              .contains(filter.toUpperCase());
+                        },
+                        popupProps: PopupProps.menu(
+                          searchFieldProps: TextFieldProps(
+                            cursorColor: primaryColor,
+                            decoration: textInputDecoration("Rechercher..."),
+                          ),
+                          showSearchBox: true,
+                          showSelectedItems: false,
+                          //showSearchBox: true,
+                          disabledItemFn: (Place p) =>
+                              p.name == routeController.toContrl.value,
                         ),
-                        showSearchBox: true,
-                        showSelectedItems: false,
-                        //showSearchBox: true,
-                        disabledItemFn: (Place p) =>
-                            p.name == routeController.toContrl.value,
+                        items: routeController.places.value,
+                        dropdownDecoratorProps: DropDownDecoratorProps(
+                            dropdownSearchDecoration:
+                                //textInputDecoration("Depart", "", ""),
+                                myInputDecoration(Icons.flag, "Depart")),
+                        onChanged: (value) {
+                          if (value != null) {
+                            routeController.fromContrl.value = value.name!;
+                            // _province = value;
+                          }
+                        },
+                        validator: (value) {
+                          if (value == null) {
+                            return "Ce champs est requis";
+                          } else {
+                            return null;
+                          }
+                        },
+                        itemAsString: (Place p) => p.name!,
+                        //selectedItem: provices.first,
                       ),
-                      items: routeController.places.value,
-                      dropdownDecoratorProps: DropDownDecoratorProps(
-                        dropdownSearchDecoration:
-                            textInputDecoration("Depart", "", ""),
-                      ),
-                      onChanged: (value) {
-                        if (value != null) {
-                          routeController.fromContrl.value = value.name!;
-                          // _province = value;
-                        }
-                      },
-                      validator: (value) {
-                        if (value == null) {
-                          return "Ce champs est requis";
-                        } else {
-                          return null;
-                        }
-                      },
-                      itemAsString: (Place p) => p.name!,
-                      //selectedItem: provices.first,
                     ),
-                    10.height,
-                    DropdownSearch<Place>(
+                    30.height,
+                    InputParentWidget(
+                        child: DropdownSearch<Place>(
                       filterFn: (item, filter) {
                         return item.name!
                             .toUpperCase()
@@ -347,10 +427,25 @@ class _HomeScreenState extends State<HomeScreen> {
                             p.name == routeController.fromContrl.value,
                       ),
                       items: routeController.places.value,
-                      dropdownDecoratorProps: DropDownDecoratorProps(
-                        dropdownSearchDecoration:
-                            textInputDecoration("Destination", "", ""),
-                      ),
+                      dropdownDecoratorProps: const DropDownDecoratorProps(
+                          dropdownSearchDecoration:
+                              //textInputDecoration("Destination", "", ""),
+                              InputDecoration(
+                        icon: Icon(
+                          Icons.pin_drop,
+                          color: Colors.black,
+                          size: 32.0, /*Color(0xff224597)*/
+                        ),
+                        labelText: "Destination",
+                        labelStyle:
+                            TextStyle(color: Colors.black54, fontSize: 18.0),
+                        hintText: '',
+                        enabledBorder: InputBorder.none,
+                        focusedBorder: UnderlineInputBorder(
+                          borderSide: BorderSide(color: Colors.black54),
+                        ),
+                        border: InputBorder.none,
+                      )),
                       onChanged: (value) {
                         if (value != null) {
                           routeController.toContrl.value = value.name!;
@@ -366,15 +461,22 @@ class _HomeScreenState extends State<HomeScreen> {
                       },
                       itemAsString: (Place p) => p.name!,
                       //selectedItem: provices.first,
-                    ),
-                    10.height,
-                    TextFormField(
+                    )),
+                    30.height,
+                    InputTextWidget(
+                        controller: routeController.passangenrContrl.value,
+                        labelText: "Nombre de passagers",
+                        icon: Icons.people,
+                        obscureText: false,
+                        keyboardType: TextInputType.numberWithOptions())
+                    /*TextFormField(
                       decoration: textInputDecoration("Nombre de passagers"),
                       controller: routeController.passangenrContrl.value,
                       keyboardType: const TextInputType.numberWithOptions(
                           signed: false, decimal: false),
-                    ),
-                    10.height,
+                    )*/
+                    ,
+                    40.height,
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       crossAxisAlignment: CrossAxisAlignment.center,
@@ -390,7 +492,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           },
                           text: "Valider",
                           bgColor: greenColor,
-                          height: 40.0,
+                          height: 80.0,
                         ))
                       ],
                     )
@@ -411,6 +513,9 @@ class _HomeScreenState extends State<HomeScreen> {
               psgCtl.text = "$p";
             },
             text: "+1",
+            height: 80,
+            color: primaryBlack.withOpacity(0.5),
+            icon: Icons.add,
           ),
         ),
         Expanded(
@@ -421,6 +526,9 @@ class _HomeScreenState extends State<HomeScreen> {
               psgCtl.text = "$p";
             },
             text: "+5",
+            height: 80,
+            color: primaryBlack.withOpacity(0.5),
+            icon: Icons.add,
           ),
         ),
         Expanded(
@@ -431,6 +539,9 @@ class _HomeScreenState extends State<HomeScreen> {
               psgCtl.text = "$p";
             },
             text: "-1",
+            height: 80,
+            color: redColor.withOpacity(0.5),
+            icon: Icons.remove,
           ),
         ),
         Expanded(
@@ -441,6 +552,9 @@ class _HomeScreenState extends State<HomeScreen> {
               psgCtl.text = "$p";
             },
             text: "-5",
+            height: 80,
+            icon: Icons.remove,
+            color: redColor,
           ),
         )
       ],
@@ -454,24 +568,36 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: Column(
       children: [
         Padding(
-            padding: const EdgeInsets.only(left: 15, right: 15),
-            child: TextFormField(
+            padding: EdgeInsets.only(left: 15, right: 15),
+            child: InputTextNoPadding(
+              labelText: "Nombre de passagers",
+              icon: Icons.people,
+              obscureText: false,
+              keyboardType: const TextInputType.numberWithOptions(
+                  signed: false, decimal: false),
+              readOnly: true,
+              controller: psgCtl,
+            )
+            /*TextFormField(
               decoration: textInputDecoration("Nombre de passagers"),
               controller: psgCtl,
               keyboardType: const TextInputType.numberWithOptions(
                   signed: false, decimal: false),
               readOnly: true,
-            )),
-        15.height,
+            )*/
+            ),
+        50.height,
         addPassengersButtons(),
-        15.height,
+        70.height,
         SubmitButton(
-            onPressed: () {
-              routeController.addPassengers(psgCtl.text);
-              Get.back();
-            },
-            text: "Valider",
-            bgColor: primaryColor)
+          onPressed: () {
+            routeController.addPassengers(psgCtl.text);
+            Get.back();
+          },
+          text: "Valider",
+          bgColor: primaryColor,
+          height: 80,
+        )
       ],
     ))));
   }
