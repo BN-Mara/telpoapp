@@ -44,6 +44,13 @@ class _HomeScreenState extends State<HomeScreen> {
   final locationController = Get.find<LocationController>();
   //final MapController _mapctl = MapController();
   final psgCtl = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    authController.resumeAlert();
+  }
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(

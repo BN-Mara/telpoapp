@@ -43,7 +43,7 @@ class User {
       phone = data['phone'];
     }
     if (data.containsKey('balance')) {
-      balance = data['balance'];
+      balance = data['balance'].toDouble();
     }
   }
 

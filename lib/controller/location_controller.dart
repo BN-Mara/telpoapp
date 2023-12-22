@@ -14,7 +14,7 @@ import '../widgets/sundry_components.dart';
 class LocationController extends GetxController {
   var isEnabled = false.obs;
   final LocationSettings locationSettings = const LocationSettings(
-    accuracy: LocationAccuracy.high,
+    accuracy: LocationAccuracy.best,
     distanceFilter: 5,
   );
 
@@ -86,6 +86,7 @@ class LocationController extends GetxController {
       };
       VehicleApi.putVehicle(data, Get.find<AuthController>().vehicle.value!.id!)
           .then((value) {
+        print(value.data);
         var v = Vehicle.fromJson(value.data);
         GetStorage().write(VEHICLE_KEY, v.toJson());
         Get.find<AuthController>().vehicle.value = v;

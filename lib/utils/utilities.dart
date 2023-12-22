@@ -92,6 +92,7 @@ class _Http {
   String GET_TICKET_PRICE = ACCOUNT_URL + "api/ticket_prices";
   String CARD_RECHRGE_URL = ACCOUNT_URL + "api/transaction/recharge";
   String ALERT_URL = ACCOUNT_URL + "api/alerts";
+  String ALERT_URL_RESUME(String id) => ACCOUNT_URL + "/api/alert/resume/$id";
   String Vehicle_URL = ACCOUNT_URL + "api/vehicles";
   String VEHICLE_BY_DEVICE_ID(String id) => Vehicle_URL + "?deviceID=$id";
   String VEHICLE_UPDATE_URL(int id) => "$Vehicle_URL/$id";

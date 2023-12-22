@@ -3,6 +3,7 @@ import 'package:get_storage/get_storage.dart';
 import 'package:nb_utils/nb_utils.dart';
 import 'package:telpoapp/controller/auth_controller.dart';
 import 'package:telpoapp/res/colors.dart';
+import 'package:telpoapp/res/strings.dart';
 import 'package:telpoapp/widgets/loadingIndicator.dart';
 import 'package:telpoapp/widgets/submitButton.dart';
 import 'package:flutter/material.dart';
@@ -117,7 +118,7 @@ class _SearchScreenState extends State<LoginScreen> {
                       );
               }),
               20.height,
-              Text("ID: ${GetStorage().read("DeviceId")}")
+              Text("ID: ${GetStorage().read(DEVICE_ID)}")
             ],
           )),
       const SizedBox(

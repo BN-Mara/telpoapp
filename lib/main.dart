@@ -9,6 +9,7 @@ import 'package:telpoapp/res/colors.dart';
 import 'package:telpoapp/res/strings.dart';
 //import 'package:telpoapp/screens/homeScreen.dart';
 import 'package:telpoapp/screens/loginScreen.dart';
+import 'package:telpoapp/widgets/AppLifecycleDisplay.dart';
 
 import 'controller/auth_controller.dart';
 
@@ -32,6 +33,7 @@ void main() async {
 
 class MyApp extends StatelessWidget {
   // This widget is the root of your application.
+
   AuthController pagesController = Get.put(AuthController());
   LocationController locationController = Get.put(LocationController());
   RouteController routeController = Get.put(RouteController());
@@ -45,7 +47,7 @@ class MyApp extends StatelessWidget {
         primarySwatch: materialPrimary,
       ),
       debugShowCheckedModeBanner: false,
-      home: LoginScreen(),
+      home: AppLifecycleDisplay(child: LoginScreen()),
       //home: const HomeScreen(),
     );
   }

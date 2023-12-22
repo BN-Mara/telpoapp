@@ -20,6 +20,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:telpoapp/screens/rechargeScreen.dart';
+import 'package:telpoapp/widgets/AppLifecycleDisplay.dart';
 
 import 'package:uuid/uuid.dart';
 
@@ -269,7 +270,7 @@ class AuthController extends GetxController {
         final payloadData =
             utf8.fuse(base64).decode(base64.normalize(encodedPayload));
         print(payloadData);
-
+        print(value.data);
         User _user = User.fromJson(null, value.data);
         print(_user.id);
         if (_user.id != null) {
@@ -307,7 +308,7 @@ class AuthController extends GetxController {
             Get.find<RouteController>().getTicketPrices();
 
             Get.find<CheckRouteController>().updatingRoute(v.id!);
-            Get.off(() => const HomeDriverScreen(),
+            Get.off(() => const AppLifecycleDisplay(child: HomeDriverScreen()),
                 transition: AppUtils.pageTransition,
                 duration: Duration(milliseconds: AppUtils.timeTransition));
           } else if (user.value!.roles!.contains('ROLE_CONVEYOR')) {
@@ -316,7 +317,7 @@ class AuthController extends GetxController {
             Get.find<RouteController>().getCards();
             Get.find<RouteController>().getTicketPrices();
 
-            Get.offAll(() => const HomeScreen(),
+            Get.offAll(() => const AppLifecycleDisplay(child: HomeScreen()),
                 transition: AppUtils.pageTransition,
                 duration: Duration(milliseconds: AppUtils.timeTransition));
           } else if (user.value!.roles!.contains('ROLE_RECHARGEUR')) {
@@ -413,7 +414,7 @@ class AuthController extends GetxController {
             duration: Duration(milliseconds: AppUtils.timeTransition));
       } else {}*/
 
-      Get.offAll(() => LoginScreen(),
+      Get.offAll(() => AppLifecycleDisplay(child: LoginScreen()),
           transition: AppUtils.pageTransition,
           duration: Duration(milliseconds: AppUtils.timeTransition));
 
@@ -446,7 +447,7 @@ class AuthController extends GetxController {
     } catch (_) {
       //printDebug("OUTER CATCH ERROR : ${_.toString()}");
       isLoggedIn.value = false;
-      Get.offAll(() => LoginScreen(),
+      Get.offAll(() => AppLifecycleDisplay(child: LoginScreen()),
           transition: AppUtils.pageTransition,
           duration: Duration(milliseconds: AppUtils.timeTransition));
     }
@@ -500,6 +501,30 @@ class AuthController extends GetxController {
       );*/
       //signOut();
       return false;
+    }
+  }
+
+  Future<void> sendAlert(String title, String description) async {
+    Map<String, dynamic> alert = {
+      "vehicle": '/api/vehicles/${vehicle.value!.id}',
+      "title": title,
+      "description": description,
+      "isSeen": false
+    };
+    await VehicleApi.postAlert(alert).then((value) {
+      print(value.data);
+    }).onError((dio.DioException error, stackTrace) {
+      print("${error.response!.data}");
+    });
+  }
+
+  Future<void> resumeAlert() async {
+    if (vehicle.value != null) {
+      await VehicleApi.resumeAlert('${vehicle.value!.id}').then((value) {
+        print(value.data);
+      }).onError((dio.DioException error, stackTrace) {
+        print("${error.response!.data}");
+      });
     }
   }
 
