@@ -302,6 +302,8 @@ class AuthController extends GetxController {
 
           //Get.find<RouteController>().getTicketPrices();
           if (user.value!.roles!.contains('ROLE_DRIVER')) {
+            print("vahicle raw");
+            print(value.data['vehicle']);
             var v = Vehicle.fromJson(value.data['vehicle']);
             vehicle.value = v;
             GetStorage().write(VEHICLE_KEY, v.toJson());

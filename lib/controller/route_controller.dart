@@ -87,8 +87,9 @@ class RouteController extends GetxController {
 
   getTicketPrices() async {
     print("getprices");
-    print(auth.vehicle.value);
-    print(auth.vehicle.value!.region!.replaceAll("/api/regions/", ""));
+    //print(auth.vehicle.value);
+    //print(auth.vehicle.value!.region!.replaceAll("/api/regions/", ""));
+    print(auth.vehicle.value!.toJson());
     RouteApi.getTicketPrice(
             auth.vehicle.value!.region!.replaceAll("/api/regions/", ""))
         .then((value) async {
@@ -266,7 +267,7 @@ class RouteController extends GetxController {
         if (element.driverPassengers != null) {
           todayPassengers.value =
               todayPassengers.value + element.driverPassengers!;
-          todayAmount.value = todayRoutes.value +
+          todayAmount.value =
               (element.driverPassengers! * element.ticketPrice!);
         }
       });
