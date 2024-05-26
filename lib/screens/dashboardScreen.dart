@@ -72,7 +72,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             'Total Passagers: ${routeController.todayPassengers.value}'),
                         const Divider(),
                         13.height,
-                        Text('Montant: ${routeController.todayAmount.value}'),
+                        Text(
+                            'Montant: ${routeController.todayAmount.value} FC'),
                         16.height,
                         SubmitButton(
                             height: 50,

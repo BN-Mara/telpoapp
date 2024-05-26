@@ -43,7 +43,9 @@ class User {
       phone = data['phone'];
     }
     if (data.containsKey('balance')) {
-      balance = data['balance'].toDouble();
+      if (data['balance'] != null) {
+        balance = data['balance'].toDouble();
+      }
     }
   }
 
