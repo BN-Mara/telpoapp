@@ -9,6 +9,7 @@ import 'package:just_audio/just_audio.dart';
 import 'package:telpoapp/api/route.dart';
 import 'package:telpoapp/controller/auth_controller.dart';
 import 'package:telpoapp/controller/location_controller.dart';
+import 'package:telpoapp/model/card_paid.dart';
 import 'package:telpoapp/model/client_card.dart';
 import 'package:telpoapp/model/itineraire.dart';
 import 'package:telpoapp/model/my_card_info.dart';
@@ -53,6 +54,9 @@ class RouteController extends GetxController {
   var process_get_cards = false.obs;
   var ticketPrices = <TicketPrice>[].obs;
   var ticketPrice = Rxn<TicketPrice>();
+  var playerSuccess = AudioPlayer();
+  var playerFail = AudioPlayer();
+  var currentCardPayList = <CardPay>[].obs;
 
   @override
   void onInit() {
@@ -60,6 +64,11 @@ class RouteController extends GetxController {
     super.onInit();
     getPlaces();
     getCards();
+  }
+
+  initPlayer() async {
+    await this.playerSuccess.setAsset('assets/images/valid.mp3');
+    await this.playerSuccess.setAsset('assets/images/invalid.mp3');
   }
 
   @override
@@ -130,8 +139,10 @@ class RouteController extends GetxController {
       return;
     }
     try {
+      print("new route");
       process_create_route.value = true;
       var pose = await locationController.getCurrentPosition();
+      print("${pose}");
       var itineraire = Itineraire(
           conveyor: "/api/users/${auth.user.value!.id}", //auth.user.value!.id,
           origine: fromContrl.value,
@@ -338,7 +349,25 @@ class RouteController extends GetxController {
   }
 
   cardPay(String nfcUid) async {
-    paying_process.value = false;
+    paying_process.value = true;
+    var cardPaid = currentCardPayList.value
+        .firstWhereOrNull((element) => element.uid == nfcUid);
+    if (cardPaid == null) {
+      currentCardPayList
+          .add(CardPay(uid: nfcUid, time: DateTime.now(), count: 1));
+    } else {
+      var dif = cardPaid.checkTime(DateTime.now());
+      if (dif < 60) {
+        popSnackWarning(
+            title: "Information!",
+            message: "Reesayez apres  ${(60 - dif)} secondes");
+        return;
+      } else {
+        currentCardPayList.value
+            .firstWhereOrNull((element) => element.uid == nfcUid)!
+            .update();
+      }
+    }
     Map<String, dynamic> card = {
       "uid": nfcUid,
       "amount": ticketPrice.value!.price!,
@@ -351,26 +380,20 @@ class RouteController extends GetxController {
         //player2.setLoopMode(LoopMode.off);
         PaymentAlert("Erreur!", "Carte invalide...", Icons.cancel, errorColor);
 
-        var player = AudioPlayer();
-        await player.setAsset('assets/images/invalid.mp3');
-        player.play();
+        await playerFail.play();
+        // player.play();
         paying_process.value = false;
 
         return;
       }
       if (c < 0) {
-        //paying_process.value = false;
-
-        //player2.setLoopMode(LoopMode.off);
         getCards();
 
         PaymentAlert(
             "Erreur!", "Balance insufisante...", Icons.cancel, errorColor);
 
-        var player = AudioPlayer();
-        await player.setAsset('assets/images/invalid.mp3');
-        player.play();
-        //FlutterBeep.beep(false);
+        playerFail.play();
+
         paying_process.value = false;
         return;
       }
@@ -378,10 +401,10 @@ class RouteController extends GetxController {
       //player.setLoopMode(LoopMode.off);
       cardList[index].balance = c;
       cardList[index].updatedAt = DateTime.now().toIso8601String();
-      //popSnackPayment("Félicitations!", "Paiement accepté.", Icons.check_circle,
-      //  successColor);
+
       PaymentAlert("Félicitations!", "Paiement accepté.", Icons.check_circle,
           successColor);
+      playerSuccess.play();
       RouteApi.postCardPay(card).then((value) async {
         //paying_process.value = false;
         getCards();
@@ -390,17 +413,15 @@ class RouteController extends GetxController {
         //await player.setAsset('assets/images/valid.mp3');
         //player.play();
       }).onError((DioException error, stackTrace) async {
-        //paying_process.value = false;
+        paying_process.value = false;
         print("error: ${error.response!.data}");
+        //To Do: Log error and Payment to File so that it will retry later,
         //player2.setLoopMode(LoopMode.off);
         //await player2.setAsset('assets/images/invalid.mp3');
         //player2.play();
       }).whenComplete(() {
         paying_process.value = false;
       });
-      var player = AudioPlayer();
-      await player.setAsset('assets/images/valid.mp3');
-      player.play();
     } else {
       PaymentAlert("Erreur!", "Carte invalide...", Icons.cancel, errorColor);
       var player = AudioPlayer();

@@ -1,6 +1,7 @@
 const APP_NAME = "TransCar";
 const LOCAL_URL = "";
-const REMOTE_URL = "https://api-provider.mjf.ujn.mybluehost.me/";
+const REMOTE_URL =
+    "http://100.101.157.77:8000/"; //"https://always-on-machine.taila58706.ts.net/";
 const BASE_URL = REMOTE_URL;
 
 const ACCOUNT_URL = "${BASE_URL}";

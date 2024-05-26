@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:device_info_plus/device_info_plus.dart';
+import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:nfc_manager/nfc_manager.dart';
 import 'package:nfc_manager/platform_tags.dart';
@@ -47,6 +48,8 @@ class AuthController extends GetxController {
   var codeValidated = false.obs;
   var temp_user = Rxn<User>();
   var vehicle = Rxn<Vehicle>();
+  var eventChannel = const EventChannel('platform_channel_events/nfcsession');
+  static const platform = MethodChannel('platform_channel_events/nfcsession');
 
   //forgot(Map<String, dynamic> user) {}
   /*forgot(Map<String, dynamic> user) {
@@ -351,9 +354,21 @@ class AuthController extends GetxController {
     return identifier.toUpperCase();
   }
 
+  String convertNfcUID(String nfcuid) {
+    final String identifier = nfcuid;
+    print("===> UID IN FLUTTER: ${identifier}");
+
+    return identifier.toUpperCase();
+  }
+
   autoLogin() async {
     // Check availability
     bool isAvailable = await NfcManager.instance.isAvailable();
+    final eventStream =
+        eventChannel.receiveBroadcastStream().distinct().map((event) {
+      print("== channel event ==");
+      print(event);
+    });
 
 // Start Session
     NfcManager.instance.startSession(
@@ -462,6 +477,7 @@ class AuthController extends GetxController {
     super.onInit();
     sessionToken = const Uuid().v4();
     deviceInfo();
+    _setMethodCallHandler();
     //getVehicle();
     delayIntroScreen();
   }
@@ -526,6 +542,25 @@ class AuthController extends GetxController {
         print("${error.response!.data}");
       });
     }
+  }
+
+  void _setMethodCallHandler() {
+    platform.setMethodCallHandler((call) async {
+      if (call.method == "onNfcData") {
+        String nfcDataUID = convertNfcUID(call.arguments);
+        if (user.value == null) {
+          print("user is null");
+          loginWithNfc(nfcDataUID);
+        } else {
+          print("listened");
+          if (user.value!.roles!.contains("ROLE_RECHARGEUR")) {
+            Get.find<RechargeController>().process(nfcDataUID);
+          } else if (user.value!.roles!.contains("ROLE_CONVEYOR")) {
+            Get.find<RouteController>().cardPay(nfcDataUID);
+          }
+        }
+      }
+    });
   }
 
   // upload to firebase storage
