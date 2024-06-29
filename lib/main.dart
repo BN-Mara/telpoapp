@@ -36,8 +36,8 @@ class MyApp extends StatelessWidget {
 
   AuthController pagesController = Get.put(AuthController());
   LocationController locationController = Get.put(LocationController());
-  RouteController routeController = Get.put(RouteController());
-  CheckRouteController ckController = Get.put(CheckRouteController());
+  //RouteController routeController = Get.put(RouteController());
+  //CheckRouteController ckController = Get.put(CheckRouteController());
 
   @override
   Widget build(BuildContext context) {

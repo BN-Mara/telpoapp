@@ -26,6 +26,7 @@ class AppUtils {
   static int timeRefresh = 1000; //milliseconds
   static int waitingThreshold = 30; //seconds
   static const defaultPadding = 16.0;
+  static const distanceFromDeparture = 1.0;
 }
 
 class _Validator {
@@ -94,6 +95,7 @@ class _Http {
   String ALERT_URL = ACCOUNT_URL + "api/alerts";
   String ALERT_URL_RESUME(String id) => ACCOUNT_URL + "/api/alert/resume/$id";
   String Vehicle_URL = ACCOUNT_URL + "api/vehicles";
+  String Vehicle_URL_ID(String id) => ACCOUNT_URL + "api/vehicles/$id";
   String VEHICLE_BY_DEVICE_ID(String id) => Vehicle_URL + "?deviceID=$id";
   String VEHICLE_UPDATE_URL(int id) => "$Vehicle_URL/$id";
   String VEHICLE_TRACK_UPDATE_URL(int id) =>

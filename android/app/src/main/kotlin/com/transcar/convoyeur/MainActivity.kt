@@ -20,6 +20,7 @@ import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.MethodChannel
+import io.flutter.plugins.GeneratedPluginRegistrant
 
 class MainActivity: FlutterActivity() {
 
@@ -43,11 +44,24 @@ class MainActivity: FlutterActivity() {
         0xff.toByte(),
         0xff.toByte()
     )
-    override fun configureFlutterEngine(flutterEngine: FlutterEngine){
-        super.configureFlutterEngine(flutterEngine)
-        //EventChannel(flutterEngine.dartExecutor.binaryMessenger,eventChannel)
-
+    override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
+        GeneratedPluginRegistrant.registerWith(flutterEngine);
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, eventChannel).setMethodCallHandler { call, result ->
+            if (call.method == "sendData") {
+                val message = call.argument<String>("message")
+                if (message != null) {
+                    // Handle the message received from Flutter
+                    receivedMessage(message)
+                    result.success("Data received on Android side")
+                } else {
+                    result.error("ERROR", "Message is null", null)
+                }
+            } else {
+                result.notImplemented()
+            }
+        }
     }
+    fun sendData(){}
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         //enableEdgeToEdge()
@@ -56,10 +70,11 @@ class MainActivity: FlutterActivity() {
 
         nfc = Nfc(this)
         try {
-            nfc!!.open()
+            //nfc!!.open()
             //closeActivateMifareClassicFunction()
-            activateThread = ActivateThread()
-            activateThread!!.start()
+            //activateThread = ActivateThread()
+            //activateThread!!.start()
+            activateTrhead56()
 
         } catch (e: TelpoException) {
             //Log.d("Open NFC", e.message!!)
@@ -69,20 +84,25 @@ class MainActivity: FlutterActivity() {
         var nfcData: ByteArray? = null
         override fun run() {
             isChecking = true;
+            
             while (isChecking) {
                 try {
-                    nfcData = nfc!!.activate(500) // 500ms
+                    nfcData = nfc!!.activate(1000)
+                    // 1000ms
                     if (null != nfcData) {
                         
                        handler!!.sendMessage(handler!!.obtainMessage(SHOW_NFC_DATA, nfcData))
                         isChecking = false;
+                        nfc!!.close()
                         break;
                     } else {
-                        //Log.d(TAG, "Check the mifare classic card timeout...")
+                        //sleep(3000)
+                        Log.d(TAG, "Check the mifare classic card timeout...")
                         //handler!!.sendMessage(handler!!.obtainMessage(CHECK_NFC_TIMEOUT, null))
                     }
                 } catch (e: TelpoException) {
                  //   e.printStackTrace()
+                  //  sleep(10000)
                 }
             }
         }
@@ -106,6 +126,7 @@ class MainActivity: FlutterActivity() {
                 when (msg.what) {
                     CHECK_NFC_TIMEOUT -> {}
                     SHOW_NFC_DATA -> {
+
                         val uid_data = msg.obj as ByteArray
                         Log.d("tagg", "nfcdata[" + StringUtil.toHexString(uid_data) + "]")
                         if (uid_data[0].toInt() == 0x42) {
@@ -170,11 +191,13 @@ class MainActivity: FlutterActivity() {
                                         "\r\n" + "idm:" + StringUtil.toHexString(idm) +
                                         "\r\n" + "pmm:" + StringUtil.toHexString(pmm))
                             )*/
+                            activateTrhead56()
                         } else {
                             Log.e(TAG, "unknow type card!!")
+                            activateTrhead56()
                         }
-                        activateThread = ActivateThread()
-                        activateThread!!.start()
+                        //activateThread = ActivateThread()
+                        //activateThread!!.start()
                     }
 
                     else -> {}
@@ -183,9 +206,25 @@ class MainActivity: FlutterActivity() {
             }
         }
     }
+    private fun receivedMessage(message: String){
+        Log.d(TAG, "Reactivate NFC thread")
+        activateTrhead56();
+    }
+    private fun activateTrhead56(){
+        nfc!!.open()
+        activateThread = ActivateThread()
+        activateThread!!.start()
+    }
     private fun sendNfcDataToFlutter(nfcData: String) {
 
-        flutterEngine?.dartExecutor?.binaryMessenger?.let { MethodChannel(it, eventChannel).invokeMethod("onNfcData", nfcData) }
+        flutterEngine?.dartExecutor?.binaryMessenger?.let {
+            MethodChannel(it, eventChannel).invokeMethod("onNfcData", nfcData)
+
+
+        }
+
+
+        
     }
 
     

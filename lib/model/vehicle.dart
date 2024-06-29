@@ -22,7 +22,9 @@ class Vehicle {
         matricule: json['matricule'],
         currentLat: json['currentLat'],
         currentLng: json['currentLng'],
-        region: json['region'],
+        region: json.containsKey("region")
+            ? "${json['region']}".replaceAll("/api/regions/", "")
+            : "",
         deviceID: json['deviceID']);
   }
 
@@ -36,5 +38,9 @@ class Vehicle {
       "region": region,
       "deviceID": deviceID
     };
+  }
+
+  static Future<List<Vehicle>> vehiclesfromJson(List<dynamic> data) async {
+    return data.map((element) => Vehicle.fromJson(element)).toList();
   }
 }

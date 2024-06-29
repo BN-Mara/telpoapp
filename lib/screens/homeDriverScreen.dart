@@ -91,7 +91,7 @@ class _HomeDriverScreenState extends State<HomeDriverScreen> {
                         children: [
                           Expanded(
                             child: Obx(() {
-                              print("polylines");
+                              print("====== Getting polylines ======");
                               print(checkController.polyLines.value);
 
                               return google.GoogleMap(
@@ -119,7 +119,7 @@ class _HomeDriverScreenState extends State<HomeDriverScreen> {
                                             padding: EdgeInsets.all(8),
                                             child: SingleChildScrollView(
                                               child: Column(children: [
-                                                const Text("En cours..."),
+                                                const Text(IN_PROGRESS),
                                                 16.height,
                                                 Row(
                                                   mainAxisAlignment:
@@ -275,54 +275,11 @@ class _HomeDriverScreenState extends State<HomeDriverScreen> {
                                                 );
                                               });
                                         }))
-                              ]
-                                  //Expanded(child: Line()
-                                  /*Divider(
-                              thickness: 3,
-                              height: 5,
-                              color: primaryColor,
-                            )*/
-                                  //),
-
-                                  );
+                              ]);
                             }),
                           )
                         ],
-                      )
-
-                      /*FlutterMap(
-                  mapController: _mapctl,
-                  options: MapOptions(
-                      center: const LatLng(-4.325, 15.322222),
-                      zoom: 16.5,
-                      maxZoom: 19.0,
-                      minZoom: 13),
-                  children: [
-                    TileLayer(
-                      urlTemplate:
-                          'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-                      subdomains: ['a', 'b', 'c'],
-                      maxZoom: 19.0,
-                      minZoom: 13.0,
-                    ),
-                    CurrentLocationLayer(
-                      followOnLocationUpdate: FollowOnLocationUpdate.always,
-                      turnOnHeadingUpdate: TurnOnHeadingUpdate.never,
-                      style: const LocationMarkerStyle(
-                        marker: DefaultLocationMarker(
-                          child: Icon(
-                            Icons.navigation,
-                            color: Colors.white,
-                          ),
-                        ),
-                        markerSize: Size(40, 40),
-                        markerDirection: MarkerDirection.heading,
                       ),
-                    )
-                  ],
-                ),
-                */
-                      ,
                       Container(
                         child: SingleChildScrollView(
                           child: Column(

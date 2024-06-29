@@ -10,10 +10,20 @@ class VehicleApi {
   static Future<Response> getVehicleByDevice() async {
     var token = GetStorage().read("token");
     var deviceId = GetStorage().read(DEVICE_ID);
-
+    print("======= DeviceId ${deviceId} =======");
     AppUtils.http.headers['Authorization'] = "Bearer $token";
     return await DIO.get(
       AppUtils.http.VEHICLE_BY_DEVICE_ID(deviceId),
+      options: Options(headers: AppUtils.http.headers),
+    );
+  }
+
+  static Future<Response> getVehicleById(String id) async {
+    var token = GetStorage().read("token");
+    print("======= DeviceId ${id} =======");
+    AppUtils.http.headers['Authorization'] = "Bearer $token";
+    return await DIO.get(
+      AppUtils.http.Vehicle_URL_ID(id),
       options: Options(headers: AppUtils.http.headers),
     );
   }

@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:device_info_plus/device_info_plus.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:nfc_manager/nfc_manager.dart';
@@ -51,119 +52,10 @@ class AuthController extends GetxController {
   var eventChannel = const EventChannel('platform_channel_events/nfcsession');
   static const platform = MethodChannel('platform_channel_events/nfcsession');
 
-  //forgot(Map<String, dynamic> user) {}
-  /*forgot(Map<String, dynamic> user) {
-    restEmail.value = user["email"];
-    retrieve_pass_process.value = true;
-    Auth.forgot(user).then((value) {
-      retrieve_pass_process.value = false;
-      if (value.data["success"] == true) {
-        Get.closeAllSnackbars();
-        popSnackSuccess(
-          message: value.data['message'],
-        );
-        codeSent.value = true;
-        /*Get.to(() => OtpForgotten(),
-                transition: AppUtils.pageTransition,
-                duration: Duration(milliseconds: AppUtils.timeTransition));*/
-      } else {
-        popSnackError(message: value.data['message']);
-      }
-    }).catchError((error) {
-      retrieve_pass_process.value = false;
-      popSnackError(
-          message:
-              "there is an error on the system, please notify the administrator"
-                  .tr);
-    });
-  }*/
-
-  /*forgotValidate(Map<String, dynamic> xuser) {
-    retrieve_pass_process.value = true;
-    Auth.forgotValidate(xuser).then((value) {
-      if (value.data["success"] == true) {
-        Get.closeAllSnackbars();
-        popSnackSuccess(
-          message: value.data['message'],
-        );
-        try {
-          User _user = User.fromJson(null, value.data['user']);
-          if (_user.id != null) {
-            Get.closeAllSnackbars();
-            popSnackSuccess(
-              message: value.data['message'],
-            );
-            _user.token = value.data['refreshToken'];
-            temp_user.value = _user;
-            //isLoggedIn.value = true;
-            GetStorage().write("temp_user", _user.toMap());
-            GetStorage().write("temp_token", value.data['refreshToken']);
-            GetStorage().write("isReset", true);
-            retrieve_pass_process.value = false;
-
-            //checkActiveRide();
-            /*Get.offAll(() => const PassForgottenChangeView(),
-                transition: AppUtils.pageTransition,
-                duration: Duration(milliseconds: AppUtils.timeTransition));*/
-          } else {
-            retrieve_pass_process.value = false;
-            popSnackError(message: value.data['message']);
-          }
-        } catch (_) {
-          retrieve_pass_process.value = false;
-          popSnackError(message: value.data['message']);
-        }
-      } else {
-        retrieve_pass_process.value = false;
-        popSnackError(message: value.data['message']);
-      }
-    }).catchError((error) {
-      retrieve_pass_process.value = false;
-      popSnackError(
-          message:
-              "there is an error on the system, please notify the administrator"
-                  .tr);
-    });
-  }*/
-
-  /*forgotChange(Map<String, dynamic> xuser) {
-    retrieve_pass_process.value = true;
-    Auth.forgotChange(xuser).then((value) {
-      if (value.data["success"] == true) {
-        retrieve_pass_process.value = false;
-        Get.closeAllSnackbars();
-        popSnackSuccess(
-          message: value.data['message'],
-        );
-        isLoggedIn.value = true;
-        user.value = temp_user.value;
-        //isLoggedIn.value = true;
-
-        GetStorage().write("user", GetStorage().read("temp_user"));
-        GetStorage().write("token", GetStorage().read("temp_token"));
-        //GetStorage().write("isReset", false);
-
-        Get.off(() => const HomeScreen(),
-            transition: AppUtils.pageTransition,
-            duration: Duration(milliseconds: AppUtils.timeTransition));
-      } else {
-        retrieve_pass_process.value = false;
-        popSnackError(message: value.data['message']);
-      }
-    }).catchError((error) {
-      print(error);
-      retrieve_pass_process.value = false;
-      popSnackError(
-          message:
-              "there is an error on the system, please notify the administrator"
-                  .tr);
-    });
-  }
-*/
   deviceInfo() async {
     DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
     AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
-    var deviceIdentifier = androidInfo.id;
+    var deviceIdentifier = '${androidInfo.device}:${androidInfo.id}';
     print(deviceIdentifier);
     GetStorage().write(DEVICE_ID, deviceIdentifier);
   }
@@ -177,16 +69,24 @@ class AuthController extends GetxController {
       print("${error.response!.data}");
       logoff_process.value = false;
     }).whenComplete(() => logoff_process.value = false);
-    GetStorage().remove("user");
-    GetStorage().remove("token");
-    //GetStorage().remove(PROFILE_PIC_FIREBASE);
-    GetStorage().remove(VEHICLE_KEY);
-    user.value = null;
-    isLoggedIn.value = false;
+    resetAuth();
 
     Get.offAll(() => LoginScreen(),
         transition: AppUtils.pageTransition,
         duration: Duration(milliseconds: AppUtils.timeTransition));
+  }
+
+  resetAuth() {
+    GetStorage().remove("user");
+    GetStorage().remove("token");
+    //GetStorage().remove(PROFILE_PIC_FIREBASE);
+    GetStorage().remove(VEHICLE_KEY);
+    GetStorage().remove("refreshToken");
+    Get.delete<RouteController>();
+    Get.delete<CheckRouteController>();
+
+    user.value = null;
+    isLoggedIn.value = false;
   }
 
   modify(Map<String, dynamic> muser) {
@@ -237,9 +137,11 @@ class AuthController extends GetxController {
         print(error);
         popSnackError(message: "Login failed!");
       }
+      sendDataToAndroid();
     }).catchError((error) {
       login_process.value = false;
       print(error);
+      sendDataToAndroid();
     }).whenComplete(() {
       login_process.value = false;
     });
@@ -274,6 +176,28 @@ class AuthController extends GetxController {
             utf8.fuse(base64).decode(base64.normalize(encodedPayload));
         print(payloadData);
         print(value.data);
+        print(jsonDecode(payloadData));
+        Map<String, dynamic> payLoadDecoded = jsonDecode(payloadData);
+        print("====== payLoadDecoded =======");
+        print(payLoadDecoded);
+        if (!payLoadDecoded.containsKey('roles')) {
+          popSnackError(message: NOT_ALLOWED);
+          sendDataToAndroid();
+          return;
+        }
+        var rls = payLoadDecoded['roles'];
+        var uroles = List<String>.from(rls);
+        if (uroles.isEmpty) {
+          popSnackError(message: NOT_ALLOWED);
+          sendDataToAndroid();
+          return;
+        }
+        if (!uroles.contains(CONVEYOR) && !uroles.contains(DRIVER)) {
+          popSnackError(message: NOT_ALLOWED);
+          sendDataToAndroid();
+          return;
+        }
+
         User _user = User.fromJson(null, value.data);
         print(_user.id);
         if (_user.id != null) {
@@ -285,9 +209,8 @@ class AuthController extends GetxController {
             );*/
           //_user.token = value.data['token'];
           _user.refresh_token = value.data['refresh_token'];
-          print(jsonDecode(payloadData)['roles']);
-          var rls = jsonDecode(payloadData)['roles'];
-          _user.roles = List<String>.from(rls);
+
+          _user.roles = uroles;
           _user.fullname = value.data['fullname'];
           _user.phone = value.data['phone'];
           //_user.id = value.data['sub'];
@@ -297,6 +220,7 @@ class AuthController extends GetxController {
           user.value = _user;
           print(user.value!.roles);
           isLoggedIn.value = true;
+          sendDataToAndroid();
           GetStorage().write("user", _user.toMap());
           GetStorage().write("token", value.data['token']);
           GetStorage().write("refreshToken", value.data['refresh_token']);
@@ -304,40 +228,62 @@ class AuthController extends GetxController {
           print(GetStorage().read("user"));
 
           //Get.find<RouteController>().getTicketPrices();
-          if (user.value!.roles!.contains('ROLE_DRIVER')) {
-            print("vahicle raw");
-            print(value.data['vehicle']);
+          if (user.value!.roles!.contains(DRIVER)) {
+            Get.put(RouteController());
+            Get.put(CheckRouteController());
+            print("==== Driver connected =======");
+            print("====== User vehicle ${value.data['vehicle']} ======");
             var v = Vehicle.fromJson(value.data['vehicle']);
-            vehicle.value = v;
-            GetStorage().write(VEHICLE_KEY, v.toJson());
-            Get.find<RouteController>().getTicketPrices();
 
-            Get.find<CheckRouteController>().updatingRoute(v.id!);
-            Get.off(() => const AppLifecycleDisplay(child: HomeDriverScreen()),
-                transition: AppUtils.pageTransition,
-                duration: Duration(milliseconds: AppUtils.timeTransition));
-          } else if (user.value!.roles!.contains('ROLE_CONVEYOR')) {
+            vehicle.value = v;
+
+            VehicleApi.getVehicleById("${v.id}").then((value) {
+              print("====== Vehicle ==> ${value.data} ======");
+              var v2 = Vehicle.fromJson(value.data);
+              vehicle.value = v2;
+              GetStorage().write(DEVICE_ID, v2.deviceID);
+              GetStorage().write(VEHICLE_KEY, v2.toJson());
+              Get.find<RouteController>().getPlaces(v2.region!);
+              Get.find<RouteController>().getTicketPrices();
+              Get.find<CheckRouteController>().updatingRoute(v2.id!);
+
+              print("===== Go to Page ======");
+
+              Get.offAll(
+                  () => const AppLifecycleDisplay(child: HomeDriverScreen()),
+                  transition: AppUtils.pageTransition,
+                  duration: Duration(milliseconds: AppUtils.timeTransition));
+            }).onError((DioException error, stackTrace) {
+              print("====== Error load vehicle ======");
+              print(error.response!.data);
+            });
+            //
+          } else if (user.value!.roles!.contains(CONVEYOR)) {
+            Get.put(RouteController());
+            Get.put(CheckRouteController());
             getVehicle();
-            Get.find<RouteController>().checkActiveRoute(1);
-            Get.find<RouteController>().getCards();
-            Get.find<RouteController>().getTicketPrices();
+            Get.find<RouteController>().getMyRoutes();
+            //Get.find<RouteController>().getCards();
 
             Get.offAll(() => const AppLifecycleDisplay(child: HomeScreen()),
                 transition: AppUtils.pageTransition,
                 duration: Duration(milliseconds: AppUtils.timeTransition));
-          } else if (user.value!.roles!.contains('ROLE_RECHARGEUR')) {
-            Get.offAll(() => const RechargeScreen(),
-                transition: AppUtils.pageTransition,
-                duration: Duration(milliseconds: AppUtils.timeTransition));
-          } else {}
+          } else {
+            popSnackError(message: NOT_ALLOWED);
+            return;
+          }
         } else {
           popSnackError(message: value.data['message']);
+          sendDataToAndroid();
+          return;
         }
-      } catch (_) {
-        print(_);
+      } catch (ex) {
+        print(ex.toString());
         popSnackError(message: "une erreur s\'est produite, réessayez");
+        sendDataToAndroid();
       }
     } else {
+      sendDataToAndroid();
       print("no token");
       popSnackError(message: value.data['message']);
     }
@@ -391,76 +337,11 @@ class AuthController extends GetxController {
         print("data nfc: ");
       },
     );
-    //print("this");
-    /*if (GetStorage().read<String>(DEVICE_ID) == null) {
-      var deviceInfo = await DeviceImei().getDeviceInfo();
-      if (deviceInfo != null) {
-        GetStorage().write(DEVICE_ID, deviceInfo.deviceId);
-      }
-    }*/
-    //Get.offAll(() => const HomeScreen());
+
     try {
-      /* var uu = GetStorage().read("user");
-      print(uu);
-      var token = GetStorage().read("token");
-      User _user0 = User.fromJson(null, uu);
-      print(_user0);
-      user.value = _user0;
-      print(user.value!.roles);
-      //Get.find<CheckRouteController>().updatingRoute(1);
-      //Get.find<RouteController>().checkActiveRoute(1);
-      //Get.find<RouteController>().getCards();
-      getVehicle();
-
-      if (user.value!.roles!.contains('ROLE_DRIVER')) {
-        Get.find<CheckRouteController>().updatingRoute(1);
-        Get.offAll(() => const HomeDriverScreen(),
-            transition: AppUtils.pageTransition,
-            duration: Duration(milliseconds: AppUtils.timeTransition));
-      } else if (user.value!.roles!.contains('ROLE_CONVEYOR')) {
-        Get.find<RouteController>().checkActiveRoute(1);
-        Get.find<RouteController>().getCards();
-        Get.find<RouteController>().getTicketPrices();
-
-        Get.offAll(() => const HomeScreen(),
-            transition: AppUtils.pageTransition,
-            duration: Duration(milliseconds: AppUtils.timeTransition));
-      } else if (user.value!.roles!.contains('ROLE_RECHARGEUR')) {
-        Get.offAll(() => const RechargeScreen(),
-            transition: AppUtils.pageTransition,
-            duration: Duration(milliseconds: AppUtils.timeTransition));
-      } else {}*/
-
       Get.offAll(() => AppLifecycleDisplay(child: LoginScreen()),
           transition: AppUtils.pageTransition,
           duration: Duration(milliseconds: AppUtils.timeTransition));
-
-      /*Auth.refreshLogin(_user0.refresh_token!, _user0.email!).then((value) {
-        print('data here :  ${value.data.toString()}');
-
-        Get.closeAllSnackbars();
-        final encodedPayload = value.data['token'].split('.')[1];
-        final payloadData =
-            utf8.fuse(base64).decode(base64.normalize(encodedPayload));
-        //User _user = User.fromJson(null, jsonDecode(payloadData));
-        User _user = User.fromJson(null, value.data);
-        _user.token = value.data['token'];
-        _user.refresh_token = value.data['refresh_token'];
-        user.value = _user;
-        GetStorage().write("user", _user.toMap());
-        GetStorage().write("token", value.data['token']);
-        isLoggedIn.value = true;
-
-        if (GetStorage().read<bool>("isReset") == true) {
-          /*Get.offAll(() => const PassForgottenChangeView(),
-                transition: AppUtils.pageTransition,
-                duration: Duration(milliseconds: AppUtils.timeTransition));*/
-        } else {
-          Get.offAll(() => const HomeScreen(),
-              transition: AppUtils.pageTransition,
-              duration: Duration(milliseconds: AppUtils.timeTransition));
-        }
-      });*/
     } catch (_) {
       //printDebug("OUTER CATCH ERROR : ${_.toString()}");
       isLoggedIn.value = false;
@@ -477,8 +358,13 @@ class AuthController extends GetxController {
   void onInit() {
     // TODO: implement onInit
     super.onInit();
-    sessionToken = const Uuid().v4();
+    resetAuth();
     deviceInfo();
+    sendDataToAndroid();
+    //Get.delete<RouteController>();
+    //Get.delete<CheckRouteController>();
+    sessionToken = const Uuid().v4();
+
     _setMethodCallHandler();
     //getVehicle();
     delayIntroScreen();
@@ -486,17 +372,26 @@ class AuthController extends GetxController {
 
   getVehicle() async {
     print("get vehicle...");
-    VehicleApi.getVehicleByDevice().then((value) {
+    print(
+        "======= Getting Vehicle by DeviceID ${GetStorage().read(DEVICE_ID)} ======");
+    VehicleApi.getVehicleByDevice().then((value) async {
       print(value.data);
       if (value.data.length < 1) {
         popSnackError(message: "No Vehicle registered for this device");
         return;
       }
+      //var vList =  await Vehicle.vehiclesfromJson(value.data);
 
       var v = Vehicle.fromJson(value.data.first);
       vehicle.value = v;
       GetStorage().write(VEHICLE_KEY, v.toJson());
       Get.find<RouteController>().getTicketPrices();
+      Get.find<RouteController>().checkActiveRoute(v.id!);
+
+      Get.find<RouteController>().getTicketPrices();
+      Get.find<RouteController>().getPlaces(v.region!);
+      print(
+          "======= End Getting Vehicle by DeviceID ${GetStorage().read(DEVICE_ID)} Vehicle ${v.id} Region ${v.region}======");
     }).onError((dio.DioException error, stackTrace) {
       print("${error.response!.data}");
     });
@@ -563,6 +458,19 @@ class AuthController extends GetxController {
         }
       }
     });
+  }
+
+  static Future<void> sendDataToAndroid() async {
+    try {
+      await platform
+          .invokeMethod('sendData', {"message": "Hello from Flutter!"});
+    } on PlatformException catch (e) {
+      print("Failed to send data to Android: '${e.message}'.");
+    }
+  }
+
+  Future<void> sendDataToAndroidOut() async {
+    await sendDataToAndroid();
   }
 
   // upload to firebase storage

@@ -74,25 +74,32 @@ class LocationController extends GetxController {
   }
 
   listenLocationChange() async {
-    StreamSubscription<Position> positionStream =
-        Geolocator.getPositionStream(locationSettings: locationSettings)
-            .listen((Position? position) {
-      print(position == null
-          ? 'Unknown'
-          : 'update: ${position.latitude.toString()}, ${position.longitude.toString()}');
-      Map<String, dynamic> data = {
-        "currentLat": position!.latitude,
-        "currentLng": position.longitude
-      };
-      VehicleApi.putVehicle(data, Get.find<AuthController>().vehicle.value!.id!)
-          .then((value) {
-        print(value.data);
-        var v = Vehicle.fromJson(value.data);
-        GetStorage().write(VEHICLE_KEY, v.toJson());
-        Get.find<AuthController>().vehicle.value = v;
-      }).onError((DioException error, stackTrace) {
-        print("${error.response!.data}");
+    if (Get.find<AuthController>().user.value!.roles!.contains(CONVEYOR)) {
+      StreamSubscription<Position> positionStream =
+          Geolocator.getPositionStream(locationSettings: locationSettings)
+              .listen((Position? position) {
+        print(position == null
+            ? 'Unknown'
+            : '====== update: ${position.latitude.toString()}, ${position.longitude.toString()} ======');
+        Map<String, dynamic> data = {
+          "currentLat": position!.latitude,
+          "currentLng": position.longitude
+        };
+        if (Get.find<AuthController>().vehicle.value != null) {
+          VehicleApi.putVehicle(
+                  data, Get.find<AuthController>().vehicle.value!.id!)
+              .then((value) {
+            print(value.data);
+            var v = Vehicle.fromJson(value.data);
+            GetStorage().write(VEHICLE_KEY, v.toJson());
+            Get.find<AuthController>().vehicle.value = v;
+          }).onError((DioException error, stackTrace) {
+            print("${error.response!.data}");
+          });
+        } else {
+          print("====== Update Location: Vehicle is null =====");
+        }
       });
-    });
+    }
   }
 }

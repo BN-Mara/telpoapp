@@ -392,7 +392,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           disabledItemFn: (Place p) =>
                               p.name == routeController.toContrl.value,
                         ),
-                        items: routeController.places.value,
+                        items: routeController.departPlaces.value,
                         dropdownDecoratorProps: DropDownDecoratorProps(
                             dropdownSearchDecoration:
                                 //textInputDecoration("Depart", "", ""),
@@ -433,7 +433,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         disabledItemFn: (Place p) =>
                             p.name == routeController.fromContrl.value,
                       ),
-                      items: routeController.places.value,
+                      items: routeController.destPlaces.value,
                       dropdownDecoratorProps: const DropDownDecoratorProps(
                           dropdownSearchDecoration:
                               //textInputDecoration("Destination", "", ""),

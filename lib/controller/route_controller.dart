@@ -1,13 +1,16 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_beep/flutter_beep.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:intl/intl.dart';
 import 'package:just_audio/just_audio.dart';
+import 'package:latlong2/latlong.dart';
+//import 'package:nb_utils/nb_utils.dart';
 //import 'package:nb_utils/nb_utils.dart';
 import 'package:telpoapp/api/route.dart';
+import 'package:telpoapp/api/vehicle.dart';
 import 'package:telpoapp/controller/auth_controller.dart';
+import 'package:telpoapp/controller/check_route.dart';
 import 'package:telpoapp/controller/location_controller.dart';
 import 'package:telpoapp/model/card_paid.dart';
 import 'package:telpoapp/model/client_card.dart';
@@ -15,9 +18,11 @@ import 'package:telpoapp/model/itineraire.dart';
 import 'package:telpoapp/model/my_card_info.dart';
 import 'package:telpoapp/model/place.dart';
 import 'package:telpoapp/model/ticket_price.dart';
+import 'package:telpoapp/model/vehicle.dart';
 import 'package:telpoapp/res/colors.dart';
 import 'package:telpoapp/res/strings.dart';
 import 'package:telpoapp/screens/routesScreen.dart';
+import 'package:telpoapp/utils/utilities.dart';
 import 'package:telpoapp/widgets/sundry_components.dart';
 
 class RouteController extends GetxController {
@@ -62,29 +67,57 @@ class RouteController extends GetxController {
   void onInit() {
     // TODO: implement onInit
     super.onInit();
-    getPlaces();
+    //getPlaces();
     getCards();
+    initPlayer();
   }
 
   initPlayer() async {
-    await this.playerSuccess.setAsset('assets/images/valid.mp3');
-    await this.playerSuccess.setAsset('assets/images/invalid.mp3');
+    print("====== Initialize Bip Player ======");
+    await playerSuccess.setAsset('assets/images/valid.mp3');
+    await playerFail.setAsset('assets/images/invalid.mp3');
+    print("====== End Initialize Bip Player ======");
   }
 
   @override
   onReady() async {
-    getMyRoutes();
-    getPlaces();
-    getCards();
+    //getPlaces();
+    //getCards();
+  }
+  @override
+  onDispose() {
+    playerSuccess.dispose();
+    playerFail.dispose();
+    super.dispose();
   }
 
-  getPlaces() async {
+  getPlaces(String regionId) async {
     process_places.value = true;
+    print("======= Getting Places region ${regionId} ======");
     RouteApi.getPlaces().then((value) async {
       places.value = await Place.placesfromJson(value.data);
+      places.value =
+          places.value.where((element) => element.region == regionId).toList();
+
       destPlaces.value = places.value;
-      departPlaces.value = places.value;
-      print(places);
+
+      var cLoc = await Get.find<LocationController>().getCurrentPosition();
+
+      departPlaces.clear();
+      //departure places in 1km from current position
+      places.value.forEach((element) {
+        double d = getDistanceList(LatLng(cLoc.latitude, cLoc.longitude),
+            LatLng(element.latitude!, element.longitude!));
+        print(
+            "======= Distance between ${cLoc.latitude},${cLoc.longitude} and ${element.latitude!},${element.longitude!} is $d Km");
+        if (d <= AppUtils.distanceFromDeparture) {
+          print("====== Added ${element.name}");
+          departPlaces.value.add(element);
+        }
+      });
+
+      print(
+          "======= end Getting Places region $regionId :: ${places.length} ======");
       process_places.value = false;
     }).onError((DioException error, stackTrace) {
       print('error get Places: ${error.response!.data}');
@@ -95,7 +128,7 @@ class RouteController extends GetxController {
   }
 
   getTicketPrices() async {
-    print("getprices");
+    print("====== getting prices ======");
     //print(auth.vehicle.value);
     //print(auth.vehicle.value!.region!.replaceAll("/api/regions/", ""));
     print(auth.vehicle.value!.toJson());
@@ -104,11 +137,11 @@ class RouteController extends GetxController {
         .then((value) async {
       //ticketPrice.value = await TicketPrice.ticketsfromJson(value.data);
       ticketPrice.value = TicketPrice.fromJson(value.data);
-      Future.delayed(Duration(seconds: 10), getTicketPrices);
+      Future.delayed(Duration(seconds: 60), getTicketPrices);
     }).onError((DioException error, stackTrace) {
       print("getprices errror");
       print("${error.response!.data}");
-      Future.delayed(Duration(seconds: 10), getTicketPrices);
+      Future.delayed(Duration(seconds: 60), getTicketPrices);
     }).whenComplete(() {});
   }
 
@@ -117,19 +150,25 @@ class RouteController extends GetxController {
   }
 
   getCards() async {
-    print("loads card");
-    process_get_cards.value = true;
-    RouteApi.getCards().then((value) async {
-      cardList.value = await ClientCard.ClientCardsfromJson(value.data);
-      print("cardList: ${cardList.length}");
+    if (auth.user.value != null && auth.user.value!.roles!.contains(CONVEYOR)) {
+      print("===== loads cards =======");
+      process_get_cards.value = true;
+      RouteApi.getCards().then((value) async {
+        cardList.value = await ClientCard.ClientCardsfromJson(value.data);
 
-      process_get_cards.value = false;
-    }).onError((DioException error, stackTrace) {
-      print('error get cardList: ${error.response!.data}');
-      process_get_cards.value = false;
-    }).whenComplete(() {
-      process_get_cards.value = false;
-    });
+        process_get_cards.value = false;
+        print("===== End loads cards ${cardList.value.length} =======");
+        Future.delayed(Duration(seconds: 5), getCards);
+      }).onError((DioException error, stackTrace) {
+        print('====== error get cardList: ${error.response!.data} ======');
+        process_get_cards.value = false;
+        Future.delayed(Duration(seconds: 5), getCards);
+      }).whenComplete(() {
+        process_get_cards.value = false;
+      });
+    } else {
+      Future.delayed(Duration(seconds: 5), getCards);
+    }
   }
 
   setCurrentRoute() async {
@@ -140,7 +179,7 @@ class RouteController extends GetxController {
       return;
     }
     try {
-      print("new route");
+      print("====== new route ======");
       process_create_route.value = true;
       var pose = await locationController.getCurrentPosition();
       print("${pose}");
@@ -165,10 +204,12 @@ class RouteController extends GetxController {
       RouteApi.postCurrentRoute(itineraire.toJson()).then((value) {
         activeRoute.value = Itineraire.fromJson(value.data);
         process_create_route.value = false;
+        print(
+            "====== end new route activeRoute ${activeRoute.value!.id} ======");
         //start active route
       }).onError((DioException error, stackTrace) {
         process_create_route.value = false;
-        print("route:${error.response!.data}");
+        print("====== route:${error.response!.data} ======");
       }).whenComplete(() {
         process_create_route.value = false;
         update();
@@ -180,6 +221,7 @@ class RouteController extends GetxController {
   }
 
   endCurrentRoute() async {
+    print("====== ending route: ${activeRoute.value!.id} ======");
     process_route_end.value = true;
     var pose = await locationController.getCurrentPosition();
     activeRoute.value!.endLng = pose.longitude;
@@ -197,7 +239,9 @@ class RouteController extends GetxController {
       destPlaces.value = getPlaceByName(activeRoute.value!.destination!);
       activeRoute.value = null;
       process_route_end.value = false;
+      print("====== End ending route: ${activeRoute.value!.id} ======");
       clearForm();
+      currentCardPayList.value.clear();
     }).onError((DioException error, stackTrace) {
       print("update: ${error.response!.data}");
       process_route.value = false;
@@ -205,7 +249,11 @@ class RouteController extends GetxController {
   }
 
   List<Place> getPlaceByName(String name) {
-    return places.value.where((element) => element.name == name).toList();
+    if (places.value != null && places.value.length > 0) {
+      return places.value.where((element) => element.name == name).toList();
+    } else {
+      return [];
+    }
   }
 
   void addPassengers(String text) {
@@ -232,6 +280,7 @@ class RouteController extends GetxController {
   }
 
   getMyRoutes() async {
+    print("====== Getting My Routes ======");
     routesInfo.value = CloudStorageInfo(
         title: "Itineraires",
         totalStorage: "itineraires",
@@ -308,9 +357,11 @@ class RouteController extends GetxController {
                   ))),
         ],
       );
-
+      print(
+          "====== End Getting My Routes todayList ${todayList.value.length}======");
       process_route_list.value = false;
     }).onError((DioException error, stackTrace) {
+      print("====== Getting My Routes Error ======");
       if (error.response != null) {
         print('${error.response!.data}');
       }
@@ -350,25 +401,29 @@ class RouteController extends GetxController {
   }
 
   cardPay(String nfcUid) async {
+    print("====== ${nfcUid} ======");
+    print("====== ${cardList.length} ========");
+
     paying_process.value = true;
-    var cardPaid = currentCardPayList.value
-        .firstWhereOrNull((element) => element.uid == nfcUid);
-    if (cardPaid == null) {
+    /*var cardPaid = currentCardPayList.value
+        .firstWhereOrNull((element) => element.uid == nfcUid);*/
+    /*if (cardPaid == null) {
       currentCardPayList
           .add(CardPay(uid: nfcUid, time: DateTime.now(), count: 1));
     } else {
-      var dif = cardPaid.checkTime(DateTime.now());
+      //var dif = cardPaid.checkTime(DateTime.now());
       if (dif < 60) {
         popSnackWarning(
             title: "Information!",
             message: "Reesayez apres  ${(60 - dif)} secondes");
+        paying_process.value = false;
         return;
       } else {
         currentCardPayList.value
             .firstWhereOrNull((element) => element.uid == nfcUid)!
             .update();
       }
-    }
+    }*/
     Map<String, dynamic> card = {
       "uid": nfcUid,
       "amount": ticketPrice.value!.price!,
@@ -376,45 +431,61 @@ class RouteController extends GetxController {
     };
     var index = cardList.value.indexWhere((element) => element.uid == nfcUid);
     if (index > -1) {
+      if (cardList[index].isActive!) {
+        await playFailSound();
+        PaymentAlert("Erreur!", "Carte desactivee", Icons.cancel, errorColor);
+
+        // player.play();
+        paying_process.value = false;
+        auth.sendDataToAndroidOut();
+        return;
+      }
       var c = cardList[index].balance! - ticketPrice.value!.price!;
       if (cardList[index].uid == null) {
         //player2.setLoopMode(LoopMode.off);
-        PaymentAlert("Erreur!", "Carte invalide...", Icons.cancel, errorColor);
+        await playFailSound();
+        PaymentAlert(
+            "Erreur!", "Carte désactivée...", Icons.cancel, errorColor);
 
-        await playerFail.play();
         // player.play();
         paying_process.value = false;
+        auth.sendDataToAndroidOut();
 
         return;
       }
       if (c < 0) {
-        getCards();
+        //getCards();
+        await playFailSound();
 
         PaymentAlert(
             "Erreur!", "Balance insufisante...", Icons.cancel, errorColor);
 
-        playerFail.play();
-
         paying_process.value = false;
+        auth.sendDataToAndroidOut();
         return;
       }
       addPassengers("1");
       //player.setLoopMode(LoopMode.off);
       cardList[index].balance = c;
       cardList[index].updatedAt = DateTime.now().toIso8601String();
-
+      await playSuccessSound();
       PaymentAlert("Félicitations!", "Paiement accepté.", Icons.check_circle,
           successColor);
-      playerSuccess.play();
+
       RouteApi.postCardPay(card).then((value) async {
         //paying_process.value = false;
-        getCards();
+        //getCards();
+
+        auth.sendDataToAndroidOut();
+        paying_process.value = false;
+
         //addPassengers("1");
         //player.setLoopMode(LoopMode.off);
         //await player.setAsset('assets/images/valid.mp3');
         //player.play();
       }).onError((DioException error, stackTrace) async {
         paying_process.value = false;
+        auth.sendDataToAndroidOut();
         print("error: ${error.response!.data}");
         //To Do: Log error and Payment to File so that it will retry later,
         //player2.setLoopMode(LoopMode.off);
@@ -424,14 +495,30 @@ class RouteController extends GetxController {
         paying_process.value = false;
       });
     } else {
-      PaymentAlert("Erreur!", "Carte invalide...", Icons.cancel, errorColor);
-      var player = AudioPlayer();
-      await player.setAsset('assets/images/invalid.mp3');
-      player.play();
+      await playFailSound();
+      await PaymentAlert(
+          "Erreur!", "Carte invalide...", Icons.cancel, errorColor);
+      //getCards();
+
+      //auth.sendDataToAndroidOut();
       paying_process.value = false;
 
       return;
     }
+  }
+
+  Future<void> playSuccessSound() async {
+    await playerSuccess.play();
+    await playerSuccess.stop();
+    initPlayer();
+    //await playerSuccess.dispose();
+  }
+
+  Future<void> playFailSound() async {
+    await playerFail.play();
+    await playerFail.stop();
+    initPlayer();
+    //await playerFail.dispose();
   }
 
   clearForm() {
@@ -461,6 +548,13 @@ class RouteController extends GetxController {
         titleStyle: const TextStyle(color: primaryWhite));
     Future.delayed(Duration(seconds: 2), () {
       Get.back();
+      auth.sendDataToAndroidOut();
     });
+  }
+
+  double getDistanceList(LatLng currentPos, LatLng nearPos) {
+    var distance = new Distance();
+    var km = distance.as(LengthUnit.Kilometer, currentPos, nearPos);
+    return km;
   }
 }

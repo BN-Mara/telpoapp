@@ -97,8 +97,15 @@ class CheckRouteController extends GetxController {
 
   Future getData() async {
     if (currentRoute.value != null) {
+      if (routeContrller.places.value.length < 0) {
+        return;
+      }
       var or = routeContrller.getPlaceByName(currentRoute.value!.origine!);
       var ds = routeContrller.getPlaceByName(currentRoute.value!.destination!);
+      if (or.length < 1 || ds.length < 1) {
+        return;
+      }
+      print("==== current ori and desti ${or.length} ${ds.length} ====");
       RouteApi.getDataRoute(or.first, ds.first).then((value) {
         print("inside");
         print(value.data);

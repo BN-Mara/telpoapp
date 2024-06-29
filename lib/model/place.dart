@@ -1,11 +1,13 @@
 class Place {
+  String? region;
   String? name;
   double? latitude;
   double? longitude;
-  Place({this.name, this.latitude, this.longitude});
+  Place({this.name, this.latitude, this.longitude, this.region});
 
   factory Place.fromJson(Map<String, dynamic> json) {
     return Place(
+        region: "${json["region"]}".replaceAll("/api/regions/", ""),
         name: json['name'],
         latitude: json['latitude'],
         longitude: json['longitude']);

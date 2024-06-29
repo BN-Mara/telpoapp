@@ -53,9 +53,10 @@ dependencies:
   intl: ^0.18.1
   nfc_manager: ^3.3.0
   google_maps_flutter: ^2.5.0
-  flutter_beep: ^1.0.0
+  #flutter_beep: ^1.0.0
   just_audio: ^0.9.35
   device_info_plus: ^9.1.0
+  latlong2: ^0.9.1
   #hive: ^2.2.3
   #hive_flutter: ^1.1.0
   #path_provider: ^2.1.1
