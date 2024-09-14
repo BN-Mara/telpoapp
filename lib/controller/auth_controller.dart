@@ -55,7 +55,7 @@ class AuthController extends GetxController {
   deviceInfo() async {
     DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
     AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
-    var deviceIdentifier = '${androidInfo.device}:${androidInfo.id}';
+    var deviceIdentifier = '${androidInfo.serialNumber}';
     print(deviceIdentifier);
     GetStorage().write(DEVICE_ID, deviceIdentifier);
   }

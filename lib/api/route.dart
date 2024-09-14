@@ -35,7 +35,7 @@ class RouteApi {
     var token = GetStorage().read("token");
     AppUtils.http.headers['Authorization'] = "Bearer $token";
     return await DIO.get(
-      "${AppUtils.http.POST_ROUTE_URL}?vehicle=1&isActive=1",
+      "${AppUtils.http.POST_ROUTE_URL}?vehicle=$vehicle&isActive=1",
       options: Options(headers: AppUtils.http.headers),
     );
   }

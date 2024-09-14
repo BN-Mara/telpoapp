@@ -99,6 +99,8 @@ class RouteController extends GetxController {
       places.value =
           places.value.where((element) => element.region == regionId).toList();
 
+      destPlaces.value.clear();
+
       destPlaces.value = places.value;
 
       var cLoc = await Get.find<LocationController>().getCurrentPosition();
@@ -236,10 +238,10 @@ class RouteController extends GetxController {
     print(activeRoute.value!.toJson());
 
     RouteApi.putCurrentRoute(activeRoute.value!.toJson()).then((value) {
-      destPlaces.value = getPlaceByName(activeRoute.value!.destination!);
+      //destPlaces.value = getPlaceByName(activeRoute.value!.destination!);
       activeRoute.value = null;
       process_route_end.value = false;
-      print("====== End ending route: ${activeRoute.value!.id} ======");
+      print("====== End ending route: ${value.data} ======");
       clearForm();
       currentCardPayList.value.clear();
     }).onError((DioException error, stackTrace) {
@@ -327,7 +329,7 @@ class RouteController extends GetxController {
         if (element.driverPassengers != null) {
           todayPassengers.value =
               todayPassengers.value + element.driverPassengers!;
-          todayAmount.value =
+          todayAmount.value = todayAmount.value +
               (element.driverPassengers! * element.ticketPrice!);
         }
       });
@@ -431,7 +433,7 @@ class RouteController extends GetxController {
     };
     var index = cardList.value.indexWhere((element) => element.uid == nfcUid);
     if (index > -1) {
-      if (cardList[index].isActive!) {
+      if (!cardList[index].isActive!) {
         await playFailSound();
         PaymentAlert("Erreur!", "Carte desactivee", Icons.cancel, errorColor);
 
@@ -524,7 +526,10 @@ class RouteController extends GetxController {
   clearForm() {
     fromContrl.value = "";
     passangenrContrl.value.clear();
+    passangenrContrl.value.text = "";
+
     toContrl.value = "";
+    getPlaces(auth.vehicle.value!.region!);
   }
 
   PaymentAlert(String title, String message, IconData iconData, Color bgColor) {
