@@ -78,7 +78,7 @@ class FileInfoCard extends StatelessWidget {
                     "${f.format(info.numOfFiles)} ${info.totalStorage}",
                     style: Theme.of(context)
                         .textTheme
-                        .caption!
+                        .bodyLarge!
                         .copyWith(color: Colors.white70),
                   ),
                   Text(
@@ -86,7 +86,7 @@ class FileInfoCard extends StatelessWidget {
                     "Total",
                     style: Theme.of(context)
                         .textTheme
-                        .caption!
+                        .bodyMedium!
                         .copyWith(color: Colors.white),
                   ),
                 ],

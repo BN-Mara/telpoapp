@@ -53,8 +53,8 @@ popSnack(
         ? null
         : TextButton(
             style: TextButton.styleFrom(
-              primary: buttonColor,
-            ),
+                //primary: buttonColor,
+                backgroundColor: buttonColor),
             onPressed: () {
               Get.closeCurrentSnackbar();
               if (onMainTap != null) onMainTap();

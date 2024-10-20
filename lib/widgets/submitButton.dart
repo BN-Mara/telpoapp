@@ -27,7 +27,9 @@ class SubmitButton extends StatelessWidget {
         child: ElevatedButton(
           onPressed: onPressed,
           style: ElevatedButton.styleFrom(
-            primary: Colors.transparent,
+            //primary: Colors.transparent,
+            backgroundColor: Colors.transparent,
+
             elevation: 0.0,
             minimumSize: Size(MediaQuery.of(context).size.width, 100),
             // padding: EdgeInsets.symmetric(horizontal: 30),

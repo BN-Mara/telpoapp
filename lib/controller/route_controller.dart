@@ -97,7 +97,7 @@ class RouteController extends GetxController {
     RouteApi.getPlaces().then((value) async {
       places.value = await Place.placesfromJson(value.data);
       places.value =
-          places.value.where((element) => element.region == regionId).toList();
+          places.value.where((element) => element.line == regionId).toList();
 
       destPlaces.value.clear();
 
