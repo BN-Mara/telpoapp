@@ -7,6 +7,7 @@ import 'package:just_audio/just_audio.dart';
 import 'package:latlong2/latlong.dart';
 //import 'package:nb_utils/nb_utils.dart';
 //import 'package:nb_utils/nb_utils.dart';
+//import 'package:nb_utils/nb_utils.dart';
 import 'package:telpoapp/api/route.dart';
 import 'package:telpoapp/api/vehicle.dart';
 import 'package:telpoapp/controller/auth_controller.dart';
@@ -58,8 +59,8 @@ class RouteController extends GetxController {
 
   var cardList = <ClientCard>[].obs;
   var process_get_cards = false.obs;
-  var ticketPrices = <TicketPrice>[].obs;
-  var ticketPrice = Rxn<TicketPrice>();
+  //var ticketPrices = <TicketPrice>[].obs;
+  //var ticketPrice = Rxn<TicketPrice>();
   var playerSuccess = AudioPlayer();
   var playerFail = AudioPlayer();
   var currentCardPayList = <CardPay>[].obs;
@@ -136,8 +137,8 @@ class RouteController extends GetxController {
     //print(auth.vehicle.value);
     //print(auth.vehicle.value!.region!.replaceAll("/api/regions/", ""));
     print(auth.vehicle.value!.toJson());
-    RouteApi.getTicketPrice(
-            auth.vehicle.value!.line!.replaceAll("/api/lines/", ""))
+    /*RouteApi.getTicketPrice(
+            auth.vehicle.value!.region!.replaceAll("/api/regions/", ""))
         .then((value) async {
       //ticketPrice.value = await TicketPrice.ticketsfromJson(value.data);
       ticketPrice.value = TicketPrice.fromJson(value.data);
@@ -146,7 +147,7 @@ class RouteController extends GetxController {
       print("getprices errror");
       print("${error.response!.data}");
       Future.delayed(Duration(seconds: 60), getTicketPrices);
-    }).whenComplete(() {});
+    }).whenComplete(() {});*/
   }
 
   replaceRegion(String r) {
@@ -198,8 +199,10 @@ class RouteController extends GetxController {
           isActive: true,
           vehicle: '/api/vehicles/${auth.vehicle.value!.id!}',
           passengers: int.parse(passangenrContrl.value.text),
-          ticketPrice: ticketPrice.value!.price!.toDouble(),
-          status: ONGOING_STATE);
+          ticketPrice: auth.line.value!.ticketPrice,
+          status: ONGOING_STATE,
+          paymentType: auth.line.value!.paymentType,
+          line: "/api/lines/${auth.line.value!.id}");
       //print(itineraire.toJson());
       //activeRoute.value = itineraire;
       //process_create_route.value = false;
@@ -430,43 +433,57 @@ class RouteController extends GetxController {
     }*/
     Map<String, dynamic> card = {
       "uid": nfcUid,
-      "amount": ticketPrice.value!.price!,
+      "amount": auth.line.value!.ticketPrice ?? 0,
       "routeId": activeRoute.value!.id
     };
     var index = cardList.value.indexWhere((element) => element.uid == nfcUid);
+    var c = 0.0;
     if (index > -1) {
       if (!cardList[index].isActive!) {
         await playFailSound();
-        PaymentAlert("Erreur!", "Carte desactivee", Icons.cancel, errorColor);
+        PaymentAlert("Erreur!", "Carte désactivée", Icons.cancel, errorColor);
 
         // player.play();
         paying_process.value = false;
         auth.sendDataToAndroidOut();
         return;
       }
-      var c = cardList[index].balance! - ticketPrice.value!.price!;
-      if (cardList[index].uid == null) {
-        //player2.setLoopMode(LoopMode.off);
-        await playFailSound();
-        PaymentAlert(
-            "Erreur!", "Carte désactivée...", Icons.cancel, errorColor);
+      if (auth.line.value!.paymentType == PAYMENT_TYPE.last) {
+        if (!cardList[index].isSubscribed!) {
+          await playFailSound();
 
-        // player.play();
-        paying_process.value = false;
-        auth.sendDataToAndroidOut();
+          PaymentAlert("Erreur!", "Échec de la souscription...", Icons.cancel,
+              errorColor);
 
-        return;
-      }
-      if (c < 0) {
-        //getCards();
-        await playFailSound();
+          paying_process.value = false;
+          auth.sendDataToAndroidOut();
+          return;
+        }
+      } else {
+        var c = cardList[index].balance! - auth.line.value!.ticketPrice!;
+        if (cardList[index].uid == null) {
+          //player2.setLoopMode(LoopMode.off);
+          await playFailSound();
+          PaymentAlert(
+              "Erreur!", "Carte désactivée...", Icons.cancel, errorColor);
 
-        PaymentAlert(
-            "Erreur!", "Balance insufisante...", Icons.cancel, errorColor);
+          // player.play();
+          paying_process.value = false;
+          auth.sendDataToAndroidOut();
 
-        paying_process.value = false;
-        auth.sendDataToAndroidOut();
-        return;
+          return;
+        }
+        if (c < 0) {
+          //getCards();
+          await playFailSound();
+
+          PaymentAlert(
+              "Erreur!", "Balance insufisante...", Icons.cancel, errorColor);
+
+          paying_process.value = false;
+          auth.sendDataToAndroidOut();
+          return;
+        }
       }
       addPassengers("1");
       //player.setLoopMode(LoopMode.off);

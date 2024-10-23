@@ -30,6 +30,7 @@ import '../api/auth.dart';
 import '../model/user.dart';
 import '../utils/utilities.dart';
 import '../widgets/sundry_components.dart';
+import '../model/line.dart';
 
 class AuthController extends GetxController {
   late final sessionToken;
@@ -49,6 +50,7 @@ class AuthController extends GetxController {
   var codeValidated = false.obs;
   var temp_user = Rxn<User>();
   var vehicle = Rxn<Vehicle>();
+  var line = Rxn<Line>();
   var eventChannel = const EventChannel('platform_channel_events/nfcsession');
   static const platform = MethodChannel('platform_channel_events/nfcsession');
 
@@ -243,8 +245,11 @@ class AuthController extends GetxController {
               vehicle.value = v2;
               GetStorage().write(DEVICE_ID, v2.deviceID);
               GetStorage().write(VEHICLE_KEY, v2.toJson());
-              Get.find<RouteController>().getPlaces(v2.line!);
-              Get.find<RouteController>().getTicketPrices();
+              var line2 = Line.fromJson(value.data['line']);
+              line.value = line2;
+              GetStorage().write(LINE_KEY, line2.toJson());
+              Get.find<RouteController>().getPlaces("${line2.id}");
+              //Get.find<RouteController>().getTicketPrices();
               Get.find<CheckRouteController>().updatingRoute(v2.id!);
 
               print("===== Go to Page ======");
@@ -384,12 +389,17 @@ class AuthController extends GetxController {
 
       var v = Vehicle.fromJson(value.data.first);
       vehicle.value = v;
+
       GetStorage().write(VEHICLE_KEY, v.toJson());
-      Get.find<RouteController>().getTicketPrices();
+      var l = Line.fromJson(value.data['line']);
+      line.value = l;
+      GetStorage().write(LINE_KEY, l.toJson());
+
+      //Get.find<RouteController>().getTicketPrices();
       Get.find<RouteController>().checkActiveRoute(v.id!);
 
-      Get.find<RouteController>().getTicketPrices();
-      Get.find<RouteController>().getPlaces(v.line!);
+      //Get.find<RouteController>().getTicketPrices();
+      Get.find<RouteController>().getPlaces("${l.id}");
       print(
           "======= End Getting Vehicle by DeviceID ${GetStorage().read(DEVICE_ID)} Vehicle ${v.id} Region ${v.line}======");
     }).onError((dio.DioException error, stackTrace) {

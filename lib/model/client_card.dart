@@ -4,7 +4,18 @@ class ClientCard {
   double? balance;
   String? updatedAt;
   bool? isActive;
-  ClientCard({this.id, this.uid, this.balance, this.updatedAt, this.isActive});
+  String? subscriptionFromDate;
+  String? subscriptionEndDate;
+  bool? isSubscribed;
+  ClientCard(
+      {this.id,
+      this.uid,
+      this.balance,
+      this.updatedAt,
+      this.isActive,
+      this.subscriptionFromDate,
+      this.subscriptionEndDate,
+      this.isSubscribed});
 
   factory ClientCard.fromJson(Map<String, dynamic> json) {
     return ClientCard(
@@ -12,7 +23,10 @@ class ClientCard {
         uid: json['uid'],
         balance: json['balance'],
         updatedAt: json['updatedAt'],
-        isActive: json['isActive']);
+        isActive: json['isActive'],
+        subscriptionFromDate: json['subscriptionFromDate'],
+        subscriptionEndDate: json['subscriptionEndDate'],
+        isSubscribed: json['isSubscribed']);
   }
 
   Map<String, dynamic> toJson() {
@@ -21,7 +35,9 @@ class ClientCard {
       "uid": uid,
       "balance": balance,
       "updatedAt": updatedAt,
-      "isActive": isActive
+      "isActive": isActive,
+      'subscriptionFromDate': subscriptionFromDate,
+      'subscriptionEndDate': subscriptionEndDate,
     };
   }
 
