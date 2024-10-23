@@ -1,6 +1,6 @@
 class Vehicle {
   int? id;
-  String? region;
+  String? line;
   String? deviceID;
   double? currentLat;
   double? currentLng;
@@ -11,7 +11,7 @@ class Vehicle {
       this.name,
       this.matricule,
       this.deviceID,
-      this.region,
+      this.line,
       this.currentLat,
       this.currentLng});
 
@@ -22,7 +22,7 @@ class Vehicle {
         matricule: json['matricule'],
         currentLat: json['currentLat'],
         currentLng: json['currentLng'],
-        region: json.containsKey("region")
+        line: json.containsKey("region")
             ? "${json['region']}".replaceAll("/api/regions/", "")
             : "",
         deviceID: json['deviceID']);
@@ -35,7 +35,7 @@ class Vehicle {
       "matricule": matricule,
       "currentLat": currentLat,
       "currentLng": currentLng,
-      "region": region,
+      "region": line,
       "deviceID": deviceID
     };
   }

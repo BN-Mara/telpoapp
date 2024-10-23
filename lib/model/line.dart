@@ -1,25 +1,45 @@
 class Line {
   int? id;
   String? name;
+  String? description;
   String? region;
+  String? paymentType;
+  double? ticketPrice;
+  String? enterprise;
 
-  Line({this.id, this.name, this.region});
+  Line({
+    this.id,
+    this.name,
+    this.description,
+    this.region,
+    this.paymentType,
+    this.ticketPrice,
+    this.enterprise,
+  });
 
-  // Factory method to create a Line instance from a JSON object
+  // Manual fromJson method
   factory Line.fromJson(Map<String, dynamic> json) {
     return Line(
       id: json['id'] as int?,
       name: json['name'] as String?,
+      description: json['description'] as String?,
       region: json['region'] as String?,
+      paymentType: json['paymentType'] as String?,
+      ticketPrice: (json['ticketPrice'] as num?)?.toDouble(),
+      enterprise: json['enterprise'] as String?,
     );
   }
 
-  // Method to convert a Line instance into a JSON object
+  // Manual toJson method
   Map<String, dynamic> toJson() {
     return {
       'id': id,
       'name': name,
+      'description': description,
       'region': region,
+      'paymentType': paymentType,
+      'ticketPrice': ticketPrice,
+      'enterprise': enterprise,
     };
   }
 }

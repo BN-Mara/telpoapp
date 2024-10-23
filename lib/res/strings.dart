@@ -15,3 +15,4 @@ const DRIVER = 'ROLE_DRIVER';
 const IN_PROGRESS = 'En cours...';
 const NOT_ALLOWED =
     "Utilisateur non autorisé, veuillez contacter l\'administrateur.";
+const PAYMENT_TYPE = ["DEDUCTED", "SUBSCRIPTION"];

@@ -243,7 +243,7 @@ class AuthController extends GetxController {
               vehicle.value = v2;
               GetStorage().write(DEVICE_ID, v2.deviceID);
               GetStorage().write(VEHICLE_KEY, v2.toJson());
-              Get.find<RouteController>().getPlaces(v2.region!);
+              Get.find<RouteController>().getPlaces(v2.line!);
               Get.find<RouteController>().getTicketPrices();
               Get.find<CheckRouteController>().updatingRoute(v2.id!);
 
@@ -389,9 +389,9 @@ class AuthController extends GetxController {
       Get.find<RouteController>().checkActiveRoute(v.id!);
 
       Get.find<RouteController>().getTicketPrices();
-      Get.find<RouteController>().getPlaces(v.region!);
+      Get.find<RouteController>().getPlaces(v.line!);
       print(
-          "======= End Getting Vehicle by DeviceID ${GetStorage().read(DEVICE_ID)} Vehicle ${v.id} Region ${v.region}======");
+          "======= End Getting Vehicle by DeviceID ${GetStorage().read(DEVICE_ID)} Vehicle ${v.id} Region ${v.line}======");
     }).onError((dio.DioException error, stackTrace) {
       print("${error.response!.data}");
     });

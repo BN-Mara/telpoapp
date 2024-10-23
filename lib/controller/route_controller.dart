@@ -15,6 +15,7 @@ import 'package:telpoapp/controller/location_controller.dart';
 import 'package:telpoapp/model/card_paid.dart';
 import 'package:telpoapp/model/client_card.dart';
 import 'package:telpoapp/model/itineraire.dart';
+import 'package:telpoapp/model/line.dart';
 import 'package:telpoapp/model/my_card_info.dart';
 import 'package:telpoapp/model/place.dart';
 import 'package:telpoapp/model/ticket_price.dart';
@@ -62,6 +63,7 @@ class RouteController extends GetxController {
   var playerSuccess = AudioPlayer();
   var playerFail = AudioPlayer();
   var currentCardPayList = <CardPay>[].obs;
+  var line = Rxn<Line>();
 
   @override
   void onInit() {
@@ -135,7 +137,7 @@ class RouteController extends GetxController {
     //print(auth.vehicle.value!.region!.replaceAll("/api/regions/", ""));
     print(auth.vehicle.value!.toJson());
     RouteApi.getTicketPrice(
-            auth.vehicle.value!.region!.replaceAll("/api/regions/", ""))
+            auth.vehicle.value!.line!.replaceAll("/api/lines/", ""))
         .then((value) async {
       //ticketPrice.value = await TicketPrice.ticketsfromJson(value.data);
       ticketPrice.value = TicketPrice.fromJson(value.data);
@@ -529,7 +531,7 @@ class RouteController extends GetxController {
     passangenrContrl.value.text = "";
 
     toContrl.value = "";
-    getPlaces(auth.vehicle.value!.region!);
+    getPlaces(auth.vehicle.value!.line!);
   }
 
   PaymentAlert(String title, String message, IconData iconData, Color bgColor) {
