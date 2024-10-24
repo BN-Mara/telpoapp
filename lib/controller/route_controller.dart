@@ -97,39 +97,41 @@ class RouteController extends GetxController {
   getPlaces(String regionId) async {
     process_places.value = true;
     print("======= Getting Places region ${regionId} ======");
-    RouteApi.getPlaces().then((value) async {
-      places.value = await Place.placesfromJson(value.data);
-      places.value =
-          places.value.where((element) => element.line == regionId).toList();
+    Place.placesfromJson(GetStorage().read(PLACES_KEY));
+    //RouteApi.getPlaces().then((value) async {
+    places.value = await Place.placesfromJson(GetStorage()
+        .read(PLACES_KEY)); //await Place.placesfromJson(value.data);
+    places.value =
+        places.value.where((element) => element.line == regionId).toList();
 
-      destPlaces.value.clear();
+    destPlaces.value.clear();
 
-      destPlaces.value = places.value;
+    destPlaces.value = places.value;
 
-      var cLoc = await Get.find<LocationController>().getCurrentPosition();
+    var cLoc = await Get.find<LocationController>().getCurrentPosition();
 
-      departPlaces.clear();
-      //departure places in 1km from current position
-      places.value.forEach((element) {
-        double d = getDistanceList(LatLng(cLoc.latitude, cLoc.longitude),
-            LatLng(element.latitude!, element.longitude!));
-        print(
-            "======= Distance between ${cLoc.latitude},${cLoc.longitude} and ${element.latitude!},${element.longitude!} is $d Km");
-        if (d <= AppUtils.distanceFromDeparture) {
-          print("====== Added ${element.name}");
-          departPlaces.value.add(element);
-        }
-      });
-
+    departPlaces.clear();
+    //departure places in 1km from current position
+    places.value.forEach((element) {
+      double d = getDistanceList(LatLng(cLoc.latitude, cLoc.longitude),
+          LatLng(element.latitude!, element.longitude!));
       print(
-          "======= end Getting Places region $regionId :: ${places.length} ======");
-      process_places.value = false;
-    }).onError((DioException error, stackTrace) {
-      print('error get Places: ${error.response!.data}');
-      process_places.value = false;
-    }).whenComplete(() {
-      process_places.value = false;
+          "======= Distance between ${cLoc.latitude},${cLoc.longitude} and ${element.latitude!},${element.longitude!} is $d Km");
+      if (d <= AppUtils.distanceFromDeparture) {
+        print("====== Added ${element.name}");
+        departPlaces.value.add(element);
+      }
     });
+
+    print(
+        "======= end Getting Places region $regionId :: ${places.length} ======");
+    process_places.value = false;
+    //}).onError((DioException error, stackTrace) {
+    // print('error get Places: ${error.response!.data}');
+    // process_places.value = false;
+    //}).whenComplete(() {
+    // process_places.value = false;
+    //});
   }
 
   getTicketPrices() async {

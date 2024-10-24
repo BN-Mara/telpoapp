@@ -25,4 +25,8 @@ class Stop {
       'line': line,
     };
   }
+
+  static Future<List<Stop>> stopsfromJson(List<dynamic> data) async {
+    return data.map((element) => Stop.fromJson(element)).toList();
+  }
 }

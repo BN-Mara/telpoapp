@@ -95,8 +95,9 @@ class _Http {
   String ALERT_URL = ACCOUNT_URL + "api/alerts";
   String ALERT_URL_RESUME(String id) => ACCOUNT_URL + "/api/alert/resume/$id";
   String Vehicle_URL = ACCOUNT_URL + "api/vehicles";
-  String Vehicle_URL_ID(String id) => ACCOUNT_URL + "api/vehicles/$id";
-  String VEHICLE_BY_DEVICE_ID(String id) => Vehicle_URL + "?deviceID=$id";
+  String Vehicle_URL_ID(String id) => ACCOUNT_URL + "api/v1/vehicle/$id";
+  String VEHICLE_BY_DEVICE_ID(String id) =>
+      Vehicle_URL + "api/v1/vehicle/by-device/$id";
   String VEHICLE_UPDATE_URL(int id) => "$Vehicle_URL/$id";
   String VEHICLE_TRACK_UPDATE_URL(int id) =>
       ACCOUNT_URL + "api/vehicle/tracker/$id";

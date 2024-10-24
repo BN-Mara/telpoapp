@@ -1,8 +1,8 @@
 const APP_NAME = "TransCar";
-const LOCAL_URL = "";
+const LOCAL_URL = "http://192.168.58.42:8000/";
 const REMOTE_URL = "https://always-on-machine.taila58706.ts.net/";
 /*"http://100.101.157.77:8000/";*/
-const BASE_URL = REMOTE_URL;
+const BASE_URL = LOCAL_URL;
 
 const ACCOUNT_URL = "${BASE_URL}";
 const DEVICE_ID = 'deviceID';
@@ -17,3 +17,5 @@ const NOT_ALLOWED =
     "Utilisateur non autorisé, veuillez contacter l\'administrateur.";
 const LINE_KEY = "LINE";
 const PAYMENT_TYPE = ["DEDUCTED", "SUBSCRIPTION"];
+const PLACES_KEY = "PLACES";
+const STOPS_KEY = "STOPS";

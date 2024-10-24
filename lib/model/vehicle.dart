@@ -22,8 +22,8 @@ class Vehicle {
         matricule: json['matricule'],
         currentLat: json['currentLat'],
         currentLng: json['currentLng'],
-        line: json.containsKey("region")
-            ? "${json['region']}".replaceAll("/api/regions/", "")
+        line: json.containsKey("line")
+            ? "${json['line']}".replaceAll("/api/lines/", "")
             : "",
         deviceID: json['deviceID']);
   }
@@ -35,7 +35,7 @@ class Vehicle {
       "matricule": matricule,
       "currentLat": currentLat,
       "currentLng": currentLng,
-      "region": line,
+      "line": line,
       "deviceID": deviceID
     };
   }

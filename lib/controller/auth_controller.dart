@@ -11,6 +11,8 @@ import 'package:telpoapp/api/vehicle.dart';
 import 'package:telpoapp/controller/check_route.dart';
 import 'package:telpoapp/controller/recharge_controller.dart';
 import 'package:telpoapp/controller/route_controller.dart';
+import 'package:telpoapp/model/place.dart';
+import 'package:telpoapp/model/stop.dart';
 import 'package:telpoapp/model/vehicle.dart';
 import 'package:telpoapp/res/colors.dart';
 import 'package:telpoapp/res/strings.dart';
@@ -248,6 +250,12 @@ class AuthController extends GetxController {
               var line2 = Line.fromJson(value.data['line']);
               line.value = line2;
               GetStorage().write(LINE_KEY, line2.toJson());
+              var s = Stop.stopsfromJson(value.data['line']['stops']);
+              print(s);
+              GetStorage().write(STOPS_KEY, value.data['line']['stops']);
+              var p = Place.placesfromJson(value.data['line']['places']);
+              print(p);
+              GetStorage().write(PLACES_KEY, value.data['line']['places']);
               Get.find<RouteController>().getPlaces("${line2.id}");
               //Get.find<RouteController>().getTicketPrices();
               Get.find<CheckRouteController>().updatingRoute(v2.id!);
@@ -394,6 +402,12 @@ class AuthController extends GetxController {
       var l = Line.fromJson(value.data['line']);
       line.value = l;
       GetStorage().write(LINE_KEY, l.toJson());
+      var s = Stop.stopsfromJson(value.data['line']['stops']);
+      print(s);
+      GetStorage().write(STOPS_KEY, value.data['line']['stops']);
+      var p = Place.placesfromJson(value.data['line']['places']);
+      print(p);
+      GetStorage().write(PLACES_KEY, value.data['line']['places']);
 
       //Get.find<RouteController>().getTicketPrices();
       Get.find<RouteController>().checkActiveRoute(v.id!);
