@@ -15,6 +15,7 @@ import 'package:sidebarx/sidebarx.dart';
 import 'package:telpoapp/res/colors.dart' as res;
 import 'package:telpoapp/res/strings.dart';
 import 'package:telpoapp/screens/dashboardScreen.dart';
+import 'package:telpoapp/screens/homeScreen.dart';
 import 'package:telpoapp/screens/routesScreen.dart';
 //import 'package:telpoapp/widgets/line.dart';
 import 'package:telpoapp/widgets/submitButton.dart';
@@ -367,16 +368,55 @@ class _HomeDriverScreenState extends State<HomeDriverScreen> {
 }
 
 class ExampleSidebarX extends StatelessWidget {
-  const ExampleSidebarX({
+  ExampleSidebarX({
     Key? key,
     required SidebarXController controller,
   })  : _controller = controller,
         super(key: key);
 
   final SidebarXController _controller;
+  var auth = Get.find<AuthController>();
 
   @override
   Widget build(BuildContext context) {
+    String home = auth.user.value!.roles!.contains(DRIVER) &&
+            auth.user.value!.roles!.contains(CONVEYOR)
+        ? "Conducteur"
+        : "Accueil";
+    var sideItems = <SidebarXItem>[];
+    if (auth.user.value!.roles!.contains(CONVEYOR)) {
+      sideItems.addAll([
+        SidebarXItem(
+          icon: Icons.home,
+          label: 'Accueil',
+          onTap: () {
+            Get.back();
+            Get.to(() => const HomeScreen());
+          },
+        )
+      ]);
+    }
+    if (auth.user.value!.roles!.contains(DRIVER)) {
+      sideItems.addAll([
+        SidebarXItem(
+          icon: Icons.home,
+          label: home,
+          onTap: () {
+            Get.back();
+            Get.to(() => const HomeDriverScreen());
+          },
+        ),
+        SidebarXItem(
+          icon: Icons.home,
+          label: 'Dashboard',
+          onTap: () {
+            Get.back();
+            Get.to(() => const DashboardScreen());
+          },
+        )
+      ]);
+    }
+
     return SidebarX(
       controller: _controller,
       theme: SidebarXTheme(

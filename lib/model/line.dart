@@ -23,10 +23,10 @@ class Line {
       id: json['id'] as int?,
       name: json['name'] as String?,
       description: json['description'] as String?,
-      region: json['region'] as String?,
+      region: "${json['region']}",
       paymentType: json['paymentType'] as String?,
       ticketPrice: (json['ticketPrice'] as num?)?.toDouble(),
-      enterprise: json['enterprise'] as String?,
+      enterprise: "${json['enterprise']}",
     );
   }
 

@@ -97,12 +97,15 @@ class RouteController extends GetxController {
   getPlaces(String regionId) async {
     process_places.value = true;
     print("======= Getting Places region ${regionId} ======");
-    Place.placesfromJson(GetStorage().read(PLACES_KEY));
+    print(GetStorage().read(PLACES_KEY));
+    //Place.placesfromJson(GetStorage().read(PLACES_KEY));
     //RouteApi.getPlaces().then((value) async {
-    places.value = await Place.placesfromJson(GetStorage()
-        .read(PLACES_KEY)); //await Place.placesfromJson(value.data);
-    places.value =
-        places.value.where((element) => element.line == regionId).toList();
+    places.value = await Place.placesfromJson(GetStorage().read(PLACES_KEY));
+    print("=== places: ${places.value.length}");
+
+    //await Place.placesfromJson(value.data);
+    /*places.value =
+        places.value.where((element) => element.line == regionId).toList();*/
 
     destPlaces.value.clear();
 
@@ -122,9 +125,10 @@ class RouteController extends GetxController {
         departPlaces.value.add(element);
       }
     });
-
+    print("controller destPlaces:${destPlaces.value.length}");
+    print("controller departPlaces:${departPlaces.value.length}");
     print(
-        "======= end Getting Places region $regionId :: ${places.length} ======");
+        "======= end Getting Places line $regionId :: ${places.length} ======");
     process_places.value = false;
     //}).onError((DioException error, stackTrace) {
     // print('error get Places: ${error.response!.data}');

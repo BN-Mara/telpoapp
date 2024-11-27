@@ -53,6 +53,8 @@ class AuthController extends GetxController {
   var temp_user = Rxn<User>();
   var vehicle = Rxn<Vehicle>();
   var line = Rxn<Line>();
+  var changeURLCtr = TextEditingController().obs;
+
   var eventChannel = const EventChannel('platform_channel_events/nfcsession');
   static const platform = MethodChannel('platform_channel_events/nfcsession');
 
@@ -190,7 +192,7 @@ class AuthController extends GetxController {
           return;
         }
         var rls = payLoadDecoded['roles'];
-        var uroles = List<String>.from(rls);
+        var uroles = List<String>.from(rls.values);
         if (uroles.isEmpty) {
           popSnackError(message: NOT_ALLOWED);
           sendDataToAndroid();
@@ -230,52 +232,39 @@ class AuthController extends GetxController {
           GetStorage().write("refreshToken", value.data['refresh_token']);
           print("saved user");
           print(GetStorage().read("user"));
+          Get.put(RouteController());
+          Get.put(CheckRouteController());
 
           //Get.find<RouteController>().getTicketPrices();
           if (user.value!.roles!.contains(DRIVER)) {
-            Get.put(RouteController());
-            Get.put(CheckRouteController());
             print("==== Driver connected =======");
             print("====== User vehicle ${value.data['vehicle']} ======");
-            var v = Vehicle.fromJson(value.data['vehicle']);
 
-            vehicle.value = v;
+            getVehicle(value);
 
-            VehicleApi.getVehicleById("${v.id}").then((value) {
-              print("====== Vehicle ==> ${value.data} ======");
-              var v2 = Vehicle.fromJson(value.data);
-              vehicle.value = v2;
-              GetStorage().write(DEVICE_ID, v2.deviceID);
-              GetStorage().write(VEHICLE_KEY, v2.toJson());
-              var line2 = Line.fromJson(value.data['line']);
-              line.value = line2;
-              GetStorage().write(LINE_KEY, line2.toJson());
-              var s = Stop.stopsfromJson(value.data['line']['stops']);
-              print(s);
-              GetStorage().write(STOPS_KEY, value.data['line']['stops']);
-              var p = Place.placesfromJson(value.data['line']['places']);
-              print(p);
-              GetStorage().write(PLACES_KEY, value.data['line']['places']);
-              Get.find<RouteController>().getPlaces("${line2.id}");
-              //Get.find<RouteController>().getTicketPrices();
-              Get.find<CheckRouteController>().updatingRoute(v2.id!);
+            //vehicle.value = v;
 
-              print("===== Go to Page ======");
+            //VehicleApi.getVehicleById("${v.id}").then((value) {
+            //print("====== Vehicle ==> ${value.data} ======");
 
-              Get.offAll(
-                  () => const AppLifecycleDisplay(child: HomeDriverScreen()),
-                  transition: AppUtils.pageTransition,
-                  duration: Duration(milliseconds: AppUtils.timeTransition));
-            }).onError((DioException error, stackTrace) {
+            //Get.find<RouteController>().getTicketPrices();
+            //Get.find<CheckRouteController>().updatingRoute(v2.id!);
+
+            print("===== Go to Page ======");
+
+            Get.offAll(
+                () => const AppLifecycleDisplay(child: HomeDriverScreen()),
+                transition: AppUtils.pageTransition,
+                duration: Duration(milliseconds: AppUtils.timeTransition));
+            //}
+            /*).onError((DioException error, stackTrace) {
               print("====== Error load vehicle ======");
               print(error.response!.data);
-            });
+            });*/
             //
           } else if (user.value!.roles!.contains(CONVEYOR)) {
-            Get.put(RouteController());
-            Get.put(CheckRouteController());
-            getVehicle();
-            Get.find<RouteController>().getMyRoutes();
+            getVehicle(value);
+            //Get.find<RouteController>().getMyRoutes();
             //Get.find<RouteController>().getCards();
 
             Get.offAll(() => const AppLifecycleDisplay(child: HomeScreen()),
@@ -335,14 +324,12 @@ class AuthController extends GetxController {
     NfcManager.instance.startSession(
       onDiscovered: (NfcTag tag) async {
         // Do something with an NfcTag instance.
+        print("nfc descovered!");
         if (user.value == null) {
           print("user is null");
           loginWithNfc(nfcId(tag));
         } else {
-          print("listened");
-          if (user.value!.roles!.contains("ROLE_RECHARGEUR")) {
-            Get.find<RechargeController>().process(nfcId(tag));
-          } else if (user.value!.roles!.contains("ROLE_CONVEYOR")) {
+          if (user.value!.roles!.contains(CONVEYOR)) {
             Get.find<RouteController>().cardPay(nfcId(tag));
           }
         }
@@ -377,17 +364,42 @@ class AuthController extends GetxController {
     //Get.delete<RouteController>();
     //Get.delete<CheckRouteController>();
     sessionToken = const Uuid().v4();
+    //changeURLCtr.value.value = GetStorage().read(REMOTE_URL_KEY);
 
     _setMethodCallHandler();
     //getVehicle();
     delayIntroScreen();
   }
 
-  getVehicle() async {
+  getVehicle(dio.Response<dynamic> value) {
     print("get vehicle...");
     print(
-        "======= Getting Vehicle by DeviceID ${GetStorage().read(DEVICE_ID)} ======");
-    VehicleApi.getVehicleByDevice().then((value) async {
+        "======= Getting Vehicle by DeviceID ${value.data["vehicle"]} ======");
+    var v = Vehicle.fromJson(value.data['vehicle']);
+    vehicle.value = v;
+    print(v.toJson());
+
+    GetStorage().write(VEHICLE_KEY, v.toJson());
+    var l = Line.fromJson(value.data['vehicle']['lineData']);
+    line.value = l;
+    print(l.toJson());
+    GetStorage().write(LINE_KEY, l.toJson());
+    var s = Stop.stopsfromJson(value.data['vehicle']['lineData']['stops']);
+    print(s);
+    GetStorage().write(STOPS_KEY, value.data['vehicle']['lineData']['stops']);
+    var p = Place.placesfromJson(value.data['vehicle']['lineData']['places']);
+    print(p.toString());
+    GetStorage().write(PLACES_KEY, value.data['vehicle']['lineData']['places']);
+
+    //Get.find<RouteController>().getTicketPrices();
+    Get.find<RouteController>().checkActiveRoute(v.id!);
+    if (user.value!.roles!.contains(DRIVER)) {
+      Get.find<CheckRouteController>().updatingRoute(v.id!);
+    }
+
+    //Get.find<RouteController>().getTicketPrices();
+    Get.find<RouteController>().getPlaces("${l.id}");
+    /* VehicleApi.getVehicleByDevice().then((value) async {
       print(value.data);
       if (value.data.length < 1) {
         popSnackError(message: "No Vehicle registered for this device");
@@ -395,30 +407,12 @@ class AuthController extends GetxController {
       }
       //var vList =  await Vehicle.vehiclesfromJson(value.data);
 
-      var v = Vehicle.fromJson(value.data.first);
-      vehicle.value = v;
-
-      GetStorage().write(VEHICLE_KEY, v.toJson());
-      var l = Line.fromJson(value.data['line']);
-      line.value = l;
-      GetStorage().write(LINE_KEY, l.toJson());
-      var s = Stop.stopsfromJson(value.data['line']['stops']);
-      print(s);
-      GetStorage().write(STOPS_KEY, value.data['line']['stops']);
-      var p = Place.placesfromJson(value.data['line']['places']);
-      print(p);
-      GetStorage().write(PLACES_KEY, value.data['line']['places']);
-
-      //Get.find<RouteController>().getTicketPrices();
-      Get.find<RouteController>().checkActiveRoute(v.id!);
-
-      //Get.find<RouteController>().getTicketPrices();
-      Get.find<RouteController>().getPlaces("${l.id}");
+      
       print(
           "======= End Getting Vehicle by DeviceID ${GetStorage().read(DEVICE_ID)} Vehicle ${v.id} Region ${v.line}======");
     }).onError((dio.DioException error, stackTrace) {
       print("${error.response!.data}");
-    });
+    });*/
   }
 
   Future<bool> refreshToken() async {

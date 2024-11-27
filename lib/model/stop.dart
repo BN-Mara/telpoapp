@@ -12,7 +12,7 @@ class Stop {
       id: json['id'] as int?,
       lat: json['lat'] as double?,
       lon: json['lon'] as double?,
-      line: json['line'] as String?,
+      line: "${json['line']}",
     );
   }
 

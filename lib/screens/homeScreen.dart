@@ -13,6 +13,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:sidebarx/sidebarx.dart';
 import 'package:telpoapp/res/colors.dart' as res;
+import 'package:telpoapp/res/strings.dart';
 import 'package:telpoapp/screens/dashboardScreen.dart';
 import 'package:telpoapp/screens/homeDriverScreen.dart';
 import 'package:telpoapp/screens/routesScreen.dart';
@@ -37,7 +38,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   final GlobalKey<ScaffoldState> _key = GlobalKey();
   final GlobalKey<FormState> _formkey = GlobalKey();
-  final routeController = Get.put(RouteController());
+  final routeController = Get.find<RouteController>();
   final _controller = SidebarXController(selectedIndex: 0, extended: true);
 
   final authController = Get.find<AuthController>();
@@ -53,6 +54,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    print(routeController.departPlaces.length);
+    print(routeController.destPlaces.length);
+
     return SafeArea(
       child: Scaffold(
         key: _key,
@@ -367,6 +371,8 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget routeAdd() {
+    print(routeController.departPlaces.length);
+    print("=== dest: ${routeController.destPlaces.value}");
     return Container(child: Obx(() {
       return Container(
           child: Form(
@@ -611,16 +617,54 @@ class _HomeScreenState extends State<HomeScreen> {
 }
 
 class ExampleSidebarX extends StatelessWidget {
-  const ExampleSidebarX({
+  ExampleSidebarX({
     Key? key,
     required SidebarXController controller,
   })  : _controller = controller,
         super(key: key);
 
   final SidebarXController _controller;
+  var auth = Get.find<AuthController>();
 
   @override
   Widget build(BuildContext context) {
+    String home = auth.user.value!.roles!.contains(DRIVER) &&
+            auth.user.value!.roles!.contains(CONVEYOR)
+        ? "Conducteur"
+        : "Accueil";
+    var sideItems = <SidebarXItem>[];
+    if (auth.user.value!.roles!.contains(CONVEYOR)) {
+      sideItems.addAll([
+        SidebarXItem(
+          icon: Icons.home,
+          label: 'Accueil',
+          onTap: () {
+            Get.back();
+            Get.to(() => const HomeScreen());
+          },
+        )
+      ]);
+    }
+    if (auth.user.value!.roles!.contains(DRIVER)) {
+      sideItems.addAll([
+        SidebarXItem(
+          icon: Icons.home,
+          label: home,
+          onTap: () {
+            Get.back();
+            Get.to(() => const HomeDriverScreen());
+          },
+        ),
+        SidebarXItem(
+          icon: Icons.home,
+          label: 'Dashboard',
+          onTap: () {
+            Get.back();
+            Get.to(() => const DashboardScreen());
+          },
+        )
+      ]);
+    }
     return SidebarX(
       controller: _controller,
       theme: SidebarXTheme(

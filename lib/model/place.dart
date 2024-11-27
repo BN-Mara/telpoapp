@@ -7,7 +7,7 @@ class Place {
 
   factory Place.fromJson(Map<String, dynamic> json) {
     return Place(
-        line: "${json["region"]}".replaceAll("/api/regions/", ""),
+        line: "${json["line"]}",
         name: json['name'],
         latitude: json['latitude'],
         longitude: json['longitude']);

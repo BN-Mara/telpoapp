@@ -4,6 +4,7 @@ import 'package:nb_utils/nb_utils.dart';
 import 'package:telpoapp/controller/auth_controller.dart';
 import 'package:telpoapp/res/colors.dart';
 import 'package:telpoapp/res/strings.dart';
+import 'package:telpoapp/widgets/change_ip.dart';
 import 'package:telpoapp/widgets/loadingIndicator.dart';
 import 'package:telpoapp/widgets/submitButton.dart';
 import 'package:flutter/material.dart';
@@ -52,6 +53,11 @@ class _SearchScreenState extends State<LoginScreen> {
             ),
             textAlign: TextAlign.left,
           ),
+          /*IconButton(
+              onPressed: () {
+                Get.bottomSheet(const ChangeIpForm());
+              },
+              icon: Icon(Icons.settings))*/
         ],
       ),
       const SizedBox(

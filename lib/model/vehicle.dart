@@ -20,10 +20,10 @@ class Vehicle {
         id: json['id'],
         name: json['name'],
         matricule: json['matricule'],
-        currentLat: json['currentLat'],
-        currentLng: json['currentLng'],
+        currentLat: json['currentLat']?.toDouble() ?? 0.0,
+        currentLng: json['currentLng']?.toDouble() ?? 0.0,
         line: json.containsKey("line")
-            ? "${json['line']}".replaceAll("/api/lines/", "")
+            ? "${json['line']}" //.replaceAll("/api/lines/", "")
             : "",
         deviceID: json['deviceID']);
   }
