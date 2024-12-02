@@ -1,7 +1,7 @@
 import 'package:get_storage/get_storage.dart';
 
 const APP_NAME = "TransCar";
-var LOCAL_URL = "https://always-on-machine.taila58706.ts.net/";
+var LOCAL_URL = "https://transcar.cd/";
 const REMOTE_URL = "https://always-on-machine.taila58706.ts.net/";
 /*"http://100.101.157.77:8000/";*/
 var BASE_URL = LOCAL_URL;

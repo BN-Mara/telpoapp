@@ -9,6 +9,7 @@ import 'package:nfc_manager/nfc_manager.dart';
 import 'package:nfc_manager/platform_tags.dart';
 import 'package:telpoapp/api/vehicle.dart';
 import 'package:telpoapp/controller/check_route.dart';
+import 'package:telpoapp/controller/location_controller.dart';
 import 'package:telpoapp/controller/recharge_controller.dart';
 import 'package:telpoapp/controller/route_controller.dart';
 import 'package:telpoapp/model/place.dart';
@@ -192,7 +193,13 @@ class AuthController extends GetxController {
           return;
         }
         var rls = payLoadDecoded['roles'];
-        var uroles = List<String>.from(rls.values);
+        var uroles = <String>[];
+        if (rls is Map) {
+          uroles = List<String>.from(rls.values);
+        } else {
+          uroles = List<String>.from(rls);
+        }
+
         if (uroles.isEmpty) {
           popSnackError(message: NOT_ALLOWED);
           sendDataToAndroid();

@@ -38,7 +38,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   final GlobalKey<ScaffoldState> _key = GlobalKey();
   final GlobalKey<FormState> _formkey = GlobalKey();
-  final routeController = Get.find<RouteController>();
+  final routeController = Get.put(RouteController());
   final _controller = SidebarXController(selectedIndex: 0, extended: true);
 
   final authController = Get.find<AuthController>();
@@ -666,74 +666,76 @@ class ExampleSidebarX extends StatelessWidget {
       ]);
     }
     return SidebarX(
-      controller: _controller,
-      theme: SidebarXTheme(
-        margin: const EdgeInsets.all(10),
-        decoration: BoxDecoration(
-          color: secondaryColor,
-          borderRadius: BorderRadius.circular(20),
-        ),
-        hoverColor: primaryWhite,
-        textStyle: TextStyle(
-            color: primaryColor.withOpacity(0.7), fontWeight: FontWeight.bold),
-        selectedTextStyle:
-            const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-        itemTextPadding: const EdgeInsets.only(left: 30),
-        selectedItemTextPadding: const EdgeInsets.only(left: 30),
-        itemDecoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: secondaryColor),
-        ),
-        selectedItemDecoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(10),
-          border: Border.all(
-            color: primaryColor.withOpacity(0.37),
+        controller: _controller,
+        theme: SidebarXTheme(
+          margin: const EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            color: secondaryColor,
+            borderRadius: BorderRadius.circular(20),
           ),
-          gradient: const LinearGradient(
-            colors: [primaryColor, secondaryColor],
+          hoverColor: primaryWhite,
+          textStyle: TextStyle(
+              color: primaryColor.withOpacity(0.7),
+              fontWeight: FontWeight.bold),
+          selectedTextStyle:
+              const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          itemTextPadding: const EdgeInsets.only(left: 30),
+          selectedItemTextPadding: const EdgeInsets.only(left: 30),
+          itemDecoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(color: secondaryColor),
           ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.28),
-              blurRadius: 30,
-            )
-          ],
-        ),
-        iconTheme: IconThemeData(
-          color: primaryColor.withOpacity(0.7),
-          size: 20,
-        ),
-        selectedIconTheme: const IconThemeData(
-          color: Colors.white,
-          size: 20,
-        ),
-      ),
-      extendedTheme: SidebarXTheme(
-        width: MediaQuery.of(context).size.width / 1.5,
-        decoration: const BoxDecoration(
-          color: secondaryColor,
-        ),
-      ),
-      footerDivider: divider,
-      headerBuilder: (context, extended) {
-        return const SizedBox(
-          height: 100,
-          child: Padding(
-            padding: EdgeInsets.all(16.0),
-            child: Stack(children: [
-              Icon(Icons.person, size: 60),
-              Positioned(
-                  top: 40,
-                  left: 30,
-                  child: Icon(
-                    Icons.circle,
-                    color: greenColor,
-                  ))
-            ]), //Image.asset('assets/images/africell_logo.png'),
+          selectedItemDecoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(
+              color: primaryColor.withOpacity(0.37),
+            ),
+            gradient: const LinearGradient(
+              colors: [primaryColor, secondaryColor],
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.28),
+                blurRadius: 30,
+              )
+            ],
           ),
-        );
-      },
-      items: [
+          iconTheme: IconThemeData(
+            color: primaryColor.withOpacity(0.7),
+            size: 20,
+          ),
+          selectedIconTheme: const IconThemeData(
+            color: Colors.white,
+            size: 20,
+          ),
+        ),
+        extendedTheme: SidebarXTheme(
+          width: MediaQuery.of(context).size.width / 1.5,
+          decoration: const BoxDecoration(
+            color: secondaryColor,
+          ),
+        ),
+        footerDivider: divider,
+        headerBuilder: (context, extended) {
+          return const SizedBox(
+            height: 100,
+            child: Padding(
+              padding: EdgeInsets.all(16.0),
+              child: Stack(children: [
+                Icon(Icons.person, size: 60),
+                Positioned(
+                    top: 40,
+                    left: 30,
+                    child: Icon(
+                      Icons.circle,
+                      color: greenColor,
+                    ))
+              ]), //Image.asset('assets/images/africell_logo.png'),
+            ),
+          );
+        },
+        items:
+            sideItems /*[
         SidebarXItem(
           icon: Icons.home,
           label: 'Home',
@@ -741,7 +743,7 @@ class ExampleSidebarX extends StatelessWidget {
             Get.back();
             Get.to(() => const HomeScreen());
           },
-        ),
+        ),*/
         /*SidebarXItem(
           icon: Icons.home,
           label: 'Dashboard',
@@ -779,8 +781,8 @@ class ExampleSidebarX extends StatelessWidget {
           label: 'Flutter',
         ),
         */
-      ],
-    );
+        //],
+        );
   }
 }
 
