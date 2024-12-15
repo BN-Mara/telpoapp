@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:ffi';
 import 'dart:io';
 
 import 'package:device_info_plus/device_info_plus.dart';
@@ -242,6 +243,8 @@ class AuthController extends GetxController {
           Get.put(RouteController());
           Get.put(CheckRouteController());
 
+          Get.put(LocationController());
+
           //Get.find<RouteController>().getTicketPrices();
           if (user.value!.roles!.contains(DRIVER)) {
             print("==== Driver connected =======");
@@ -346,11 +349,41 @@ class AuthController extends GetxController {
     );
 
     try {
-      Get.offAll(() => AppLifecycleDisplay(child: LoginScreen()),
+      var uu = GetStorage().read("user");
+      var token = GetStorage().read("token");
+      print(uu);
+      User _user = User.fromJson(null, uu);
+      print(_user);
+      user.value = _user;
+      print(user.value!.roles);
+      var v = GetStorage().read<Vehicle>(VEHICLE_KEY);
+      print(vehicle.value!.toJson());
+      var l = GetStorage().read<Line>(LINE_KEY);
+      print(line.value!.toJson());
+      Get.put(RouteController());
+      Get.put(CheckRouteController());
+      Get.put(LocationController());
+      print(user.value!.roles!.contains(DRIVER));
+      if (user.value!.roles!.contains(DRIVER)) {
+        Get.offAll(() => const AppLifecycleDisplay(child: HomeDriverScreen()),
+            transition: AppUtils.pageTransition,
+            duration: Duration(milliseconds: AppUtils.timeTransition));
+      } else if (user.value!.roles!.contains(CONVEYOR)) {
+        Get.offAll(() => const AppLifecycleDisplay(child: HomeScreen()),
+            transition: AppUtils.pageTransition,
+            duration: Duration(milliseconds: AppUtils.timeTransition));
+      } else {
+        popSnackError(message: NOT_ALLOWED);
+        return;
+      }
+
+      isLoggedIn.value = true;
+      //refreshToken();
+      Get.offAll(() => const AppLifecycleDisplay(child: HomeScreen()),
           transition: AppUtils.pageTransition,
           duration: Duration(milliseconds: AppUtils.timeTransition));
     } catch (_) {
-      //printDebug("OUTER CATCH ERROR : ${_.toString()}");
+      printDebug("OUTER CATCH ERROR : ${_.toString()}");
       isLoggedIn.value = false;
       Get.offAll(() => AppLifecycleDisplay(child: LoginScreen()),
           transition: AppUtils.pageTransition,
@@ -365,7 +398,7 @@ class AuthController extends GetxController {
   void onInit() {
     // TODO: implement onInit
     super.onInit();
-    resetAuth();
+    //resetAuth();
     deviceInfo();
     sendDataToAndroid();
     //Get.delete<RouteController>();
@@ -486,16 +519,16 @@ class AuthController extends GetxController {
   }
 
   static Future<void> sendDataToAndroid() async {
-    try {
+    /*try {
       await platform
           .invokeMethod('sendData', {"message": "Hello from Flutter!"});
     } on PlatformException catch (e) {
       print("Failed to send data to Android: '${e.message}'.");
-    }
+    }*/
   }
 
   Future<void> sendDataToAndroidOut() async {
-    await sendDataToAndroid();
+    //await sendDataToAndroid();
   }
 
   // upload to firebase storage

@@ -74,7 +74,8 @@ class LocationController extends GetxController {
   }
 
   listenLocationChange() async {
-    if (Get.find<AuthController>().user.value!.roles!.contains(CONVEYOR)) {
+    if (Get.find<AuthController>().user.value != null &&
+        Get.find<AuthController>().user.value!.roles!.contains(CONVEYOR)) {
       StreamSubscription<Position> positionStream =
           Geolocator.getPositionStream(locationSettings: locationSettings)
               .listen((Position? position) {
