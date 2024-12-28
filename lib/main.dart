@@ -35,6 +35,7 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
 
   AuthController pagesController = Get.put(AuthController());
+  LocationController loc = Get.put(LocationController());
 
   //RouteController routeController = Get.put(RouteController());
   //CheckRouteController ckController = Get.put(CheckRouteController());

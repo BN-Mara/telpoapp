@@ -356,13 +356,16 @@ class AuthController extends GetxController {
       print(_user);
       user.value = _user;
       print(user.value!.roles);
-      var v = GetStorage().read<Vehicle>(VEHICLE_KEY);
+      var v = Vehicle.fromJson(GetStorage().read(VEHICLE_KEY));
+      vehicle.value = v;
       print(vehicle.value!.toJson());
-      var l = GetStorage().read<Line>(LINE_KEY);
+      var l = Line.fromJson(GetStorage().read(LINE_KEY));
+      line.value = l;
       print(line.value!.toJson());
       Get.put(RouteController());
       Get.put(CheckRouteController());
-      Get.put(LocationController());
+      var lc = Get.put(LocationController());
+      lc.listenLocationChange();
       print(user.value!.roles!.contains(DRIVER));
       if (user.value!.roles!.contains(DRIVER)) {
         Get.offAll(() => const AppLifecycleDisplay(child: HomeDriverScreen()),
@@ -431,7 +434,7 @@ class AuthController extends GetxController {
     print(p.toString());
     GetStorage().write(PLACES_KEY, value.data['vehicle']['lineData']['places']);
 
-    //Get.find<RouteController>().getTicketPrices();
+    Get.find<LocationController>().listenLocationChange();
     Get.find<RouteController>().checkActiveRoute(v.id!);
     if (user.value!.roles!.contains(DRIVER)) {
       Get.find<CheckRouteController>().updatingRoute(v.id!);

@@ -112,6 +112,7 @@ class RouteController extends GetxController {
     destPlaces.value = places.value;
 
     var cLoc = await Get.find<LocationController>().getCurrentPosition();
+    print("${cLoc.altitude}-${cLoc.longitude}");
 
     departPlaces.clear();
     //departure places in 1km from current position

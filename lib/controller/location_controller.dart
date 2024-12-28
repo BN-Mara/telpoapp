@@ -22,6 +22,7 @@ class LocationController extends GetxController {
   void onInit() {
     // TODO: implement onInit
     super.onInit();
+    print("Initiate Loc controller");
     _handleLocationPermission();
     listenLocationChange();
     /*stream.takeWhile((_) => true).forEach((element) async {
@@ -74,8 +75,10 @@ class LocationController extends GetxController {
   }
 
   listenLocationChange() async {
+    print("Inside listen Location");
     if (Get.find<AuthController>().user.value != null &&
         Get.find<AuthController>().user.value!.roles!.contains(CONVEYOR)) {
+      print("=== Location check ===");
       StreamSubscription<Position> positionStream =
           Geolocator.getPositionStream(locationSettings: locationSettings)
               .listen((Position? position) {
