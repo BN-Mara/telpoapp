@@ -522,16 +522,16 @@ class AuthController extends GetxController {
   }
 
   static Future<void> sendDataToAndroid() async {
-    /*try {
+    try {
       await platform
           .invokeMethod('sendData', {"message": "Hello from Flutter!"});
     } on PlatformException catch (e) {
       print("Failed to send data to Android: '${e.message}'.");
-    }*/
+    }
   }
 
   Future<void> sendDataToAndroidOut() async {
-    //await sendDataToAndroid();
+    await sendDataToAndroid();
   }
 
   // upload to firebase storage
