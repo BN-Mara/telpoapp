@@ -15,7 +15,7 @@ class LocationController extends GetxController {
   var isEnabled = false.obs;
   final LocationSettings locationSettings = const LocationSettings(
     accuracy: LocationAccuracy.best,
-    distanceFilter: 0,
+    distanceFilter: 5,
   );
 
   @override

@@ -121,10 +121,10 @@ class RouteController extends GetxController {
           LatLng(element.latitude!, element.longitude!));
       print(
           "======= Distance between ${cLoc.latitude},${cLoc.longitude} and ${element.latitude!},${element.longitude!} is $d Km");
-      if (d <= AppUtils.distanceFromDeparture) {
-        print("====== Added ${element.name}");
-        departPlaces.value.add(element);
-      }
+      //if (d <= AppUtils.distanceFromDeparture) {
+      print("====== Added ${element.name}");
+      departPlaces.value.add(element);
+      //}
     });
     print("controller destPlaces:${destPlaces.value.length}");
     print("controller departPlaces:${departPlaces.value.length}");
@@ -162,11 +162,19 @@ class RouteController extends GetxController {
   }
 
   getCards() async {
-    if (auth.user.value != null && auth.user.value!.roles!.contains(CONVEYOR)) {
+    if (auth.user.value != null &&
+        auth.user.value!.roles!.contains(CONVEYOR) &&
+        auth.line.value != null) {
       print("===== loads cards =======");
+      print(auth.line.value!.toJson());
       process_get_cards.value = true;
+
       RouteApi.getCards().then((value) async {
-        cardList.value = await ClientCard.ClientCardsfromJson(value.data);
+        var list = await ClientCard.ClientCardsfromJson(value.data);
+        cardList.value = list
+            .where((element) =>
+                element.liness!.contains("/api/lines/${auth.line.value!.id}"))
+            .toList();
 
         process_get_cards.value = false;
         print("===== End loads cards ${cardList.value.length} =======");
@@ -179,7 +187,7 @@ class RouteController extends GetxController {
         process_get_cards.value = false;
       });
     } else {
-      Future.delayed(Duration(seconds: 5), getCards);
+      Future.delayed(Duration(seconds: 10), getCards);
     }
   }
 
@@ -417,27 +425,13 @@ class RouteController extends GetxController {
   cardPay(String nfcUid) async {
     print("====== ${nfcUid} ======");
     print("====== ${cardList.length} ========");
+    nfcUid = nfcUid.replaceAll(":", "");
+    print("====${nfcUid}=====");
 
     paying_process.value = true;
-    /*var cardPaid = currentCardPayList.value
-        .firstWhereOrNull((element) => element.uid == nfcUid);*/
-    /*if (cardPaid == null) {
-      currentCardPayList
-          .add(CardPay(uid: nfcUid, time: DateTime.now(), count: 1));
-    } else {
-      //var dif = cardPaid.checkTime(DateTime.now());
-      if (dif < 60) {
-        popSnackWarning(
-            title: "Information!",
-            message: "Reesayez apres  ${(60 - dif)} secondes");
-        paying_process.value = false;
-        return;
-      } else {
-        currentCardPayList.value
-            .firstWhereOrNull((element) => element.uid == nfcUid)!
-            .update();
-      }
-    }*/
+    var cardPaid = currentCardPayList.value
+        .firstWhereOrNull((element) => element.uid == nfcUid);
+
     Map<String, dynamic> card = {
       "uid": nfcUid,
       "amount": auth.line.value!.ticketPrice ?? 0,
@@ -456,7 +450,8 @@ class RouteController extends GetxController {
         return;
       }
       if (auth.line.value!.paymentType == PAYMENT_TYPE.last) {
-        if (!cardList[index].isSubscribed!) {
+        print("is Subscribed: ${cardList[index].isSubscribed}");
+        if (!cardList[index].isSubscriptionValid()) {
           await playFailSound();
 
           PaymentAlert("Erreur!", "Échec de la souscription...", Icons.cancel,
@@ -465,6 +460,28 @@ class RouteController extends GetxController {
           paying_process.value = false;
           auth.sendDataToAndroidOut();
           return;
+        }
+        if (cardPaid == null) {
+          currentCardPayList
+              .add(CardPay(uid: nfcUid, time: DateTime.now(), count: 1));
+        } else {
+          await playFailSound();
+          PaymentAlert(
+              "Erreur!", "Carte déjà acceptée !", Icons.cancel, errorColor);
+          paying_process.value = false;
+          return;
+          //var dif = cardPaid.checkTime(DateTime.now());
+          /*if (dif < 60) {
+        popSnackWarning(
+            title: "Information!",
+            message: "Reesayez apres  ${(60 - dif)} secondes");
+        paying_process.value = false;
+        return;
+      } else {
+        currentCardPayList.value
+            .firstWhereOrNull((element) => element.uid == nfcUid)!
+            .update();
+      }*/
         }
       } else {
         var c = cardList[index].balance! - auth.line.value!.ticketPrice!;
@@ -491,10 +508,12 @@ class RouteController extends GetxController {
           auth.sendDataToAndroidOut();
           return;
         }
+        cardList[index].balance = c;
       }
+
       addPassengers("1");
       //player.setLoopMode(LoopMode.off);
-      cardList[index].balance = c;
+
       cardList[index].updatedAt = DateTime.now().toIso8601String();
       await playSuccessSound();
       PaymentAlert("Félicitations!", "Paiement accepté.", Icons.check_circle,
@@ -555,6 +574,7 @@ class RouteController extends GetxController {
     passangenrContrl.value.text = "";
 
     toContrl.value = "";
+    currentCardPayList.value.clear();
     getPlaces(auth.vehicle.value!.line!);
   }
 
